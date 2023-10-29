@@ -1,4 +1,9 @@
-Hi ![](https://user-images.githubusercontent.com/18350557/176309783-0785949b-9127-417c-8b55-ab5a4333674e.gif)My name is Ilia lataria====================================================================================================================================Software Engineer | Java------------------------* 🌍  I'm based in Georgia* ✉️  You can contact me at [latariailia6@gmail.com](mailto:latariailia6@gmail.com)* 🤝  I'm open to collaborating on interesting projects* ⚡  I am doctor
+Hi (https://user-images.githubusercontent.com/18350557/176309783-0785949b-9127-417c-8b55-ab5a4333674e.gif)
+My name is Ilia latariaSoftware Engineer | Java
+🌍  I'm based in Georgia
+✉️  You can contact me at [latariailia6@gmail.com](mailto:latariailia6@gmail.com)*
+🤝  I'm open to collaborating on interesting projects
+⚡  I am doctor
 
 <a href="https://www.github.com/StarFleet1334" target="_blank" rel="noreferrer"><img
 src="https://img.shields.io/github/followers/StarFleet1334?logo=github&style=for-the-badge&color=0891b2&labelColor=0f172a" /></a>
