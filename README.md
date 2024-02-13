@@ -1,9 +1,6 @@
 <h1 align="center">Hi 👋, I'm Ilia</h1>
 <h3 align="center">A passionate software engineer. Currently Working as Test/Performance automation engineer</h3>
 
-<p align="left"> <img src="https://komarev.com/ghpvc/?username=starfleet1334&label=Profile%20views&color=0e75b6&style=flat" alt="starfleet1334" /> </p>
-
-<p align="left"> <a href="https://github.com/ryo-ma/github-profile-trophy"><img src="https://github-profile-trophy.vercel.app/?username=starfleet1334" alt="starfleet1334" /></a> </p>
 
 - 🌱 I’m currently learning **Golang**
 
