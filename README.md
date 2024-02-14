@@ -4,7 +4,7 @@
 
 - 🌱 I’m currently learning **Golang**
 
-- 💬 Ask me about **Java,Test Automation,Mobile Automation,scala and etc**
+- 💬 Ask me about **Java,Test Automation,scala and etc**
 
 - 📫 How to reach me **latariailia6@gmail.com**
 
