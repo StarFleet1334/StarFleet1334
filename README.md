@@ -1,16 +1,17 @@
 <h1 align="center">Hi 👋, I'm Ilia</h1>
+<h3 align="center">A passionate software engineer. Currently Working as Test/Performance automation engineer</h3>
 <div>
   <img src="https://camo.githubusercontent.com/f9335aa28d3f63716e98595e8b177a79ac9cbcdd7856386973ea2b52958c973c/68747470733a2f2f6d656469612e67697068792e636f6d2f6d656469612f5662746339564735314e747a5431516e76312f67697068792e676966" alt="https://camo.githubusercontent.com/f9335aa28d3f63716e98595e8b177a79ac9cbcdd7856386973ea2b52958c973c/68747470733a2f2f6d656469612e67697068792e636f6d2f6d656469612f5662746339564735314e747a5431516e76312f67697068792e676966" class="transparent">
-  - 🌱 I’m currently learning **Golang**
+</div>
+
+
+- 🌱 I’m currently learning **Golang**
 
 - 💬 Ask me about **Java,Test Automation,scala and etc**
 
 - 📫 How to reach me **latariailia6@gmail.com**
 
 - ⚡ Fun fact **I bench 120kg**  
-</div>
-<h3 align="center">A passionate software engineer. Currently Working as Test/Performance automation engineer</h3>
-
 
 <h3 align="left">Connect with me:</h3>
 <p align="left">
