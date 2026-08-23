@@ -1,0 +1,229 @@
+{
+  "_comment": "The only hand-edited data behind THE HOLD. Edited by hand, or by .github/apply.py after an approved survey. build.py refuses to run without it.",
+  "ignore": [
+    "Project-A",
+    "StarFleet1334",
+    "System",
+    "TT",
+    "Task2",
+    "Test",
+    "partTwo"
+  ],
+  "private": [
+    "AETHER"
+  ],
+  "decks": [
+    {
+      "key": "engineering",
+      "icon": "⚭",
+      "title": "ENGINEERING DECK",
+      "blurb": "distributed Java, events, contracts",
+      "rows": [
+        {
+          "repos": [
+            "ecommerce-inventory-platform"
+          ],
+          "desc": "the largest of them — inventory, end to end"
+        },
+        {
+          "repos": [
+            "KafkaInMicroService"
+          ],
+          "desc": "Kafka wired through a service boundary"
+        },
+        {
+          "repos": [
+            "KafkaRatingService"
+          ],
+          "desc": "ratings as an event stream"
+        },
+        {
+          "repos": [
+            "CQRS"
+          ],
+          "desc": "command/query separation, taken seriously"
+        },
+        {
+          "repos": [
+            "MicroServicesGEureka"
+          ],
+          "desc": "discovery with Eureka"
+        },
+        {
+          "repos": [
+            "Spring-Boot-MicroService"
+          ],
+          "desc": "the baseline the rest grew out of"
+        },
+        {
+          "repos": [
+            "Tolerant-Streams"
+          ],
+          "desc": "streams that survive bad input"
+        },
+        {
+          "repos": [
+            "SCom",
+            "2Com"
+          ],
+          "desc": "service-to-service, the plumbing of it"
+        }
+      ]
+    },
+    {
+      "key": "science",
+      "icon": "⌖",
+      "title": "SCIENCE DECK",
+      "blurb": "proving it works before claiming it does",
+      "rows": [
+        {
+          "repos": [
+            "WireMock-Demo",
+            "WireMock-Api",
+            "WireMock-Data"
+          ],
+          "desc": "three angles on stubbing a dependency you don't own"
+        },
+        {
+          "repos": [
+            "GatlingReport"
+          ],
+          "desc": "load, measured rather than assumed"
+        },
+        {
+          "repos": [
+            "newrelic-lighthouse-demo"
+          ],
+          "desc": "observability meeting a front-end budget"
+        },
+        {
+          "repos": [
+            "CarinaProject"
+          ],
+          "desc": "UI automation"
+        },
+        {
+          "repos": [
+            "Demo-TestService"
+          ],
+          "desc": "the scaffold under all of it"
+        }
+      ]
+    },
+    {
+      "key": "propulsion",
+      "icon": "⚙",
+      "title": "PROPULSION",
+      "blurb": "Go, and things that had to be fast or small",
+      "rows": [
+        {
+          "repos": [
+            "Channels-and-Routines-GoLang-"
+          ],
+          "desc": "concurrency from first principles"
+        },
+        {
+          "repos": [
+            "TransitionToGo"
+          ],
+          "desc": "the crossing from JVM to Go, written down"
+        },
+        {
+          "repos": [
+            "WebScrapper_Go",
+            "FileFinder"
+          ],
+          "desc": "small tools that do one thing"
+        },
+        {
+          "repos": [
+            "GoUI",
+            "Animated-Ball",
+            "Clock"
+          ],
+          "desc": "Go with a face on it"
+        },
+        {
+          "repos": [
+            "Little-Game-in-GoLang",
+            "cards"
+          ],
+          "desc": "the fun ones"
+        }
+      ]
+    },
+    {
+      "key": "bridge",
+      "icon": "◈",
+      "title": "THE BRIDGE",
+      "blurb": "things people actually touch",
+      "rows": [
+        {
+          "repos": [
+            "AETHER"
+          ],
+          "desc": "gesture · face · voice workspace — {aether_lines} lines"
+        },
+        {
+          "repos": [
+            "QuiziGeneratorWebExtension"
+          ],
+          "desc": "turns the page you're reading into a quiz"
+        },
+        {
+          "repos": [
+            "RepositoryAnalyzer"
+          ],
+          "desc": "points a lens at a codebase and reports back"
+        },
+        {
+          "repos": [
+            "GymCRM-System",
+            "GymApplication"
+          ],
+          "desc": "one real domain, modelled twice"
+        },
+        {
+          "repos": [
+            "Chess",
+            "steganography"
+          ],
+          "desc": "rules, and hiding things inside pictures"
+        },
+        {
+          "repos": [
+            "Chat-Sytem-",
+            "Java-Chat-App"
+          ],
+          "desc": "sockets, in two languages"
+        }
+      ]
+    },
+    {
+      "key": "academy",
+      "icon": "⌂",
+      "title": "THE ACADEMY",
+      "blurb": "repos written to be read by someone else",
+      "rows": [
+        {
+          "repos": [
+            "Ocaml-For-Begginer-Students-Edition-"
+          ],
+          "desc": "functional programming for people meeting it first"
+        },
+        {
+          "repos": [
+            "Java-For-Students-Advanced-"
+          ],
+          "desc": "the second pass, where it gets interesting"
+        },
+        {
+          "repos": [
+            "duckietown-lx"
+          ],
+          "desc": "autonomous driving exercises, on very small robots"
+        }
+      ]
+    }
+  ]
+}

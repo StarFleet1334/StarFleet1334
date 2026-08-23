@@ -9,9 +9,13 @@ README.md            generated — do not edit
 PROCESS.md           the mechanism, end to end
 README.tpl.md        the prose. Edit this.
 manifest.json        numbers for the private project the API cannot see
-.github/build.py     the generator, and the deck data
+decks.json           THE HOLD and the ignore list — data, hand- or tool-edited
+.github/build.py     the generator
 .github/manifest.py  measures a local project and rewrites manifest.json
-.github/workflows/log.yml
+.github/survey.py    analyses one repo, proposes a decks.json change
+.github/apply.py     writes an approved proposal into decks.json
+.github/workflows/log.yml      hourly rebuild
+.github/workflows/survey.yml   analyse → approve → file
 ```
 
 ## 1 · Push it
@@ -35,10 +39,20 @@ that looks like the workflow is broken when it is not.
 
 Then **Actions → log → Run workflow** to prove it end to end.
 
+## 2b · Create the approval gate
+
+**Settings → Environments → New environment → `readme` → Required reviewers →
+add yourself → Save.**
+
+The `survey` workflow's apply job names this environment. A job naming an
+environment that has no protection rules runs **immediately** — so without this
+step the survey would analyse and apply in one go, and it would look like it
+worked. Free on public repositories.
+
 ## 3 · What updates on its own
 
-Daily at 05:17 UTC, on every push to the template or the generator, and
-whenever you press Run workflow:
+Hourly at :17, on every push to the template, the data or the generator, and
+whenever you press Run workflow or fire `repository_dispatch`:
 
 | block | comes from |
 |:--|:--|
@@ -68,15 +82,20 @@ to it, so counting it would make the bot's own commit the news.
 
 ## 5 · Day-to-day
 
-**A new repo appears.** It shows up under NEW ARRIVALS by itself. To move it
-into a deck, add one line to `DECKS` in `.github/build.py`:
+**A new repo appears.** It shows up under NEW ARRIVALS within the hour, by
+itself. To decide what it is worth, run **Actions → survey** with its name: you
+get an insight report, and an approval gate that files it into a deck (or into
+the ignore list) only if you say so. See PROCESS.md § 6.
 
-```python
-(["my-new-thing"], "what it is, in one clause"),
+To skip the ceremony, edit `decks.json` by hand and push:
+
+```json
+{ "repos": ["my-new-thing"], "desc": "what it is, in one clause" }
 ```
 
-Push. The Action runs on that push and the repo moves from ARRIVALS into the
-deck table. Repos you never want listed go in `IGNORE`.
+**A repo is deleted.** Nothing to do — the next hourly run drops it from every
+count, and any deck row that pointed at it disappears rather than leaving a
+dead link.
 
 **A new year starts.** Add a line to `YEAR_NOTES`. If you forget, the timeline
 lists that year's repos instead — it cannot silently stop.

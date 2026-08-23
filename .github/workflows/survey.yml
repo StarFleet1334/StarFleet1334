@@ -1,0 +1,119 @@
+name: survey
+
+# Analyse one repository, publish the insight, then WAIT for you.
+#
+#   survey  →  job summary with the numbers and a proposed decks.json change
+#   apply   →  gated on the "readme" environment; runs only once you approve
+#
+# The gate is a GitHub Environment protection rule, which means it is real:
+# the apply job sits in "Waiting" and no token can move it but yours.
+#
+#   Settings → Environments → New environment → readme
+#   → Required reviewers → add yourself → Save
+#
+# WITHOUT THAT ENVIRONMENT THERE IS NO GATE. GitHub runs a job referencing an
+# unconfigured environment immediately, so the workflow would analyse and then
+# apply in one go. Configure it before the first real run.
+
+on:
+  workflow_dispatch:
+    inputs:
+      repo:
+        description: "Repository name (just the name, not the URL)"
+        required: true
+        type: string
+      action:
+        description: "What to propose"
+        type: choice
+        default: file into a deck
+        options:
+          - file into a deck
+          - add to the ignore list
+      deck:
+        description: "Which deck (auto = let the survey choose)"
+        type: choice
+        default: auto
+        options: [auto, engineering, science, propulsion, bridge, academy]
+      note:
+        description: "One-line description (blank = use the suggestion)"
+        required: false
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: survey-${{ inputs.repo }}
+  cancel-in-progress: false
+
+jobs:
+  survey:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      verdict: ${{ steps.run.outputs.verdict }}
+      score: ${{ steps.run.outputs.score }}
+      deck: ${{ steps.run.outputs.deck }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: analyse
+        id: run
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PROFILE_USER: ${{ github.repository_owner }}
+        run: |
+          python .github/survey.py \
+            --repo   "${{ inputs.repo }}" \
+            --deck   "${{ inputs.deck }}" \
+            --note   "${{ inputs.note }}" \
+            --action "${{ inputs.action == 'add to the ignore list' && 'ignore' || 'file' }}"
+
+      # The proposal crosses the approval gap as an artifact rather than being
+      # recomputed after approval: you approve the exact change you read.
+      - uses: actions/upload-artifact@v4
+        with:
+          name: proposal
+          path: proposal.json
+          retention-days: 7
+
+  apply:
+    needs: survey
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: readme
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: proposal
+
+      - name: write it into decks.json
+        run: python .github/apply.py proposal.json
+
+      - name: rebuild the log
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PROFILE_USER: ${{ github.repository_owner }}
+        run: python .github/build.py
+
+      - name: commit
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add decks.json README.md
+          if git diff --cached --quiet; then
+            echo "approved, but the data already said this — nothing to commit"
+            exit 0
+          fi
+          git commit -m "log: survey ${{ inputs.repo }} (${{ needs.survey.outputs.verdict }}, score ${{ needs.survey.outputs.score }})"
+          git push

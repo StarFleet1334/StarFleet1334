@@ -7,7 +7,8 @@ result only when the bytes actually changed.**
 ```mermaid
 flowchart TD
     A["README.tpl.md<br/><i>your prose, nine empty slots</i>"] --> C
-    B["DECKS / YEAR_NOTES<br/><i>in build.py</i>"] --> C
+    B["decks.json<br/><i>THE HOLD + the ignore list</i>"] --> C
+    Y["YEAR_NOTES<br/><i>in build.py</i>"] --> C
     M["manifest.json<br/><i>the private project's numbers</i>"] --> C
     G["GitHub API<br/><i>/users · /repos · /languages</i>"] --> C
     C["build.py<br/><i>fill every slot</i>"] --> D["README.md"]
@@ -19,7 +20,7 @@ flowchart TD
     classDef src  fill:#161b22,stroke:#30363d,color:#e6edf3
     classDef act  fill:#0d1117,stroke:#58a6ff,color:#58a6ff
     classDef quiet fill:#0d1117,stroke:#21262d,color:#8b949e
-    class A,B,M,G src
+    class A,B,M,G,Y src
     class C,H,I act
     class D,E,F quiet
 ```
@@ -30,9 +31,10 @@ flowchart TD
 
 | trigger | when | latency |
 |:--|:--|:--|
-| **cron** `17 5 * * *` | every day, 05:17 UTC | up to 24 h |
+| **cron** `17 * * * *` | every hour, at :17 | up to 1 h |
 | **push** to `main` or `master` | only if it touches `README.tpl.md`, `manifest.json`, `.github/build.py`, or `.github/workflows/log.yml` | seconds |
 | **workflow_dispatch** | Actions → log → Run workflow | immediate |
+| **repository_dispatch** | `gh api repos/StarFleet1334/StarFleet1334/dispatches -f event_type=refresh` | immediate |
 
 An odd minute is deliberate. Everything scheduled on the hour lands in the same
 GitHub queue, and a busy queue is how a cron silently slips by twenty minutes.
@@ -42,10 +44,18 @@ from `StarFleet1334/StarFleet1334` and nowhere else. The same files in a repo
 called anything else are just files — the workflow will still run and still
 commit, and the profile page will still not change.
 
-**Note what is *not* a trigger.** Creating a repo, pushing to a different repo,
-gaining a follower — none of these reach this workflow. GitHub has no event for
-"something happened elsewhere on my account". Those changes are noticed by the
-next daily run, which is why the cron exists at all.
+**Note what is *not* a trigger, and why polling is the answer.** Creating a
+repository, deleting one, pushing to a different repo, gaining a follower —
+none of these reach this workflow. There is no event for them to arrive on:
+GitHub's `create` and `delete` events are about branches and tags *inside one
+repo*, and personal accounts cannot have account-level webhooks (only
+organisations can). Nothing can tell this repo that another one appeared.
+
+So the cadence **is** the freshness, and the cron runs hourly. That is
+affordable only because the build is idempotent: 23 of the 24 runs on a quiet
+day find nothing changed and commit nothing, and Actions minutes are unmetered
+on public repositories. When an hour is too long to wait, fire
+`repository_dispatch` or press Run workflow — both rebuild immediately.
 
 `concurrency: { group: log }` means two runs never overlap. A manual run fired
 while the cron is mid-flight queues behind it rather than racing it to the same
@@ -131,12 +141,13 @@ This is the useful table. Each slot has exactly one thing that moves it:
 | `systems` | language byte shares shift enough to reorder the bars or move a `▰` |
 | `hold` | a repo named in `DECKS` is created, deleted or renamed |
 | `arrivals` | a new repo appears that is not yet filed into a deck |
+| _(all counts)_ | a repo is **created or deleted** — picked up by the next hourly run |
 | `recent` | **any push to any public repo** — this is the one that moves most often |
 | `stamp` | the date or name of your newest push changes |
 
-So in practice: **on a day you pushed to any public repo, the 05:17 run
-commits.** On a day you did not, it does not. That is the intended behaviour,
-not a coincidence — and it is why the footer stamp is your newest real push and
+So in practice: **within the hour of any push to any public repo, a run
+commits.** On an hour when nothing moved, nothing is committed. That is the
+intended behaviour, not a coincidence — and it is why the footer stamp is your newest real push and
 not `datetime.now()`. A "generated on" line would make every single run
 different, and the commit history would become a year of noise that says
 nothing about your work.
@@ -248,3 +259,94 @@ Unauthenticated you get 60 API calls an hour and a build needs ~56, so the
 second run inside an hour will hit the limit and fall back to coarse counts.
 Export `GITHUB_TOKEN` (a personal access token, no scopes needed for public
 data) to get the full 5000.
+
+---
+
+## 6 · The survey — deciding what a repo is worth
+
+`log` keeps the page current. **`survey` decides what belongs on it**, and it
+is the one workflow that stops and asks.
+
+Actions → **survey** → Run workflow, with four inputs:
+
+| input | |
+|:--|:--|
+| **repo** | the repository name — just the name, not a URL |
+| **action** | *file into a deck*, or *add to the ignore list* |
+| **deck** | `auto` lets the survey choose; or name one yourself |
+| **note** | the one clause that will appear beside it; blank uses the suggestion |
+
+```mermaid
+flowchart LR
+    A["Run workflow<br/><i>repo, action, deck, note</i>"] --> B["survey job<br/><i>7 API calls</i>"]
+    B --> C["job summary:<br/>facts · languages · signals · verdict"]
+    B --> D["proposal.json<br/><i>uploaded as an artifact</i>"]
+    C --> E{"you review"}
+    D --> F
+    E -->|approve| F["apply job"]
+    E -->|reject| G["nothing changed"]
+    F --> H["decks.json edited"] --> I["build.py"] --> J["README.md committed"]
+
+    classDef act  fill:#0d1117,stroke:#58a6ff,color:#58a6ff
+    classDef gate fill:#161b22,stroke:#f0883e,color:#f0883e
+    classDef quiet fill:#0d1117,stroke:#21262d,color:#8b949e
+    class A,B,F,H,I,J act
+    class E gate
+    class C,D,G quiet
+```
+
+### What the survey reads
+
+Seven calls: the repo itself, its languages, up to 100 commits, contributors,
+releases, the README, and the top-level file list. From those it prints a facts
+table, a language breakdown by byte share, the first three lines of the README,
+and then the part that matters — **the signal ledger**:
+
+| | weight | signal |
+|:--:|--:|:--|
+| ✓ | +2 | has a description |
+| ✓ | +2 | README is 1,247 bytes (≥ 400) |
+| ✓ | +2 | 24 commits (≥ 10) |
+| ✓ | +1 | a real build file: pyproject.toml, requirements.txt |
+| · | +2 | worked on across 8 days (≥ 14) |
+| … | | |
+
+Score ≥ 4 is *worth listing*, 2–3 *borderline*, below 2 *not worth listing*.
+Negative signals are explicit too: a fork is −4, a name like `Task2` or `demo`
+is −4, fewer than three commits is −3, archived is −3, no README is −2.
+
+**The score is not the decision.** It is a heuristic printed with its whole
+argument so you can disagree with it in one click. That is the entire reason
+the gate exists.
+
+### The gate is real
+
+The `apply` job declares `environment: readme`. GitHub holds it in **Waiting**
+until a required reviewer approves — no token in the workflow can move it, only
+you, from the run page.
+
+> **Set this up before the first real run.** Settings → Environments → New
+> environment → `readme` → Required reviewers → add yourself → Save.
+>
+> A job that names an environment with *no* protection rules runs
+> **immediately**. Skip this and the workflow analyses and applies in one go,
+> with no gate at all — and it will look like it worked.
+
+Environments with required reviewers are free on public repositories.
+
+### What approval actually does
+
+The proposal crosses the gap as an **artifact**, not by being recomputed. You
+approve the exact JSON you read; the `apply` job downloads it, and:
+
+- *file into a deck* → appends `{"repos": [...], "desc": "..."}` to that deck
+  in `decks.json`. It **refuses** if the repo is already on any deck — the
+  survey warns about it, and this is the half that cannot be clicked past.
+- *add to the ignore list* → adds the name, sorted and de-duplicated, so the
+  repo stops appearing under NEW ARRIVALS.
+
+Then `build.py` runs and both `decks.json` and `README.md` are committed
+together, so the data and the page can never disagree.
+
+Reject, and nothing is written at all. The survey is read-only by construction:
+it computes and reports, and only `apply.py` writes.

@@ -34,89 +34,35 @@ API = "https://api.github.com"
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# THE HOLD — the only hand-edited data. File a new repo here and it moves out
-# of NEW ARRIVALS on the next run. A row whose repos have all vanished is
-# skipped, so a deleted repo never leaves a dead link behind.
+# THE HOLD lives in decks.json, not here.
+#
+# It used to be a literal in this file, which was fine while a human was the
+# only editor. The survey workflow writes to it too, and a program editing
+# Python source to add a tuple is a class of bug this does not need: it is
+# data, so it is stored as data.
 # ─────────────────────────────────────────────────────────────────────────────
 
-DECKS = [
-    {
-        "key": "engineering",
-        "icon": "⚭",
-        "title": "ENGINEERING DECK",
-        "blurb": "distributed Java, events, contracts",
-        "rows": [
-            (["ecommerce-inventory-platform"], "the largest of them — inventory, end to end"),
-            (["KafkaInMicroService"], "Kafka wired through a service boundary"),
-            (["KafkaRatingService"], "ratings as an event stream"),
-            (["CQRS"], "command/query separation, taken seriously"),
-            (["MicroServicesGEureka"], "discovery with Eureka"),
-            (["Spring-Boot-MicroService"], "the baseline the rest grew out of"),
-            (["Tolerant-Streams"], "streams that survive bad input"),
-            (["SCom", "2Com"], "service-to-service, the plumbing of it"),
-        ],
-    },
-    {
-        "key": "science",
-        "icon": "⌖",
-        "title": "SCIENCE DECK",
-        "blurb": "proving it works before claiming it does",
-        "rows": [
-            (["WireMock-Demo", "WireMock-Api", "WireMock-Data"],
-             "three angles on stubbing a dependency you don't own"),
-            (["GatlingReport"], "load, measured rather than assumed"),
-            (["newrelic-lighthouse-demo"], "observability meeting a front-end budget"),
-            (["CarinaProject"], "UI automation"),
-            (["Demo-TestService"], "the scaffold under all of it"),
-        ],
-    },
-    {
-        "key": "propulsion",
-        "icon": "⚙",
-        "title": "PROPULSION",
-        "blurb": "Go, and things that had to be fast or small",
-        "rows": [
-            (["Channels-and-Routines-GoLang-"], "concurrency from first principles"),
-            (["TransitionToGo"], "the crossing from JVM to Go, written down"),
-            (["WebScrapper_Go", "FileFinder"], "small tools that do one thing"),
-            (["GoUI", "Animated-Ball", "Clock"], "Go with a face on it"),
-            (["Little-Game-in-GoLang", "cards"], "the fun ones"),
-        ],
-    },
-    {
-        "key": "bridge",
-        "icon": "◈",
-        "title": "THE BRIDGE",
-        "blurb": "things people actually touch",
-        "rows": [
-            (["AETHER"], "gesture · face · voice workspace — {aether_lines} lines"),
-            (["QuiziGeneratorWebExtension"], "turns the page you're reading into a quiz"),
-            (["RepositoryAnalyzer"], "points a lens at a codebase and reports back"),
-            (["GymCRM-System", "GymApplication"], "one real domain, modelled twice"),
-            (["Chess", "steganography"], "rules, and hiding things inside pictures"),
-            (["Chat-Sytem-", "Java-Chat-App"], "sockets, in two languages"),
-        ],
-    },
-    {
-        "key": "academy",
-        "icon": "⌂",
-        "title": "THE ACADEMY",
-        "blurb": "repos written to be read by someone else",
-        "rows": [
-            (["Ocaml-For-Begginer-Students-Edition-"],
-             "functional programming for people meeting it first"),
-            (["Java-For-Students-Advanced-"], "the second pass, where it gets interesting"),
-            (["duckietown-lx"], "autonomous driving exercises, on very small robots"),
-        ],
-    },
-]
+DECKSF = ROOT / "decks.json"
 
-# Repos that exist but are private, so the API will never list them. Rendered
-# without a link; counted nowhere.
-PRIVATE = {"AETHER"}
 
-# Repos that should never appear in NEW ARRIVALS (scratch, forks, coursework).
-IGNORE = {"StarFleet1334", "partTwo", "Task2", "TT", "Test", "System", "Project-A"}
+def load_decks():
+    """Fail closed. An unreadable decks.json means THE HOLD would silently
+    render as nothing at all — an empty page is a worse answer than no page."""
+    if not DECKSF.exists():
+        raise SystemExit(f"! {DECKSF.name} is missing; refusing to build a hollow page")
+    try:
+        data = json.loads(DECKSF.read_text(encoding="utf-8"))
+    except ValueError as e:
+        raise SystemExit(f"! {DECKSF.name} is not valid JSON ({e})")
+
+    decks = [{**d, "rows": [(r["repos"], r["desc"]) for r in d["rows"]]}
+             for d in data.get("decks", [])]
+    if not decks:
+        raise SystemExit(f"! {DECKSF.name} lists no decks")
+    return decks, set(data.get("ignore", [])), set(data.get("private", []))
+
+
+DECKS, IGNORE, PRIVATE = load_decks()
 
 # One line per year of the log. A year with data but no line here gets its
 # repos listed instead, so the timeline can never silently stop at 2026.

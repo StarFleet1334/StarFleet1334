@@ -9,10 +9,22 @@ name: log
 
 on:
   schedule:
-    # 05:17 UTC daily. An odd minute on purpose: GitHub queues everything
-    # scheduled on the hour, and a busy queue is how a cron silently slips.
-    - cron: "17 5 * * *"
+    # Hourly, at :17. There is no GitHub event for "I created or deleted a
+    # repository" — personal accounts have no account-level webhooks, and
+    # create/delete events are about branches inside one repo. Polling is
+    # therefore the only mechanism available, so the cadence IS the freshness.
+    # An odd minute on purpose: everything scheduled on the hour lands in the
+    # same queue, and a busy queue is how a cron silently slips.
+    #
+    # Hourly is affordable precisely because the build is idempotent: 23 of
+    # the 24 daily runs find nothing changed and commit nothing. Actions
+    # minutes are unmetered on public repositories.
+    - cron: "17 * * * *"
   workflow_dispatch:
+  # Instant refresh from anywhere, without waiting for the hour:
+  #   gh api repos/StarFleet1334/StarFleet1334/dispatches -f event_type=refresh
+  repository_dispatch:
+    types: [refresh]
   push:
     # Both names. A repo created with a "master" default silently matches
     # nothing here, and the symptom is a push that triggers no run at all —
@@ -21,6 +33,7 @@ on:
     paths:
       - "README.tpl.md"
       - "manifest.json"
+      - "decks.json"
       - ".github/build.py"
       - ".github/workflows/log.yml"
 
