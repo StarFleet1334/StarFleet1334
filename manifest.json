@@ -1,0 +1,10 @@
+{
+  "surface": "74 Python modules · 66 JS modules · ~82k lines",
+  "aether_lines": "~82k",
+  "heading": "AETHER - hands, face and voice",
+  "spine": "FastAPI over a websocket, vanilla JS, zero framework",
+  "eyes": "MediaPipe hand + face landmarks at frame rate",
+  "ears": "Vosk live preview, Whisper `medium.en` final — fully offline",
+  "rooms": "Canvas · Air Sketch (2D/3D) · Observatory · Codex · Palace · Watchtower · Console",
+  "trick": "A motion repeated ~6× gets *proposed back to you* to bind"
+}

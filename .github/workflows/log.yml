@@ -1,0 +1,59 @@
+name: log
+
+# Rebuilds README.md from README.tpl.md + the live GitHub API.
+#
+# The build takes no value from the wall clock, so a run on a quiet day
+# produces a byte-identical file and commits nothing. The commit step is
+# therefore safe to run as often as you like — the history stays a record of
+# what actually changed, not of the cron firing.
+
+on:
+  schedule:
+    # 05:17 UTC daily. An odd minute on purpose: GitHub queues everything
+    # scheduled on the hour, and a busy queue is how a cron silently slips.
+    - cron: "17 5 * * *"
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "README.tpl.md"
+      - "manifest.json"
+      - ".github/build.py"
+      - ".github/workflows/log.yml"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: log
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: rebuild the log
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PROFILE_USER: ${{ github.repository_owner }}
+        run: python .github/build.py
+
+      - name: commit, only if something moved
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add README.md
+          if git diff --cached --quiet; then
+            echo "no change — the log stands"
+            exit 0
+          fi
+          git commit -m "log: $(git diff --cached --shortstat README.md | xargs)"
+          git push
