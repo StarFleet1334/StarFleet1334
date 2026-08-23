@@ -66,51 +66,6 @@ a <b>Chronosphere</b> that scrubs the whole board backwards through its own hist
 
 ---
 
-## ✦ &nbsp;STAR CHART
-
-<!--LOG:chart-->
-```mermaid
-%%{init: {"theme":"base","themeVariables":{"primaryColor":"#0d1117","primaryTextColor":"#e6edf3","primaryBorderColor":"#30363d","lineColor":"#58a6ff","secondaryColor":"#161b22","tertiaryColor":"#161b22","fontFamily":"ui-monospace, SFMono-Regular, monospace","fontSize":"13px"}}}%%
-flowchart LR
-    ME(("◈"))
-
-    ME --- A["distributed java"]
-    ME --- B["proving it works"]
-    ME --- C["go, close to the metal"]
-    ME --- D["spatial + human input"]
-    ME --- E["teaching it"]
-
-    A --- A1["ecommerce inventory platform"]
-    A --- A2["kafkainmicroservice"]
-    A --- A3["kafkaratingservice"]
-
-    B --- B1["wiremock demo"]
-    B --- B2["gatlingreport"]
-    B --- B3["newrelic lighthouse demo"]
-
-    C --- C1["channels and routines golang "]
-    C --- C2["transitiontogo"]
-    C --- C3["webscrapper go"]
-
-    D --- D1["aether"]
-    D --- D2["quizigeneratorwebextension"]
-    D --- D3["repositoryanalyzer"]
-
-    E --- E1["ocaml for begginer students edition "]
-    E --- E2["java for students advanced "]
-    E --- E3["duckietown lx"]
-
-    classDef hub  fill:#0d1117,stroke:#58a6ff,stroke-width:2px,color:#58a6ff
-    classDef limb fill:#161b22,stroke:#30363d,color:#e6edf3
-    classDef leaf fill:#0d1117,stroke:#21262d,color:#8b949e
-    class ME hub
-    class A,B,C,D,E limb
-    class A1,A2,A3,B1,B2,B3,C1,C2,C3,D1,D2,D3,E1,E2,E3 leaf
-```
-<!--/LOG:chart-->
-
----
-
 ## ⧗ &nbsp;SHIP'S LOG
 
 <!--LOG:timeline-->
@@ -261,21 +216,6 @@ timeline
 
 ---
 
-## ◉ &nbsp;TELEMETRY
-
-<div align="center">
-
-<img height="165" alt="stats" src="https://github-readme-stats.vercel.app/api?username=StarFleet1334&show_icons=true&hide_border=true&include_all_commits=true&count_private=true&theme=transparent&title_color=58a6ff&text_color=8b949e&icon_color=f0883e&ring_color=58a6ff" />
-<img height="165" alt="languages" src="https://github-readme-stats.vercel.app/api/top-langs/?username=StarFleet1334&layout=compact&hide_border=true&langs_count=8&theme=transparent&title_color=58a6ff&text_color=8b949e" />
-
-<br><br>
-
-<img width="88%" alt="flight path" src="https://github-readme-activity-graph.vercel.app/graph?username=StarFleet1334&bg_color=00000000&color=58a6ff&line=58a6ff&point=f0883e&area=true&area_color=58a6ff&hide_border=true&custom_title=flight%20path" />
-
-</div>
-
----
-
 ## ⛬ &nbsp;WORKING NOTES
 
 <table>
@@ -300,29 +240,6 @@ timeline
 <td>The finding, the evidence and the fix are one thing in three parts. Three loose notes are three orphans.</td>
 </tr>
 </table>
-
----
-
-<details>
-<summary><sub>⌁ &nbsp;raw sensor feed</sub></summary>
-<br>
-
-<pre>
-       ·        ✦                    ·               ✧
-   ✧                    ·                                    ·
-             ·                  ✦          ·
-    ·                                              ✦
-                 ✦        ·               ·                ✧
-       ·                          ·
-
-   8,874 catalogued stars sit in a file on my desk.
-   Not one of them is synthetic. That is the whole point.
-
-   This page rebuilds itself. Nothing in it is typed twice,
-   and nothing in it is a number I remembered.
-</pre>
-
-</details>
 
 ---
 

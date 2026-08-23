@@ -45,13 +45,6 @@ a <b>Chronosphere</b> that scrubs the whole board backwards through its own hist
 
 ---
 
-## ✦ &nbsp;STAR CHART
-
-<!--LOG:chart-->
-<!--/LOG:chart-->
-
----
-
 ## ⧗ &nbsp;SHIP'S LOG
 
 <!--LOG:timeline-->
@@ -91,21 +84,6 @@ a <b>Chronosphere</b> that scrubs the whole board backwards through its own hist
 
 ---
 
-## ◉ &nbsp;TELEMETRY
-
-<div align="center">
-
-<img height="165" alt="stats" src="https://github-readme-stats.vercel.app/api?username=StarFleet1334&show_icons=true&hide_border=true&include_all_commits=true&count_private=true&theme=transparent&title_color=58a6ff&text_color=8b949e&icon_color=f0883e&ring_color=58a6ff" />
-<img height="165" alt="languages" src="https://github-readme-stats.vercel.app/api/top-langs/?username=StarFleet1334&layout=compact&hide_border=true&langs_count=8&theme=transparent&title_color=58a6ff&text_color=8b949e" />
-
-<br><br>
-
-<img width="88%" alt="flight path" src="https://github-readme-activity-graph.vercel.app/graph?username=StarFleet1334&bg_color=00000000&color=58a6ff&line=58a6ff&point=f0883e&area=true&area_color=58a6ff&hide_border=true&custom_title=flight%20path" />
-
-</div>
-
----
-
 ## ⛬ &nbsp;WORKING NOTES
 
 <table>
@@ -130,29 +108,6 @@ a <b>Chronosphere</b> that scrubs the whole board backwards through its own hist
 <td>The finding, the evidence and the fix are one thing in three parts. Three loose notes are three orphans.</td>
 </tr>
 </table>
-
----
-
-<details>
-<summary><sub>⌁ &nbsp;raw sensor feed</sub></summary>
-<br>
-
-<pre>
-       ·        ✦                    ·               ✧
-   ✧                    ·                                    ·
-             ·                  ✦          ·
-    ·                                              ✦
-                 ✦        ·               ·                ✧
-       ·                          ·
-
-   8,874 catalogued stars sit in a file on my desk.
-   Not one of them is synthetic. That is the whole point.
-
-   This page rebuilds itself. Nothing in it is typed twice,
-   and nothing in it is a number I remembered.
-</pre>
-
-</details>
 
 ---
 

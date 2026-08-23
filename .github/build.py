@@ -45,7 +45,6 @@ DECKS = [
         "icon": "⚭",
         "title": "ENGINEERING DECK",
         "blurb": "distributed Java, events, contracts",
-        "limb": "distributed java",
         "rows": [
             (["ecommerce-inventory-platform"], "the largest of them — inventory, end to end"),
             (["KafkaInMicroService"], "Kafka wired through a service boundary"),
@@ -62,7 +61,6 @@ DECKS = [
         "icon": "⌖",
         "title": "SCIENCE DECK",
         "blurb": "proving it works before claiming it does",
-        "limb": "proving it works",
         "rows": [
             (["WireMock-Demo", "WireMock-Api", "WireMock-Data"],
              "three angles on stubbing a dependency you don't own"),
@@ -77,7 +75,6 @@ DECKS = [
         "icon": "⚙",
         "title": "PROPULSION",
         "blurb": "Go, and things that had to be fast or small",
-        "limb": "go, close to the metal",
         "rows": [
             (["Channels-and-Routines-GoLang-"], "concurrency from first principles"),
             (["TransitionToGo"], "the crossing from JVM to Go, written down"),
@@ -91,7 +88,6 @@ DECKS = [
         "icon": "◈",
         "title": "THE BRIDGE",
         "blurb": "things people actually touch",
-        "limb": "spatial + human input",
         "rows": [
             (["AETHER"], "gesture · face · voice workspace — {aether_lines} lines"),
             (["QuiziGeneratorWebExtension"], "turns the page you're reading into a quiz"),
@@ -106,7 +102,6 @@ DECKS = [
         "icon": "⌂",
         "title": "THE ACADEMY",
         "blurb": "repos written to be read by someone else",
-        "limb": "teaching it",
         "rows": [
             (["Ocaml-For-Begginer-Students-Edition-"],
              "functional programming for people meeting it first"),
@@ -305,37 +300,6 @@ def block_systems(langs) -> str:
     return "\n".join(out)
 
 
-def block_chart() -> str:
-    head = ('%%{init: {"theme":"base","themeVariables":{"primaryColor":"#0d1117",'
-            '"primaryTextColor":"#e6edf3","primaryBorderColor":"#30363d",'
-            '"lineColor":"#58a6ff","secondaryColor":"#161b22","tertiaryColor":"#161b22",'
-            '"fontFamily":"ui-monospace, SFMono-Regular, monospace","fontSize":"13px"}}}%%')
-    lines = ["```mermaid", head, "flowchart LR", '    ME(("◈"))', ""]
-    limbs, leaves = [], []
-    for i, d in enumerate(DECKS):
-        tag = chr(ord("A") + i)
-        limbs.append(tag)
-        lines.append(f'    ME --- {tag}["{d["limb"]}"]')
-    lines.append("")
-    for i, d in enumerate(DECKS):
-        tag = chr(ord("A") + i)
-        for j, (repos, _desc) in enumerate(d["rows"][:3]):
-            leaf = f"{tag}{j+1}"
-            leaves.append(leaf)
-            label = repos[0].replace("-", " ").replace("_", " ").lower()
-            lines.append(f'    {tag} --- {leaf}["{label}"]')
-        lines.append("")
-    lines += [
-        "    classDef hub  fill:#0d1117,stroke:#58a6ff,stroke-width:2px,color:#58a6ff",
-        "    classDef limb fill:#161b22,stroke:#30363d,color:#e6edf3",
-        "    classDef leaf fill:#0d1117,stroke:#21262d,color:#8b949e",
-        "    class ME hub",
-        f"    class {','.join(limbs)} limb",
-        f"    class {','.join(leaves)} leaf",
-        "```",
-    ]
-    return "\n".join(lines)
-
 
 def block_timeline(repos) -> str:
     by_year: dict[int, list] = {}
@@ -507,7 +471,6 @@ def main() -> int:
         "surface":  block_surface(manifest),
         "badges":   block_badges(user, repos),
         "systems":  block_systems(langs),
-        "chart":    block_chart(),
         "timeline": block_timeline(repos),
         "hold":     block_hold(index, manifest),
         "arrivals": block_arrivals(repos, index),
@@ -545,7 +508,7 @@ def main() -> int:
 
     if "--check" in sys.argv:
         same = OUT.exists() and OUT.read_text(encoding="utf-8") == text
-        print("- no change" if same else "· README.md would change")
+        print("- no change" if same else "- README.md would change")
         return 0
 
     OUT.write_text(text, encoding="utf-8", newline="\n")

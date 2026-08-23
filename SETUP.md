@@ -6,6 +6,7 @@ top of your profile page. That repo already exists.
 
 ```
 README.md            generated — do not edit
+PROCESS.md           the mechanism, end to end
 README.tpl.md        the prose. Edit this.
 manifest.json        numbers for the private project the API cannot see
 .github/build.py     the generator, and the deck data
@@ -44,15 +45,14 @@ whenever you press Run workflow:
 | the console box | `/users/…` — name, join date, repo count, top languages, newest repo |
 | the badges | live repo and follower counts |
 | SYSTEMS ONLINE | `/languages` on every repo, one vote each, split by byte share |
-| STAR CHART | the `DECKS` list — the diagram and the tables cannot drift apart |
 | SHIP'S LOG | repo creation dates, with your prose per year |
 | THE HOLD | `DECKS`, minus any repo that no longer exists |
 | NEW ARRIVALS | every repo not yet filed into a deck |
 | RECENTLY ON THE BENCH | the five most recently pushed repos |
 | the stamp | the newest real push |
 
-Everything else — the prose, the working notes, the sensor feed — is yours and
-is never touched.
+Everything else — the CURRENT HEADING prose, the working notes, the footer — is
+yours and is never touched.
 
 ## 4 · The one design decision worth knowing
 
@@ -75,9 +75,8 @@ into a deck, add one line to `DECKS` in `.github/build.py`:
 (["my-new-thing"], "what it is, in one clause"),
 ```
 
-Push. The Action runs on that push, and the repo moves from ARRIVALS into the
-deck table *and* into the star chart. Repos you never want listed go in
-`IGNORE`.
+Push. The Action runs on that push and the repo moves from ARRIVALS into the
+deck table. Repos you never want listed go in `IGNORE`.
 
 **A new year starts.** Add a line to `YEAR_NOTES`. If you forget, the timeline
 lists that year's repos instead — it cannot silently stop.
@@ -117,7 +116,7 @@ with no scopes to get 5000/hr locally.
   move it to a real link when the repo goes public.
 - **The proficiency bars** are computed, not typed — if one reads wrong, the
   fix is in `LANG_ALIAS` / `LANG_SKIP`, not in the README.
-- **The three stat cards** at TELEMETRY are third-party services
-  (`github-readme-stats`, `github-readme-activity-graph`). They are the only
-  part of the page that depends on someone else's uptime; if one goes dark the
-  image simply fails to load. Everything above them is your own repo's bytes.
+- **Nothing on the page depends on a third-party service.** The stat cards and
+  the activity graph were removed; every number now comes from a GitHub API
+  call this repo makes itself. The only image left is the shields.io badge row,
+  and it degrades to alt text if that host is down.
