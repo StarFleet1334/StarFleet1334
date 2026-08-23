@@ -1,0 +1,4 @@
+# One line ending everywhere. build.py writes LF; without this, Windows
+# checks the file out as CRLF and every local --check reports a change that
+# is not one.
+* text=auto eol=lf

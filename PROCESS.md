@@ -31,11 +31,16 @@ flowchart TD
 | trigger | when | latency |
 |:--|:--|:--|
 | **cron** `17 5 * * *` | every day, 05:17 UTC | up to 24 h |
-| **push** to `main` | only if it touches `README.tpl.md`, `manifest.json`, `.github/build.py`, or `.github/workflows/log.yml` | seconds |
+| **push** to `main` or `master` | only if it touches `README.tpl.md`, `manifest.json`, `.github/build.py`, or `.github/workflows/log.yml` | seconds |
 | **workflow_dispatch** | Actions → log → Run workflow | immediate |
 
 An odd minute is deliberate. Everything scheduled on the hour lands in the same
 GitHub queue, and a busy queue is how a cron silently slips by twenty minutes.
+
+**It must be the repo named after you.** GitHub renders the profile Overview
+from `StarFleet1334/StarFleet1334` and nowhere else. The same files in a repo
+called anything else are just files — the workflow will still run and still
+commit, and the profile page will still not change.
 
 **Note what is *not* a trigger.** Creating a repo, pushing to a different repo,
 gaining a follower — none of these reach this workflow. GitHub has no event for
@@ -166,6 +171,8 @@ bug in the first version, caught by a live run.
 
 | symptom | cause | what happens to README.md |
 |:--|:--|:--|
+| **no run appears at all** after a push | the branch is not in the `branches:` filter, or the push touched only files outside `paths:` | untouched — nothing ran |
+| runs are green, **profile page never changes** | the files are in a repo not named `StarFleet1334` | updated, in a repo GitHub does not read for the Overview |
 | job red at **rebuild the log** | GitHub API unreachable | **untouched** — `build.py` returns 1 before writing anything |
 | job red at **commit** with `403` | workflow permissions are read-only | untouched on the remote; the correct file existed only in the runner |
 | bars look coarse, log says `only 41/54 repos measured` | some `/languages` calls failed | written, but with repo counts instead of byte shares |

@@ -14,7 +14,10 @@ on:
     - cron: "17 5 * * *"
   workflow_dispatch:
   push:
-    branches: [main]
+    # Both names. A repo created with a "master" default silently matches
+    # nothing here, and the symptom is a push that triggers no run at all —
+    # which reads as a broken workflow rather than a filter that missed.
+    branches: [main, master]
     paths:
       - "README.tpl.md"
       - "manifest.json"
