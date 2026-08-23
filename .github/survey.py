@@ -70,9 +70,12 @@ def get(path: str):
         "Accept": "application/vnd.github+json",
         "User-Agent": f"{USER}-profile-survey",
     })
-    token = os.environ.get("GITHUB_TOKEN")
-    if token:
-        req.add_header("Authorization", f"Bearer {token}")
+    # PROFILE_TOKEN first. GITHUB_TOKEN is scoped to this one repository, so
+    # it can read public facts about any repo and see no private one at all —
+    # a private repo is indistinguishable from a deleted one through it.
+    tok = os.environ.get("PROFILE_TOKEN") or os.environ.get("GITHUB_TOKEN")
+    if tok:
+        req.add_header("Authorization", f"Bearer {tok}")
     with urllib.request.urlopen(req, timeout=30) as r:
         return json.load(r)
 
@@ -112,7 +115,14 @@ def gather(repo: str) -> dict:
         meta = get(f"/repos/{USER}/{repo}")
     except urllib.error.HTTPError as e:
         if e.code == 404:
-            raise SystemExit(f"! {USER}/{repo} does not exist, or is not public")
+            if not os.environ.get("PROFILE_TOKEN"):
+                raise SystemExit(
+                    f"! {USER}/{repo} was not found.\n"
+                    f"  If it is PRIVATE, that is expected: GITHUB_TOKEN cannot "
+                    f"see it. Add a PROFILE_TOKEN secret (a PAT with read access "
+                    f"to your repositories) and run again.\n"
+                    f"  If it is public, check the spelling.")
+            raise SystemExit(f"! {USER}/{repo} does not exist")
         if e.code in (403, 429):
             left = e.headers.get("X-RateLimit-Remaining")
             if left == "0":
@@ -219,8 +229,20 @@ def suggest_note(repo: str, g: dict) -> str:
 def report(repo: str, g: dict, score: int, signals, deck: str, why: str,
            note: str, verdict: str, action: str, already: str | None) -> None:
     m = g["meta"]
-    say(f"## ⌖ Survey — `{repo}`")
+    say(f"## ⌖ Survey — `{repo}`" + ("  ·  **PRIVATE**" if m.get("private") else ""))
     say()
+    if m.get("private"):
+        say("> ⚠ **This repository is private, and this page is not.**")
+        say("> ")
+        say("> Workflow logs and job summaries on a public repository are "
+            "readable by anyone. Everything printed below — the name, the "
+            "description, the file list, the README's opening lines — is now "
+            "public whether or not you approve anything.")
+        say("> ")
+        say("> If approved it is filed **without a link**, the way AETHER "
+            "already is: the name and your one clause, and nothing that "
+            "resolves to a 404 for a visitor.")
+        say()
     if already:
         say(f"> **Already filed** on the *{already}* deck. Approving will add a "
             f"second row, which is almost never what you want — edit "
@@ -300,7 +322,9 @@ def report(repo: str, g: dict, score: int, signals, deck: str, why: str,
         say(f'  "{repo}"')
         say("```")
     else:
-        say(f"Append to the **{deck}** deck _({why})_:")
+        say(f"Append to the **{deck}** deck _({why})_"
+            + (", and to the **private** list so it renders without a link:"
+               if m.get("private") else ":"))
         say()
         say("```json")
         say(json.dumps({"repos": [repo], "desc": note}, indent=2, ensure_ascii=False))
@@ -312,14 +336,25 @@ def report(repo: str, g: dict, score: int, signals, deck: str, why: str,
 
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--repo", required=True)
+    ap.add_argument("--repo", default="")
+    ap.add_argument("--other", default="",
+                    help="used when --repo is the dropdown's 'other' sentinel")
     ap.add_argument("--deck", default="auto")
     ap.add_argument("--note", default="")
     ap.add_argument("--action", default="file", choices=("file", "ignore"))
     ap.add_argument("--out", default="proposal.json")
     a = ap.parse_args()
 
-    repo = a.repo.strip().strip("/").split("/")[-1]
+    # The dropdown's first option is a sentinel, not a repository. Anything
+    # parenthesised means "look in --other instead", which is also the route a
+    # private repo takes: its name is never written into the committed YAML.
+    picked = a.repo.strip()
+    if not picked or picked.startswith("("):
+        picked = a.other.strip()
+    if not picked:
+        raise SystemExit("! no repository given — pick one from the dropdown, "
+                         "or choose 'other' and type a name in the next field")
+    repo = picked.strip("/").split("/")[-1]
     g = gather(repo)
 
     score, signals = judge(repo, g)
@@ -344,7 +379,8 @@ def main() -> int:
     report(repo, g, score, signals, deck, why, note, verdict, a.action, already)
 
     proposal = {"repo": repo, "action": a.action, "deck": deck, "desc": note,
-                "verdict": verdict, "score": score, "already": already}
+                "verdict": verdict, "score": score, "already": already,
+                "private": bool(g["meta"].get("private"))}
     pathlib.Path(a.out).write_text(
         json.dumps(proposal, indent=2, ensure_ascii=False) + "\n",
         encoding="utf-8", newline="\n")

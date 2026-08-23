@@ -52,6 +52,15 @@ def main() -> int:
         deck["rows"].append({"repos": [repo], "desc": p["desc"]})
         print(f"- {p['deck']} += {repo}: {p['desc']}")
 
+        # A private repo is listed by name and never linked — a link would be
+        # a 404 for every visitor, which is worse than no link at all.
+        if p.get("private"):
+            data.setdefault("private", [])
+            if repo not in data["private"]:
+                data["private"].append(repo)
+                data["private"] = sorted(set(data["private"]))
+                print(f"- private += {repo} (rendered without a link)")
+
     DECKSF.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n",
                       encoding="utf-8", newline="\n")
     print(f"- wrote {DECKSF.name}")

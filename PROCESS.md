@@ -36,6 +36,9 @@ flowchart TD
 | **workflow_dispatch** | Actions → log → Run workflow | immediate |
 | **repository_dispatch** | `gh api repos/StarFleet1334/StarFleet1334/dispatches -f event_type=refresh` | immediate |
 
+Each of those rebuilds **both** the page and the survey dropdown, so creating
+or deleting a repository is reflected in both places by the same run.
+
 An odd minute is deliberate. Everything scheduled on the hour lands in the same
 GitHub queue, and a busy queue is how a cron silently slips by twenty minutes.
 
@@ -141,7 +144,7 @@ This is the useful table. Each slot has exactly one thing that moves it:
 | `systems` | language byte shares shift enough to reorder the bars or move a `▰` |
 | `hold` | a repo named in `DECKS` is created, deleted or renamed |
 | `arrivals` | a new repo appears that is not yet filed into a deck |
-| _(all counts)_ | a repo is **created or deleted** — picked up by the next hourly run |
+| _(all counts)_ | a repo is **created or deleted** — picked up by the next hourly run, which also rewrites the survey dropdown |
 | `recent` | **any push to any public repo** — this is the one that moves most often |
 | `stamp` | the date or name of your newest push changes |
 
@@ -184,6 +187,8 @@ bug in the first version, caught by a live run.
 |:--|:--|:--|
 | **no run appears at all** after a push | the branch is not in the `branches:` filter, or the push touched only files outside `paths:` | untouched — nothing ran |
 | runs are green, **profile page never changes** | the files are in a repo not named `StarFleet1334` | updated, in a repo GitHub does not read for the Overview |
+| the dropdown never gains new repos | no `PROFILE_TOKEN` secret — `GITHUB_TOKEN` may not push to `.github/workflows/` | the page is still current; only the dropdown goes stale |
+| surveying a private repo says "not found" | no `PROFILE_TOKEN` secret | nothing surveyed |
 | job red at **rebuild the log** | GitHub API unreachable | **untouched** — `build.py` returns 1 before writing anything |
 | job red at **commit** with `403` | workflow permissions are read-only | untouched on the remote; the correct file existed only in the runner |
 | bars look coarse, log says `only 41/54 repos measured` | some `/languages` calls failed | written, but with repo counts instead of byte shares |
@@ -267,14 +272,53 @@ data) to get the full 5000.
 `log` keeps the page current. **`survey` decides what belongs on it**, and it
 is the one workflow that stops and asks.
 
-Actions → **survey** → Run workflow, with four inputs:
+Actions → **survey** → Run workflow, with five inputs:
 
 | input | |
 |:--|:--|
-| **repo** | the repository name — just the name, not a URL |
+| **repo** | a dropdown of every public repository, unfiled ones first, or `(other…)` |
+| **repo_other** | the name, when you chose `(other…)`. **Private repos go here.** |
 | **action** | *file into a deck*, or *add to the ignore list* |
 | **deck** | `auto` lets the survey choose; or name one yourself |
 | **note** | the one clause that will appear beside it; blank uses the suggestion |
+
+### The dropdown, and why it is generated
+
+GitHub cannot populate a `workflow_dispatch` dropdown at run time — the options
+are static text in the YAML. So `.github/roster.py` writes them, and the hourly
+`log` run calls it. Create a repository and it is in the dropdown within the
+hour; delete one and it leaves. Unfiled repos are listed first, because the
+question the form exists to answer is *what have I not decided about yet*, and
+alphabetical order buries those behind the forty already on a deck.
+
+`workflow_dispatch` allows 25 inputs and no documented cap on choice options,
+so all 53 fit.
+
+Two things the roster will not do. It lists **public repositories only** —
+`survey.yml` is committed to a public repo, so a private name in that list
+would publish the name. And an API failure leaves the dropdown exactly as it
+was rather than rewriting it to nothing.
+
+### Private repositories
+
+`GITHUB_TOKEN` is scoped to this one repository. Through it a private repo is
+indistinguishable from a deleted one, so by default the survey sees only what a
+stranger sees — and a private name returns 404 with a message saying so rather
+than "check the spelling".
+
+Add a **`PROFILE_TOKEN`** secret — a PAT with read access to your repositories
+— and the survey can read them. Type the name into **repo_other**; it is never
+written into the committed YAML.
+
+> ⚠ **A public repository's Actions logs and job summaries are readable by
+> anyone.** Surveying a private repo publishes what the survey prints: the
+> name, description, language breakdown, file list and the README's opening
+> lines. The survey says so at the top of its own report, in the run you are
+> reading. Decide before you press the button, not after.
+
+If approved, a private repo is filed **without a link** — name and clause only,
+the way AETHER already appears. A link would be a 404 for every visitor, which
+is worse than no link.
 
 ```mermaid
 flowchart LR

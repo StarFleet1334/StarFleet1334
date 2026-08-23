@@ -14,6 +14,7 @@ decks.json           THE HOLD and the ignore list — data, hand- or tool-edited
 .github/manifest.py  measures a local project and rewrites manifest.json
 .github/survey.py    analyses one repo, proposes a decks.json change
 .github/apply.py     writes an approved proposal into decks.json
+.github/roster.py    regenerates the survey dropdown from your repo list
 .github/workflows/log.yml      hourly rebuild
 .github/workflows/survey.yml   analyse → approve → file
 ```
@@ -48,6 +49,27 @@ The `survey` workflow's apply job names this environment. A job naming an
 environment that has no protection rules runs **immediately** — so without this
 step the survey would analyse and apply in one go, and it would look like it
 worked. Free on public repositories.
+
+## 2c · Optional — the PROFILE_TOKEN secret
+
+Everything works without it. Two things need it:
+
+- **surveying a private repository** — `GITHUB_TOKEN` is scoped to this repo
+  alone, so a private repo looks deleted to it;
+- **keeping the survey dropdown current** — `GITHUB_TOKEN` is forbidden from
+  pushing changes to any file under `.github/workflows/`, and the dropdown
+  lives in one.
+
+Create a PAT with read access to your repositories and permission to update
+workflows, then **Settings → Secrets and variables → Actions → New repository
+secret → `PROFILE_TOKEN`**.
+
+Without it the log run skips the roster step, says so in the log, and updates
+the page exactly as before. Nothing breaks; only the dropdown goes stale.
+
+Note that a public repository's Actions logs are world-readable, so surveying a
+private repo publishes what the survey prints about it. The survey warns you at
+the top of its own report.
 
 ## 3 · What updates on its own
 

@@ -51,6 +51,12 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          # PROFILE_TOKEN when it exists, because GITHUB_TOKEN is forbidden
+          # from pushing changes to any file under .github/workflows/ — and
+          # the survey dropdown lives in one. Without the secret the roster
+          # step below is skipped and everything else works unchanged.
+          token: ${{ secrets.PROFILE_TOKEN || secrets.GITHUB_TOKEN }}
 
       - uses: actions/setup-python@v5
         with:
@@ -62,14 +68,31 @@ jobs:
           PROFILE_USER: ${{ github.repository_owner }}
         run: python .github/build.py
 
+      # This is what makes "I created a repo" and "I deleted a repo" reach the
+      # survey form: its dropdown is static YAML, so it is rewritten here on
+      # the same schedule the page is.
+      - name: refresh the survey dropdown
+        if: ${{ secrets.PROFILE_TOKEN != '' }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PROFILE_USER: ${{ github.repository_owner }}
+        run: python .github/roster.py
+
+      - name: say why the dropdown was skipped
+        if: ${{ secrets.PROFILE_TOKEN == '' }}
+        run: |
+          echo "No PROFILE_TOKEN secret, so the survey dropdown is left alone."
+          echo "GITHUB_TOKEN may not push to .github/workflows/. The page is"
+          echo "still fully up to date; only the dropdown can go stale."
+
       - name: commit, only if something moved
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add README.md
+          git add README.md .github/workflows/survey.yml
           if git diff --cached --quiet; then
             echo "no change — the log stands"
             exit 0
           fi
-          git commit -m "log: $(git diff --cached --shortstat README.md | xargs)"
+          git commit -m "log: $(git diff --cached --shortstat | xargs)"
           git push
