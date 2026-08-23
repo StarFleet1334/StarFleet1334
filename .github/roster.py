@@ -93,6 +93,19 @@ def render(names: list[str]) -> str:
 
 
 def main() -> int:
+    # In Actions without a PAT, writing this file would only produce a push
+    # GitHub refuses: GITHUB_TOKEN may not modify anything under
+    # .github/workflows/. Declining here keeps that failure out of the run
+    # entirely, and keeps the page — which needs no PAT — unaffected.
+    #
+    # Gated on GITHUB_ACTIONS, not on the token alone: running this by hand
+    # writes to disk and pushes under your own credentials, which is fine.
+    if os.environ.get("GITHUB_ACTIONS") == "true" and not os.environ.get("PROFILE_TOKEN"):
+        print("- no PROFILE_TOKEN secret, so the survey dropdown is left alone.")
+        print("  GITHUB_TOKEN may not push to .github/workflows/. The page is")
+        print("  still fully up to date; only the dropdown can go stale.")
+        return 0
+
     if not WF.exists():
         print(f"! {WF} is missing")
         return 1

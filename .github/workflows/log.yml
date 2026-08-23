@@ -71,19 +71,18 @@ jobs:
       # This is what makes "I created a repo" and "I deleted a repo" reach the
       # survey form: its dropdown is static YAML, so it is rewritten here on
       # the same schedule the page is.
+      #
+      # There is no `if:` here on purpose. The `secrets` context is not
+      # available to an `if:` expression — GitHub rejects the whole file with
+      # "Unrecognized named-value: 'secrets'" — so the guard lives inside
+      # roster.py, which sees PROFILE_TOKEN as an ordinary environment
+      # variable and declines to touch the file when it is absent.
       - name: refresh the survey dropdown
-        if: ${{ secrets.PROFILE_TOKEN != '' }}
         env:
+          PROFILE_TOKEN: ${{ secrets.PROFILE_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PROFILE_USER: ${{ github.repository_owner }}
         run: python .github/roster.py
-
-      - name: say why the dropdown was skipped
-        if: ${{ secrets.PROFILE_TOKEN == '' }}
-        run: |
-          echo "No PROFILE_TOKEN secret, so the survey dropdown is left alone."
-          echo "GITHUB_TOKEN may not push to .github/workflows/. The page is"
-          echo "still fully up to date; only the dropdown can go stale."
 
       - name: commit, only if something moved
         run: |

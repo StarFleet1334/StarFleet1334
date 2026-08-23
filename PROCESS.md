@@ -185,9 +185,10 @@ bug in the first version, caught by a live run.
 
 | symptom | cause | what happens to README.md |
 |:--|:--|:--|
+| **"Invalid workflow file"**, every trigger dead | an expression used a context the key does not allow — `secrets` is not available to `if:`, only to `env:`, `with:` and `run:` | untouched; GitHub rejects the whole file, so nothing runs at all |
 | **no run appears at all** after a push | the branch is not in the `branches:` filter, or the push touched only files outside `paths:` | untouched — nothing ran |
 | runs are green, **profile page never changes** | the files are in a repo not named `StarFleet1334` | updated, in a repo GitHub does not read for the Overview |
-| the dropdown never gains new repos | no `PROFILE_TOKEN` secret — `GITHUB_TOKEN` may not push to `.github/workflows/` | the page is still current; only the dropdown goes stale |
+| the dropdown never gains new repos, log says "no PROFILE_TOKEN secret" | the secret is not set — `GITHUB_TOKEN` may not push to `.github/workflows/`, so `roster.py` declines rather than producing a push GitHub would refuse | the page is still current; only the dropdown goes stale |
 | surveying a private repo says "not found" | no `PROFILE_TOKEN` secret | nothing surveyed |
 | job red at **rebuild the log** | GitHub API unreachable | **untouched** — `build.py` returns 1 before writing anything |
 | job red at **commit** with `403` | workflow permissions are read-only | untouched on the remote; the correct file existed only in the runner |
@@ -224,6 +225,12 @@ flowchart LR
     class A,B,C,D,E act
     class F,G wait
 ```
+
+> **A workflow file is only validated when it is pushed, and a bad expression
+> rejects the entire file** — every trigger in it, including the cron. `secrets`
+> in an `if:` did exactly that here once. The guard now lives inside
+> `roster.py`, which reads `PROFILE_TOKEN` as a plain environment variable, so
+> no `if:` is needed at all.
 
 **Prose** → edit `README.tpl.md`, push. Never edit `README.md`; the next run
 overwrites it and your change is gone with no warning.
