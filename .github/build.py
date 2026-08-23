@@ -266,6 +266,24 @@ def block_timeline(repos) -> str:
     return "\n".join(lines)
 
 
+def cell(desc: str, aether_lines: str) -> str:
+    """Render a deck row's description safely.
+
+    Two things bite now that this text arrives from a web form rather than
+    from a literal in this file:
+
+    `str.format` was used for the one {aether_lines} placeholder, which means
+    any other brace in the text is a format field. A perfectly reasonable note
+    like "handles {json} payloads" raised KeyError and took the whole build
+    down. A targeted replace has no such surface.
+
+    And an unescaped pipe ends the table cell, so "small | fast" silently
+    produced a row with a third column and a broken table.
+    """
+    return (desc.replace("{aether_lines}", aether_lines)
+                .replace("|", r"\|"))
+
+
 def block_hold(index, manifest) -> str:
     aether_lines = manifest.get("aether_lines", "~81k")
     out = []
@@ -280,7 +298,7 @@ def block_hold(index, manifest) -> str:
                     cells.append(f"[`{n}`](https://github.com/{USER}/{n})")
             if not cells:
                 continue  # every repo in this row is gone; drop the dead links
-            rows.append(f"| {' · '.join(cells)} | {desc.format(aether_lines=aether_lines)} |")
+            rows.append(f"| {' · '.join(cells)} | {cell(desc, aether_lines)} |")
         if not rows:
             continue
         out.append("<details>")
