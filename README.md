@@ -30,7 +30,7 @@
 <!--LOG:badges-->
 <img src="https://img.shields.io/badge/repos-54-0d1117?style=flat-square&labelColor=0d1117&color=58a6ff" alt="repos 54" />
 &nbsp;
-<img src="https://img.shields.io/badge/followers-8-0d1117?style=flat-square&labelColor=0d1117&color=58a6ff" alt="followers 8" />
+<img src="https://img.shields.io/badge/followers-9-0d1117?style=flat-square&labelColor=0d1117&color=58a6ff" alt="followers 9" />
 &nbsp;
 <img src="https://img.shields.io/badge/primary%20instrument-hands-0d1117?style=flat-square&labelColor=0d1117&color=f0883e" alt="primary instrument hands" />
 <!--/LOG:badges-->
