@@ -17,9 +17,9 @@
 ║                                                          ║
 ║   callsign      IDoctor                                  ║
 ║   on station    since 2021-07-04                         ║
-║   manifest      54 public repositories                   ║
-║   crewed by     Java · Go · HTML/CSS · Python            ║
-║   last seen in  ecommerce-inventory-platform             ║
+║   manifest      55 public repositories                   ║
+║   crewed by     Java · Go · HTML/CSS · JavaScript        ║
+║   last seen in  Shelves                                  ║
 ║   heading       AETHER - hands, face and voice           ║
 ║                                                          ║
 ╚══════════════════════════════════════════════════════════╝
@@ -28,9 +28,9 @@
 
 <sub>
 <!--LOG:badges-->
-<img src="https://img.shields.io/badge/repos-54-0d1117?style=flat-square&labelColor=0d1117&color=58a6ff" alt="repos 54" />
+<img src="https://img.shields.io/badge/repos-55-0d1117?style=flat-square&labelColor=0d1117&color=58a6ff" alt="repos 55" />
 &nbsp;
-<img src="https://img.shields.io/badge/followers-9-0d1117?style=flat-square&labelColor=0d1117&color=58a6ff" alt="followers 9" />
+<img src="https://img.shields.io/badge/followers-10-0d1117?style=flat-square&labelColor=0d1117&color=58a6ff" alt="followers 10" />
 &nbsp;
 <img src="https://img.shields.io/badge/primary%20instrument-hands-0d1117?style=flat-square&labelColor=0d1117&color=f0883e" alt="primary instrument hands" />
 <!--/LOG:badges-->
@@ -93,8 +93,8 @@ timeline
 | `▰▰▰▰▰▰▰▰▰▰` | **Java** | services, CQRS, Kafka, Eureka, chat, CRM |
 | `▰▰▰▰▰▱▱▱▱▱` | **Go** | goroutines, scrapers, a file finder, a UI, a clock |
 | `▰▱▱▱▱▱▱▱▱▱` | **HTML/CSS** | hand-written, every rule of it |
-| `▰▱▱▱▱▱▱▱▱▱` | **Python** | AETHER's entire backend — FastAPI, MediaPipe, Whisper |
 | `▰▱▱▱▱▱▱▱▱▱` | **JavaScript** | vanilla, no framework, on purpose |
+| `▰▱▱▱▱▱▱▱▱▱` | **Python** | AETHER's entire backend — FastAPI, MediaPipe, Whisper |
 | `▰▱▱▱▱▱▱▱▱▱` | **Kotlin** | an Android detour |
 | `▰▱▱▱▱▱▱▱▱▱` | **Dart** | a chat system that had to run on a phone |
 | `▰▱▱▱▱▱▱▱▱▱` | **OCaml** | a teaching language, and a good one |
@@ -186,6 +186,7 @@ timeline
 <!--LOG:arrivals-->
 | repo | language | first commit |
 |:--|:--|:--|
+| [`Shelves`](https://github.com/StarFleet1334/Shelves) | JavaScript | 2026-08-21 |
 | [`social-media-app-Task-`](https://github.com/StarFleet1334/social-media-app-Task-) | Java | 2024-11-14 |
 | [`SimD`](https://github.com/StarFleet1334/SimD) | Java | 2024-08-12 |
 | [`SimpleAuthenticationAp`](https://github.com/StarFleet1334/SimpleAuthenticationAp) | Java | 2024-06-03 |
@@ -193,9 +194,8 @@ timeline
 | [`Demo_API`](https://github.com/StarFleet1334/Demo_API) | Go | 2024-03-23 |
 | [`SpamMaker`](https://github.com/StarFleet1334/SpamMaker) | Go | 2024-02-24 |
 | [`network_cm`](https://github.com/StarFleet1334/network_cm) | Java | 2023-12-09 |
-| [`MemoryGame-Flipping_ties`](https://github.com/StarFleet1334/MemoryGame-Flipping_ties) | Java | 2023-12-06 |
 
-<sub>…and 3 more not yet filed.</sub>
+<sub>…and 4 more not yet filed.</sub>
 <!--/LOG:arrivals-->
 
 </details>
@@ -207,11 +207,11 @@ timeline
 <!--LOG:recent-->
 | | repo | last touched |
 |:--|:--|:--|
-| `▸` | [`ecommerce-inventory-platform`](https://github.com/StarFleet1334/ecommerce-inventory-platform) | 2025-08-22 |
+| `▸` | [`Shelves`](https://github.com/StarFleet1334/Shelves) | 2026-08-28 |
+| `·` | [`ecommerce-inventory-platform`](https://github.com/StarFleet1334/ecommerce-inventory-platform) | 2025-08-22 |
 | `·` | [`RepositoryAnalyzer`](https://github.com/StarFleet1334/RepositoryAnalyzer) | 2025-07-30 |
 | `·` | [`QuiziGeneratorWebExtension`](https://github.com/StarFleet1334/QuiziGeneratorWebExtension) | 2025-05-28 |
 | `·` | [`GymApplication`](https://github.com/StarFleet1334/GymApplication) | 2025-01-29 |
-| `·` | [`MicroServicesGEureka`](https://github.com/StarFleet1334/MicroServicesGEureka) | 2025-01-29 |
 <!--/LOG:recent-->
 
 ---
@@ -251,7 +251,7 @@ timeline
 </pre>
 
 <!--LOG:stamp-->
-<sub>last log entry &nbsp;·&nbsp; 2025-08-22 &nbsp;·&nbsp; <code>ecommerce-inventory-platform</code> &nbsp;·&nbsp; the desk is still on</sub>
+<sub>last log entry &nbsp;·&nbsp; 2026-08-28 &nbsp;·&nbsp; <code>Shelves</code> &nbsp;·&nbsp; the desk is still on</sub>
 <!--/LOG:stamp-->
 
 </div>
