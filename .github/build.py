@@ -547,6 +547,65 @@ def block_starchart(svg, alt):
     return (f'<img src="{src}" width="920" alt="{alt}" />')
 
 
+SPARK = "▁▂▃▄▅▆▇█"
+
+
+def spark(values) -> str:
+    """A fixed-height sparkline. An empty or flat run must not divide by zero,
+    and a run of all-equal days deliberately draws as a flat middle rather
+    than as a full bar — a wall of █ reads as a spike that never happened."""
+    if not values:
+        return ""
+    hi, lo = max(values), min(values)
+    if hi == lo:
+        return ("▄" if hi else "▁") * len(values)
+    span = len(SPARK) - 1
+    return "".join(SPARK[round(span * (v - lo) / (hi - lo))] for v in values)
+
+
+def block_views(ledger) -> str:
+    """What the traffic ledger has, or the reason it has nothing.
+
+    It rests rather than vanishing. There are two reasons for an empty
+    ledger — it is younger than one closed day, or the token cannot read
+    traffic — and the resting sentence names both, in order. A section that
+    disappears when it has no data can only ever be found again by accident.
+    """
+    days = ledger.get("days") or {}
+    if not days:
+        return ("<sub>No closed day on the ledger yet. <code>.github/views.py</code> "
+                "records a day only once it is over, so the first number appears "
+                "after the first full UTC day. If it stays empty past that, the "
+                "token cannot read traffic — it needs <b>Administration: read</b> "
+                "on this repository.</sub>")
+
+    order = sorted(days)
+    total = sum(days[d]["views"] for d in order)
+    uniq = sum(days[d]["uniques"] for d in order)
+    recent = order[-14:]
+    r_views = sum(days[d]["views"] for d in recent)
+    r_uniq = sum(days[d]["uniques"] for d in recent)
+    line = spark([days[d]["views"] for d in recent])
+    busiest = max(order, key=lambda d: days[d]["views"])
+
+    # Days *recorded*, not days elapsed. The ledger has a hole for any day the
+    # workflow could not reach inside the API's fourteen, and counting the
+    # calendar instead would claim a coverage the file does not have.
+    rows = [
+        ("Since", f"`{order[0]}` &nbsp;·&nbsp; {len(order)} days on the ledger"),
+        ("All time", f"**{total:,}** views &nbsp;·&nbsp; {uniq:,} distinct"),
+        ("Last 14 days", f"`{line}` &nbsp;·&nbsp; {r_views:,} views &nbsp;·&nbsp; {r_uniq:,} distinct"),
+        ("Busiest day", f"`{busiest}` &nbsp;·&nbsp; {days[busiest]['views']:,} views"),
+    ]
+    refs = ledger.get("referrers") or []
+    if refs:
+        rows.append(("Arriving from", " · ".join(f"`{r}`" for r in refs)))
+
+    out = ["| | |", "|---|---|"]
+    out += [f"| **{k}** | {v} |" for k, v in rows]
+    return "\n".join(out)
+
+
 # ─────────────────────────────────────────────────────────────────────────────
 # ✕ THE BLACK BOX
 #
