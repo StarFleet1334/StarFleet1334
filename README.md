@@ -66,6 +66,29 @@ a <b>Chronosphere</b> that scrubs the whole board backwards through its own hist
 
 ---
 
+## ⚑ &nbsp;THE SHIPPING FORECAST
+
+<sub>One line per deck, in a rationed vocabulary. The first reading is
+<b>recency</b> — how long since the newest repo in that deck was pushed:
+<i>moving</i> (a week) · <i>recent</i> (a month) · <i>quiet</i> (a quarter) ·
+<i>still</i> (a year) · <i>laid up</i>. The clause after it is which way the
+deck's attention is going. The count is how many of its repos have moved
+within the year, and the verdict is that share: <b>Good</b> above a half,
+<b>Moderate</b> above a fifth, <b>Poor</b> below. A deck can be <i>moving</i>
+and still <b>Poor</b> — one repo carrying eight.</sub>
+
+<!--LOG:forecast-->
+<pre>
+  ENGINEERING DECK   laid up.   0 of 9 live.   Poor.
+  SCIENCE DECK       laid up.   0 of 7 live.   Poor.
+  PROPULSION         laid up.   0 of 9 live.   Poor.
+  THE BRIDGE         laid up.   0 of 8 live.   Poor.
+  THE ACADEMY        laid up.   0 of 3 live.   Poor.
+</pre>
+<!--/LOG:forecast-->
+
+---
+
 ## ⚙ &nbsp;SYSTEMS ONLINE
 
 <sub>Every repository gets one vote, split between its languages by byte share — so no single vendored bundle can outrank a language that was actually written.</sub>
@@ -210,6 +233,24 @@ repository.</sub>
 <!--LOG:views-->
 <sub>No closed day on the ledger yet. <code>.github/views.py</code> records a day only once it is over, so the first number appears after the first full UTC day. If it stays empty past that, the token cannot read traffic — it needs <b>Administration: read</b> on this repository.</sub>
 <!--/LOG:views-->
+
+---
+
+## ✕ &nbsp;THE BLACK BOX
+
+<sub>This page rebuilds itself hourly, which means the one failure it cannot
+otherwise show you is its own — an expired token, an API that started
+refusing, a workflow disabled for inactivity all look exactly like a quiet
+month. So the recorder keeps a fortnight of its own runs, one tick per closed
+day, and reports by exception.</sub>
+
+<!--LOG:blackbox-->
+| | |
+|---|---|
+| **Last 14 days** | `─╳┼─────┼─────` &nbsp;·&nbsp; 2 changed the page &nbsp;·&nbsp; **1 refused** |
+| **Reading** | `─` ran, nothing moved &nbsp;·&nbsp; `┼` the page changed &nbsp;·&nbsp; `╳` refused &nbsp;·&nbsp; `·` no run at all |
+| **Last refusal** | `2026-08-26` |
+<!--/LOG:blackbox-->
 
 ---
 
