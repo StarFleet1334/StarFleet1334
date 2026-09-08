@@ -144,7 +144,7 @@ This is the useful table. Each slot has exactly one thing that moves it:
 | slot | commits when |
 |:--|:--|
 | `masthead` | repo or follower count changes · the top three languages reorder · your newest repo changes · `heading` in `manifest.json` changes |
-| `surface` | `manifest.json` is re-measured |
+| `heading` | `manifest.json` is re-measured — the signal path is drawn from it |
 | `starchart` | a repo is created, deleted, refiled, or crosses a magnitude band |
 | `systems` | language byte shares shift enough to reorder the bars or move a `▰` |
 | `hold` | a repo named in `DECKS` is created, deleted or renamed |

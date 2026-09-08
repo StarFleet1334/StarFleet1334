@@ -7,6 +7,7 @@ top of your profile page. That repo already exists.
 ```
 README.md            generated — do not edit
 masthead.svg         generated — do not edit; the plate at the top of the page
+heading.svg          generated — do not edit; CURRENT HEADING's signal path
 chart.svg            generated — do not edit; THE STAR CHART's plate
 docs/index.html      the interactive chart. Hand-written; the build never touches it
 docs/sky.json        generated — the star positions the page reads

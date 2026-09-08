@@ -40,6 +40,7 @@ OUT = ROOT / "README.md"
 MANIFEST = ROOT / "manifest.json"
 CHART = ROOT / "chart.svg"
 MASTHEAD = ROOT / "masthead.svg"
+HEADING = ROOT / "heading.svg"
 SKYJSON = ROOT / "docs" / "sky.json"
 
 API = "https://api.github.com"
@@ -183,25 +184,6 @@ def try_get(path, default=None):
 # ─────────────────────────────────────────────────────────────────────────────
 
 
-def block_surface(manifest) -> str:
-    """The current project is private, so the API knows nothing about it.
-    manifest.json is the one place the desk itself gets to speak; refresh it
-    with .github/manifest.py and the numbers here follow the real tree."""
-    m = manifest
-    rows = [
-        ("Surface", m.get("surface", "74 Python modules · 66 JS modules · ~81k lines")),
-        ("Spine", m.get("spine", "FastAPI over a websocket, vanilla JS, zero framework")),
-        ("Eyes", m.get("eyes", "MediaPipe hand + face landmarks at frame rate")),
-        ("Ears", m.get("ears", "Vosk live preview, Whisper `medium.en` final — fully offline")),
-        ("Rooms", m.get("rooms", "Canvas · Air Sketch (2D/3D) · Observatory · Codex · "
-                                 "Palace · Watchtower · Console")),
-        ("The trick", m.get("trick", "A motion repeated ~6× gets *proposed back to you* to bind")),
-    ]
-    out = ["| | |", "|---|---|"]
-    out += [f"| **{k}** | {v} |" for k, v in rows]
-    return "\n".join(out)
-
-
 def work(repos):
     """Every repo except this one.
 
@@ -240,6 +222,145 @@ def unfiled(repos):
     filed = {n for d in DECKS for names, _ in d["rows"] for n in names}
     return [r for r in work(repos)
             if r["name"] not in filed and r["name"] not in IGNORE]
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# ⌖ CURRENT HEADING — the signal path
+#
+# This was a six-row label/value table, which made the most important section
+# on the page look exactly like the two least important ones: SENSOR CONTACTS
+# and THE BLACK BOX are the same shape, so the eye had no reason to stop here.
+# Worse, a list of parts never answers the question the section exists for,
+# which is *what is this thing*.
+#
+# So it is a block diagram, after the one in an instrument manual: what goes
+# in, what it becomes, where it lands. A webcam and a mic on the left, three
+# channels off them, one bus into the desk, the agent underneath, the rooms
+# out the right. Someone who reads nothing else knows what AETHER is.
+#
+# It carries no wordmark and no strapline: the markdown heading and the
+# blockquote above it already say both, and the prose stays prose — real text
+# that can be selected, searched and read aloud. The drawing replaces the
+# table, not the writing.
+#
+# Everything is left-aligned and driven off manifest.json, which is already the
+# one place the private project gets to speak for itself.
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Tall enough for the agent block AND the footer beneath it. At 276 the two
+# overlapped, which a constant height will always eventually do.
+HD_W, HD_H = 920, 318
+
+
+def _hd_css():
+    return ("".join(f".{k}{{fill:{v}}}" for k, v in LIGHT.items())
+            + "".join(f".s-{k}{{stroke:{v}}}" for k, v in LIGHT.items())
+            + "@media(prefers-color-scheme:dark){"
+            + "".join(f".{k}{{fill:{v}}}" for k, v in DARK.items())
+            + "".join(f".s-{k}{{stroke:{v}}}" for k, v in DARK.items()) + "}")
+
+
+def _plain(t):
+    """manifest.json holds markdown, because the table used to render it.
+    A drawing has no emphasis, so the markers come out rather than through."""
+    return t.replace("`", "").replace("*", "").replace("_", "")
+
+
+def _wrap(text, n):
+    out, line = [], ""
+    for w in text.split(" "):
+        if len(line) + len(w) + 1 > n:
+            out.append(line)
+            line = w
+        else:
+            line = (line + " " + w).strip()
+    if line:
+        out.append(line)
+    return out
+
+
+def heading_plate(manifest) -> str:
+    m = manifest
+    o = [f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {HD_W} {HD_H}" '
+         f'width="{HD_W}" height="{HD_H}" role="img">',
+         f"<style>{_hd_css()}</style>",
+         f'<rect width="{HD_W}" height="{HD_H}" class="bg"/>']
+
+    def box(x, y, w, h, label, sub=None):
+        o.append(f'<rect x="{x}" y="{y}" width="{w}" height="{h}" class="box"/>')
+        o.append(f'<rect x="{x}" y="{y}" width="{w}" height="{h}" fill="none" '
+                 f'class="s-rule" stroke-width="1"/>')
+        o.append(_t(x + 11, y + 20, label, 10, "ink", family=MONO, track=1.4))
+        if sub:
+            o.append(_t(x + 11, y + 34, sub, 9, "dim", family=MONO))
+
+    def wire(d):
+        o.append(f'<path d="{d}" class="s-rule" stroke-width="1" fill="none"/>')
+
+    def arrow(x1, y, x2):
+        wire(f"M{x1} {y}H{x2 - 6}")
+        o.append(f'<path d="M{x2 - 6} {y - 3}L{x2} {y}L{x2 - 6} {y + 3}Z" class="rule"/>')
+
+    box(34, 52, 104, 44, "WEBCAM", "at frame rate")
+    box(34, 124, 104, 44, "HEADSET MIC", "fully offline")
+
+    for y, ch in ((66, "hands"), (86, "face")):
+        wire(f"M138 74H160V{y}H186")
+        o.append(_t(192, y + 3, ch, 11, "accent", family=MONO))
+    wire("M138 146H160V138H186")
+    o.append(_t(192, 141, "voice", 11, "accent", family=MONO))
+
+    # One bus with three feeds. Three separate elbows drew overlapping
+    # verticals and read as a wiring fault rather than a convergence.
+    for y in (69, 89, 141):
+        wire(f"M250 {y}H286")
+    wire("M286 69V141")
+    arrow(286, 108, 330)
+
+    # The spine is one sentence in manifest.json; the box wants it in two.
+    # Split on its own commas rather than truncating — a hard slice cut
+    # "websocket" in half the first time it ran.
+    spine = [x.strip() for x in _plain(m.get("spine", "")).split(",") if x.strip()]
+    box(330, 74, 168, 68, "THE DESK", spine[0] if spine else "")
+    if len(spine) > 1:
+        o.append(_t(341, 128, ", ".join(spine[1:]), 9, "dim", family=MONO))
+    wire("M414 188V152")
+    o.append('<path d="M411 158L414 152L417 158Z" class="rule"/>')
+    box(330, 188, 168, 40, "AN AGENT", "at the other end")
+
+    arrow(498, 108, 546)
+    rooms = _plain(m.get("rooms", ""))
+    o.append(_t(552, 80, f"{rooms.count('·') + 1} ROOMS", 8.5, "dim",
+                family=MONO, track=1.9))
+    for i, line in enumerate(_wrap(rooms, 42)[:3]):
+        o.append(_t(552, 102 + i * 17, line, 11, "ink", family=MONO))
+
+    o.append(f'<rect x="34" y="{HD_H - 62}" width="{HD_W - 68}" height="1" class="rule"/>')
+    o.append(_t(34, HD_H - 40, "SURFACE", 8.5, "dim", family=MONO, track=1.9))
+    o.append(_t(124, HD_H - 40, _plain(m.get("surface", "")), 11.5, "ink", family=MONO))
+    o.append(_t(34, HD_H - 16, "THE TRICK", 8.5, "warm", family=MONO, track=1.9))
+    o.append(_t(124, HD_H - 16, _plain(m.get("trick", "")), 11.5, "accent", family=MONO))
+    o.append("</svg>")
+    return "\n".join(o) + "\n"
+
+
+def block_heading(svg, manifest) -> str:
+    """The plate, wrapped so GitHub cannot give it a new-tab anchor.
+
+    The alt carries the facts the drawing holds. They are not selectable text
+    any more, and that is the one real cost of the change — so the alt has to
+    be a sentence someone could actually use, not "diagram".
+    """
+    m = manifest
+    stamp = hashlib.sha256(svg.encode("utf-8")).hexdigest()[:8]
+    alt = _esc(
+        "AETHER's signal path: a webcam at frame rate and a fully offline "
+        "headset mic feed three channels — hands, face and voice — into the "
+        f"desk ({_plain(m.get('spine', ''))}), with an agent at the other end, "
+        f"opening onto {_plain(m.get('rooms', ''))}. "
+        f"{_plain(m.get('surface', ''))}. {_plain(m.get('trick', ''))}.")
+    return (f'<a name="heading" href="#user-content-heading">'
+            f'<img src="{RAW}/heading.svg?v={stamp}" width="920" alt="{alt}" /></a>')
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -285,10 +406,15 @@ def unfiled(repos):
 # other one. That is a smaller wrong than a masthead that opens a bare file.
 # ─────────────────────────────────────────────────────────────────────────────
 
+# GitHub's own canvas colours. `box` is the subtle raised fill the signal-path
+# blocks sit on — it belongs here rather than in the diagram, because a class
+# used in a drawing and missing from this table has no fill rule at all and
+# falls back to black. Which is invisible on the dark ground and a solid black
+# slab on the light one, so the fault only shows in one theme.
 LIGHT = dict(bg="#ffffff", ink="#1f2328", dim="#59636e", rule="#d1d9e0",
-             accent="#0969da", warm="#bc4c00")
+             accent="#0969da", warm="#bc4c00", box="#f6f8fa")
 DARK = dict(bg="#0d1117", ink="#e6edf3", dim="#8b949e", rule="#30363d",
-            accent="#58a6ff", warm="#f0883e")
+            accent="#58a6ff", warm="#f0883e", box="#161b22")
 SANS = "-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif"
 MONO = "ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace"
 MAST_W, MAST_H = 920, 208
@@ -1066,6 +1192,7 @@ def main() -> int:
 
     index = {r["name"] for r in repos}
 
+    head_svg = heading_plate(manifest)
     mast = masthead(user, repos, langs, manifest)
     print(f"- masthead: {len(mast)} bytes, themed by media query")
 
@@ -1085,7 +1212,7 @@ def main() -> int:
 
     blocks = {
         "masthead": block_masthead(mast),
-        "surface":  block_surface(manifest),
+        "heading":  block_heading(head_svg, manifest),
         "starchart": block_starchart(sky),
         "systems":  block_systems(langs),
         "views":    block_views(ledger),
@@ -1123,7 +1250,8 @@ def main() -> int:
     if unknown:
         print(f"  ! template asks for unknown blocks: {', '.join(unknown)}", file=sys.stderr)
 
-    want = {CHART: svg, SKYJSON: data, MASTHEAD: mast, OUT: text}
+    want = {CHART: svg, SKYJSON: data, MASTHEAD: mast,
+            HEADING: head_svg, OUT: text}
     moved = [f.name for f, body in want.items()
              if not (f.exists() and f.read_text(encoding="utf-8") == body)]
 

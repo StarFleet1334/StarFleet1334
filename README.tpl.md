@@ -24,8 +24,8 @@
 > vocabulary** and learns yours by watching how you actually move — so the
 > dialect is *yours*, not a manual's.
 
-<!--LOG:surface-->
-<!--/LOG:surface-->
+<!--LOG:heading-->
+<!--/LOG:heading-->
 
 <sub>Also inside: a 2D alt-azimuth <b>Observatory</b> over 8,874 real catalogued stars ·
 a <b>Codex</b> that reads a codebase into a force-directed constellation — one star per
