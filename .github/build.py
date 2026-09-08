@@ -41,6 +41,7 @@ MANIFEST = ROOT / "manifest.json"
 CHART = ROOT / "chart.svg"
 MASTHEAD = ROOT / "masthead.svg"
 HEADING = ROOT / "heading.svg"
+SYSTEMS = ROOT / "systems.svg"
 SKYJSON = ROOT / "docs" / "sky.json"
 
 API = "https://api.github.com"
@@ -197,21 +198,6 @@ def work(repos):
             if r["name"].lower() != USER.lower() and not r.get("fork")]
 
 
-def block_systems(langs) -> str:
-    if not langs:
-        return "_language telemetry unavailable this run._"
-    top = langs[:8]
-    peak = top[0][1] or 1
-    out = ["| | instrument | where it actually shows up |",
-           "|:--|:--|:--|"]
-    for name, size in top:
-        filled = max(1, round(10 * size / peak))
-        bar = "▰" * filled + "▱" * (10 - filled)
-        note = LANG_NOTE.get(name, "")
-        out.append(f"| `{bar}` | **{name}** | {note} |")
-    return "\n".join(out)
-
-
 def unfiled(repos):
     """Every repo not in a deck and not ignored — NEW ARRIVALS' own set.
 
@@ -222,6 +208,83 @@ def unfiled(repos):
     filed = {n for d in DECKS for names, _ in d["rows"] for n in names}
     return [r for r in work(repos)
             if r["name"] not in filed and r["name"] not in IGNORE]
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# ⚙ SYSTEMS ONLINE — drawn, because it is the one section that is a measurement
+#
+# It was `▰▰▰▰▰▱▱▱▱▱` in a table. Ten steps is a coarse instrument: Python,
+# Kotlin, Dart and OCaml all rendered as one identical block despite differing
+# from each other by a third, and the difference between Java and Go looked
+# like the difference between two round numbers rather than 23.4 and 11.0.
+#
+# This is the one of the three sections reworked today that SHOULD become a
+# drawing, and the reason is worth stating because it decides the other two.
+# The content here is a quantity, and a quantity drawn to scale is strictly
+# better than a quantity quantised into glyphs. THE HOLD is a list of links —
+# drawing it would destroy the only thing it is for. WORKING NOTES is prose —
+# drawing prose makes it unreadable to a screen reader and unquotable by
+# everyone else. So exactly one of the three is a plate.
+# ─────────────────────────────────────────────────────────────────────────────
+
+SYS_W = 920
+SYS_BAR = 300          # the longest bar; every other is a true fraction of it
+SYS_ROW = 30
+
+
+def systems_plate(langs, repo_count) -> str:
+    top = langs[:8]
+    if not top:
+        top = [("—", 1.0)]
+    H = 62 + len(top) * SYS_ROW + 52
+    peak = top[0][1] or 1.0
+    total = sum(v for _, v in langs) or 1.0
+
+    o = [f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {SYS_W} {H}" '
+         f'width="{SYS_W}" height="{H}" role="img">',
+         f"<style>{_hd_css()}</style>",
+         f'<rect width="{SYS_W}" height="{H}" class="bg"/>']
+
+    for x, label in ((34, "LANGUAGE"), (150, "SHARE OF THE ACCOUNT"),
+                     (530, "WHERE IT ACTUALLY SHOWS UP")):
+        o.append(_t(x, 26, label, 8.5, "dim", family=MONO, track=1.9))
+    o.append(f'<rect x="34" y="36" width="{SYS_W - 68}" height="1" class="rule"/>')
+
+    y = 62
+    for i, (name, votes) in enumerate(top):
+        w = max(2.0, SYS_BAR * votes / peak)
+        o.append(_t(34, y + 10, name, 12, "ink", family=MONO))
+        o.append(f'<rect x="150" y="{y}" width="{SYS_BAR}" height="13" class="box"/>')
+        o.append(f'<rect x="150" y="{y}" width="{w:.1f}" height="13" '
+                 f'class="accent" fill-opacity="{max(0.34, 1 - i * 0.09):.2f}"/>')
+        o.append(_t(462, y + 10, f"{votes / total * 100:4.1f}%", 10.5, "dim",
+                    family=MONO))
+        note = LANG_NOTE.get(name, "")
+        if len(note) > 57:
+            note = note[:56] + "…"
+        o.append(_t(530, y + 10, note, 10, "ink", family=MONO))
+        y += SYS_ROW
+
+    o.append(f'<rect x="34" y="{y + 10}" width="{SYS_W - 68}" height="1" class="rule"/>')
+    o.append(_t(34, y + 32, "ONE VOTE PER REPOSITORY", 8.5, "warm",
+                family=MONO, track=1.9))
+    o.append(_t(280, y + 32,
+                f"split between its languages by byte share, across "
+                f"{repo_count} repositories", 11, "dim", family=MONO))
+    o.append("</svg>")
+    return "\n".join(o) + "\n"
+
+
+def block_systems(svg, langs) -> str:
+    if not langs:
+        return "_language telemetry unavailable this run._"
+    total = sum(v for _, v in langs) or 1.0
+    stamp = hashlib.sha256(svg.encode("utf-8")).hexdigest()[:8]
+    alt = _esc("Share of the account by language, one vote per repository split "
+               "by byte share: "
+               + ", ".join(f"{n} {v / total * 100:.0f}%" for n, v in langs[:8]) + ".")
+    return (f'<a name="systems" href="#user-content-systems">'
+            f'<img src="{RAW}/systems.svg?v={stamp}" width="920" alt="{alt}" /></a>')
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -1055,24 +1118,36 @@ def cell(desc: str, aether_lines: str) -> str:
 
 
 def block_hold(index, manifest) -> str:
+    """Five disclosures of repository links.
+
+    Deliberately NOT drawn. Every cell here is a link, and a link is the only
+    thing this section is for — a picture of it would be a picture of a menu.
+    What it needed instead was for the CLOSED state to say something: five rows
+    that all read "a deck, and a blurb" give you no reason to open any
+    particular one. Each summary now carries its own size.
+    """
     aether_lines = manifest.get("aether_lines", "~81k")
     out = []
     for d in DECKS:
-        rows = []
+        rows, held = [], 0
         for names, desc in d["rows"]:
             cells = []
             for n in names:
                 if n in PRIVATE:
                     cells.append(f"**{n}** &nbsp;<sub>private, for now</sub>")
+                    held += 1
                 elif n in index:
                     cells.append(f"[`{n}`](https://github.com/{USER}/{n})")
+                    held += 1
             if not cells:
                 continue  # every repo in this row is gone; drop the dead links
             rows.append(f"| {' · '.join(cells)} | {cell(desc, aether_lines)} |")
         if not rows:
             continue
         out.append("<details>")
-        out.append(f"<summary><b>{d['icon']} &nbsp;{d['title']}</b> &nbsp;— {d['blurb']}</summary>")
+        out.append(f"<summary><b>{d['icon']} &nbsp;{d['title']}</b> &nbsp;— "
+                   f"{d['blurb']} &nbsp;·&nbsp; <code>{held} "
+                   f"{'repository' if held == 1 else 'repositories'}</code></summary>")
         out.append("<br>\n")
         out.append("| repo | what it is |")
         out.append("|:--|:--|")
@@ -1193,6 +1268,7 @@ def main() -> int:
     index = {r["name"] for r in repos}
 
     head_svg = heading_plate(manifest)
+    sys_svg = systems_plate(langs, len(repos))
     mast = masthead(user, repos, langs, manifest)
     print(f"- masthead: {len(mast)} bytes, themed by media query")
 
@@ -1214,7 +1290,7 @@ def main() -> int:
         "masthead": block_masthead(mast),
         "heading":  block_heading(head_svg, manifest),
         "starchart": block_starchart(sky),
-        "systems":  block_systems(langs),
+        "systems":  block_systems(sys_svg, langs),
         "views":    block_views(ledger),
         "blackbox": block_blackbox(record),
         "hold":     block_hold(index, manifest),
@@ -1251,7 +1327,7 @@ def main() -> int:
         print(f"  ! template asks for unknown blocks: {', '.join(unknown)}", file=sys.stderr)
 
     want = {CHART: svg, SKYJSON: data, MASTHEAD: mast,
-            HEADING: head_svg, OUT: text}
+            HEADING: head_svg, SYSTEMS: sys_svg, OUT: text}
     moved = [f.name for f, body in want.items()
              if not (f.exists() and f.read_text(encoding="utf-8") == body)]
 

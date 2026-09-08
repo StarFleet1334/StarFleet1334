@@ -121,28 +121,26 @@ day, and reports by exception.</sub>
 
 ## ⛬ &nbsp;WORKING NOTES
 
-<table>
-<tr>
-<td width="30%"><b>Measured, not guessed</b></td>
-<td>A number read off the machine beats a number I reasoned my way to. Anything about layout, timing or hit-testing gets checked in the real environment — not in a stub that agrees with me.</td>
-</tr>
-<tr>
-<td><b>The failure should be a sentence</b></td>
-<td>A thing that can't do the thing says which of the two reasons it is, in words. Stack traces are for me; sentences are for whoever is holding it.</td>
-</tr>
-<tr>
-<td><b>Fail closed on the dangerous half</b></td>
-<td>If the redactor throws, the file does not go into the archive. The right default is the one where the bad outcome is impossible, not the one where it's unlikely.</td>
-</tr>
-<tr>
-<td><b>Rest, don't vanish</b></td>
-<td>A control with nothing to act on stays visible and explains itself, dimmed. Something that disappears when idle can only ever be discovered by accident.</td>
-</tr>
-<tr>
-<td><b>Ship the whole thought</b></td>
-<td>The finding, the evidence and the fix are one thing in three parts. Three loose notes are three orphans.</td>
-</tr>
-</table>
+<sub>Five things this desk keeps being right about.</sub>
+
+<dl>
+
+<dt><b>01 &nbsp;·&nbsp; Measured, not guessed</b></dt>
+<dd>A number read off the machine beats a number I reasoned my way to. Anything about layout, timing or hit-testing gets checked in the real environment — not in a stub that agrees with me.</dd>
+
+<dt><b>02 &nbsp;·&nbsp; The failure should be a sentence</b></dt>
+<dd>A thing that can't do the thing says which of the two reasons it is, in words. Stack traces are for me; sentences are for whoever is holding it.</dd>
+
+<dt><b>03 &nbsp;·&nbsp; Fail closed on the dangerous half</b></dt>
+<dd>If the redactor throws, the file does not go into the archive. The right default is the one where the bad outcome is impossible, not the one where it's unlikely.</dd>
+
+<dt><b>04 &nbsp;·&nbsp; Rest, don't vanish</b></dt>
+<dd>A control with nothing to act on stays visible and explains itself, dimmed. Something that disappears when idle can only ever be discovered by accident.</dd>
+
+<dt><b>05 &nbsp;·&nbsp; Ship the whole thought</b></dt>
+<dd>The finding, the evidence and the fix are one thing in three parts. Three loose notes are three orphans.</dd>
+
+</dl>
 
 ---
 

@@ -8,6 +8,7 @@ top of your profile page. That repo already exists.
 README.md            generated — do not edit
 masthead.svg         generated — do not edit; the plate at the top of the page
 heading.svg          generated — do not edit; CURRENT HEADING's signal path
+systems.svg          generated — do not edit; the language shares, to scale
 chart.svg            generated — do not edit; THE STAR CHART's plate
 docs/index.html      the interactive chart. Hand-written; the build never touches it
 docs/sky.json        generated — the star positions the page reads
@@ -124,8 +125,8 @@ whenever you press Run workflow or fire `repository_dispatch`:
 | the masthead | `/users/…` — name, join date, repo count, followers, top languages, newest repo |
 | THE STAR CHART | `chart.svg`, redrawn from the repo list and each repo's code bytes |
 | the interactive chart | `docs/sky.json` — the same positions, as data |
-| SYSTEMS ONLINE | `/languages` on every repo, one vote each, split by byte share |
-| THE HOLD | `DECKS`, minus any repo that no longer exists |
+| SYSTEMS ONLINE | `/languages` on every repo, one vote each, split by byte share, drawn to scale |
+| THE HOLD | `decks.json`, minus any repo that no longer exists; each summary carries its own count |
 | NEW ARRIVALS | every repo not yet filed into a deck |
 | SENSOR CONTACTS | `views.json`, which `views.py` merges from `/traffic/views` |
 | THE BLACK BOX | this workflow's own last fourteen days of runs |
