@@ -39,6 +39,7 @@ TPL = ROOT / "README.tpl.md"
 OUT = ROOT / "README.md"
 MANIFEST = ROOT / "manifest.json"
 CHART = ROOT / "chart.svg"
+CHARTS = ROOT / "charts"
 
 API = "https://api.github.com"
 
@@ -354,6 +355,15 @@ MAG_BANDS = [(1_000_000, 1), (400_000, 2), (150_000, 3),
              (50_000, 4), (15_000, 5), (0, 6)]
 MAG_R = {1: 5.4, 2: 4.1, 3: 3.2, 4: 2.5, 5: 1.9, 6: 1.4}
 
+# A deck's own plate. The figure is fitted into the LEFT of it and the names
+# are written into the strip kept clear on the right — because a deck's region
+# in the overview is a tall narrow ellipse, so a figure fitted to the whole box
+# is limited by height and leaves half the width empty, which is exactly where
+# nine names need to go.
+DECK_W, DECK_H, DECK_PAD = 700, 400, 30
+LABEL_ROOM = 214          # kept clear on the right for the names
+LABEL_GAP = 12.5          # the least vertical space two names can share
+
 # A monospace advance is a reliable 0.6em, which is the only reason a label's
 # width can be known without a font engine. It has to be known: a repo name is
 # up to 40 characters and the star it belongs to can sit anywhere on the plate.
@@ -432,12 +442,17 @@ def _esc(t):
             .replace(">", "&gt;").replace('"', "&quot;"))
 
 
-def chart(repos, sizes, manifest):
-    """Return (svg_text, alt_text, tally). Draws nothing to disk."""
+def _sky(repos, sizes, manifest):
+    """Where every star is. Draws nothing.
+
+    Split out from the drawing because a deck's own plate has to put a star in
+    the same place, relative to its neighbours, as the overview does — so the
+    placement has to be computed once and handed to whatever is drawing.
+    """
     by_name = {r["name"]: r for r in repos}
     regions = _regions(len(DECKS))
 
-    figures, field = [], []
+    figures = []
     for d, region in zip(DECKS, regions):
         stars = []
         for names, _ in d["rows"]:
@@ -447,80 +462,149 @@ def chart(repos, sizes, manifest):
                 elif n in PRIVATE:
                     # The API cannot measure a private repo, so its magnitude is
                     # asserted by manifest.json rather than read. The ring drawn
-                    # round it below is that distinction, made visible.
+                    # round it is that distinction, made visible.
                     stars.append((n, _place(n, region),
                                   int(manifest.get("chart_magnitude", 1)), True))
         if stars:
-            figures.append((d["title"], region, stars))
+            figures.append({"title": d["title"], "icon": d.get("icon", ""),
+                            "blurb": d.get("blurb", ""), "region": region,
+                            "stars": stars})
 
     whole = (SKY_W / 2, SKY_H / 2, (SKY_W - 2 * SKY_PAD) / 2,
              (SKY_H - 2 * SKY_PAD) / 2)
+    field = []
     for r in sorted(unfiled(repos), key=lambda r: r["name"]):
         # Field stars get the whole plate, not a region — they belong to no
         # figure, which is the entire point of being unfiled. Sorted by name
         # because the repo list arrives sorted by pushed_at: without it the
         # identical picture is emitted in a different order every time
-        # anything is pushed, and the plate commits for a change nobody can
-        # see.
+        # anything is pushed, and the plate commits for a change nobody
+        # could see.
         n = r["name"]
-        field.append((n, _place(n, whole), _mag(sizes.get(n, 0))))
+        field.append((n, _place(n, whole), _mag(sizes.get(n, 0)), False))
 
-    out = [f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {SKY_W} {SKY_H}" '
-           f'width="{SKY_W}" height="{SKY_H}" role="img">',
-           '<style>text{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}</style>',
-           f'<rect width="{SKY_W}" height="{SKY_H}" fill="{SKY_GROUND}"/>',
-           f'<rect x="6.5" y="6.5" width="{SKY_W - 13}" height="{SKY_H - 13}" '
-           f'fill="none" stroke="{SKY_EDGE}" stroke-width="1"/>']
+    return {"figures": figures, "field": field}
 
-    # figures first, so a line can never be drawn over a star
-    for title, region, stars in figures:
-        pts = [st[1] for st in stars]
-        seg = "".join(f"M{pts[i][0]:.1f} {pts[i][1]:.1f}L{pts[j][0]:.1f} {pts[j][1]:.1f}"
-                      for i, j in _figure(pts))
-        if seg:
-            out.append(f'<path d="{seg}" fill="none" stroke="{SKY_FIGURE}" '
-                       f'stroke-width="1" stroke-opacity="0.55"/>')
 
-    for name, (x, y), mag in field:
-        out.append(f'<circle cx="{x:.1f}" cy="{y:.1f}" r="{MAG_R[mag] * 0.8:.1f}" '
-                   f'fill="{SKY_FIELD}" fill-opacity="{MAG_O[mag] * 0.45:.2f}"/>')
+def _fit(stars, box):
+    """A uniform scale+offset putting `stars` inside (x, y, w, h).
 
-    for title, region, stars in figures:
-        for name, (x, y), mag, private in stars:
-            if mag <= 2:
-                out.append(f'<circle cx="{x:.1f}" cy="{y:.1f}" r="{MAG_R[mag] * 2.6:.1f}" '
-                           f'fill="{SKY_STAR}" fill-opacity="0.10"/>')
-            out.append(f'<circle cx="{x:.1f}" cy="{y:.1f}" r="{MAG_R[mag]:.1f}" '
-                       f'fill="{SKY_STAR}" fill-opacity="{MAG_O[mag]:.2f}"/>')
-            if private:
-                out.append(f'<circle cx="{x:.1f}" cy="{y:.1f}" r="{MAG_R[mag] + 4:.1f}" '
-                           f'fill="none" stroke="{SKY_STAR}" stroke-width="0.8" '
-                           f'stroke-opacity="0.45" stroke-dasharray="2 2"/>')
+    Uniform on purpose: the same factor on both axes, so a figure keeps its
+    shape when it is drawn on its own plate. Scaling each axis to fill the box
+    would stretch a constellation into a different constellation, which is the
+    one thing a chart of anything may not do.
+    """
+    bx, by, bw_, bh_ = box
+    xs = [x for _, (x, _), _, _ in stars]
+    ys = [y for _, (_, y), _, _ in stars]
+    bw = max(max(xs) - min(xs), 1.0)
+    bh = max(max(ys) - min(ys), 1.0)
+    k = min(bw_ / bw, bh_ / bh)
+    # centre the slack, so a figure narrower than its box is not pinned left
+    ox = bx + (bw_ - bw * k) / 2 - min(xs) * k
+    oy = by + (bh_ - bh * k) / 2 - min(ys) * k
+    return lambda x, y: (x * k + ox, y * k + oy)
 
-        # the brightest star in the figure carries its name, the way an atlas
-        # labels α and leaves the rest to the catalogue
-        lead = min(stars, key=lambda st: (st[2], st[0]))
-        lx, ly = lead[1]
-        # Which side the name goes is decided by whether it *fits*, not by how
-        # far right the star is. A fraction of the width was the first rule
-        # here and it put a 27-character name off the edge of the plate from a
-        # star that was only four fifths of the way across.
-        wide = len(lead[0]) * LABEL_SIZE * LABEL_ADV
-        if lx + 8 + wide <= SKY_W - SKY_PAD:
-            anchor, dx = "start", 8
-        else:
-            anchor, dx = "end", -8
-        out.append(f'<text x="{max(SKY_PAD, min(SKY_W - SKY_PAD, lx + dx)):.1f}" '
-                   f'y="{ly + 3.5:.1f}" text-anchor="{anchor}" '
-                   f'font-size="{LABEL_SIZE}" fill="{SKY_STAR}" fill-opacity="0.72">'
-                   f'{_esc(lead[0])}</text>')
 
-        cx, cy, rx, ry = region
+def _declutter(rows, gap, lo, hi):
+    """Push labels apart in y until none overlaps, then fit the run in [lo,hi].
+
+    Every star is named on a deck plate, and stars land where a hash puts them
+    — so two names an atlas would space by hand arrive four pixels apart and
+    render as one illegible smear. This is the one-dimensional version of what
+    a cartographer does: keep the order, keep each name as near its own star as
+    the gap allows, and move the whole run rather than let any pair collide.
+
+    Ties are broken on the name so the result cannot depend on dict order.
+    """
+    out, prev = [], -1e9
+    for y, payload in sorted(rows, key=lambda t: (t[0], t[1][0])):
+        y = max(y, prev + gap)
+        out.append((y, payload))
+        prev = y
+    if not out:
+        return out
+    over = out[-1][0] - hi
+    if over > 0:                       # ran off the bottom — slide the run up
+        out = [(y - over, p) for y, p in out]
+    under = lo - out[0][0]
+    if under > 0:                      # ...and if that ran off the top, down
+        out = [(y + under, p) for y, p in out]
+    return out
+
+
+def _stars_svg(out, stars, at, dim=False):
+    for name, (x0, y0), mag, private in stars:
+        x, y = at(x0, y0)
+        r = MAG_R[mag] * (0.8 if dim else 1.0)
+        o = MAG_O[mag] * (0.45 if dim else 1.0)
+        fill = SKY_FIELD if dim else SKY_STAR
+        if mag <= 2 and not dim:
+            out.append(f'<circle cx="{x:.1f}" cy="{y:.1f}" r="{MAG_R[mag] * 2.6:.1f}" '
+                       f'fill="{SKY_STAR}" fill-opacity="0.10"/>')
+        out.append(f'<circle cx="{x:.1f}" cy="{y:.1f}" r="{r:.1f}" '
+                   f'fill="{fill}" fill-opacity="{o:.2f}"/>')
+        if private:
+            out.append(f'<circle cx="{x:.1f}" cy="{y:.1f}" r="{MAG_R[mag] + 4:.1f}" '
+                       f'fill="none" stroke="{SKY_STAR}" stroke-width="0.8" '
+                       f'stroke-opacity="0.45" stroke-dasharray="2 2"/>')
+
+
+def _name_at(out, x, y, text, w, size=LABEL_SIZE, opacity=0.72):
+    """Put a name beside a star on whichever side it fits.
+
+    Which side is decided by whether the name *fits*, never by how far across
+    the plate the star sits: a fraction-of-the-width rule put a 27-character
+    name off the edge from a star only four fifths of the way over.
+    """
+    wide = len(text) * size * LABEL_ADV
+    if x + 8 + wide <= w - SKY_PAD:
+        anchor, dx = "start", 8
+    else:
+        anchor, dx = "end", -8
+    out.append(f'<text x="{max(4, min(w - 4, x + dx)):.1f}" y="{y + 3.5:.1f}" '
+               f'text-anchor="{anchor}" font-size="{size}" fill="{SKY_STAR}" '
+               f'fill-opacity="{opacity}">{_esc(text)}</text>')
+
+
+def _envelope(w, h):
+    return [f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {w} {h}" '
+            f'width="{w}" height="{h}" role="img">',
+            '<style>text{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}</style>',
+            f'<rect width="{w}" height="{h}" fill="{SKY_GROUND}"/>',
+            f'<rect x="6.5" y="6.5" width="{w - 13}" height="{h - 13}" '
+            f'fill="none" stroke="{SKY_EDGE}" stroke-width="1"/>']
+
+
+def _figure_path(out, stars, at):
+    pts = [at(x, y) for _, (x, y), _, _ in stars]
+    seg = "".join(f"M{pts[i][0]:.1f} {pts[i][1]:.1f}L{pts[j][0]:.1f} {pts[j][1]:.1f}"
+                  for i, j in _figure(pts))
+    if seg:
+        out.append(f'<path d="{seg}" fill="none" stroke="{SKY_FIGURE}" '
+                   f'stroke-width="1" stroke-opacity="0.55"/>')
+
+
+def plate_sky(sky):
+    """The whole account on one plate: figures, field stars, deck names."""
+    figures, field = sky["figures"], sky["field"]
+    at = lambda x, y: (x, y)
+    out = _envelope(SKY_W, SKY_H)
+
+    for f in figures:                       # figures first — never over a star
+        _figure_path(out, f["stars"], at)
+    _stars_svg(out, field, at, dim=True)
+
+    for f in figures:
+        _stars_svg(out, f["stars"], at)
+        lead = min(f["stars"], key=lambda st: (st[2], st[0]))
+        _name_at(out, lead[1][0], lead[1][1], lead[0], SKY_W)
+        cx, cy, rx, ry = f["region"]
         out.append(f'<text x="{cx:.1f}" y="{cy + ry + 17:.1f}" text-anchor="middle" '
                    f'font-size="9" letter-spacing="2.2" fill="{SKY_LABEL}" '
-                   f'fill-opacity="0.85">{_esc(title)}</text>')
+                   f'fill-opacity="0.85">{_esc(f["title"])}</text>')
 
-    counted = sum(len(st) for _, _, st in figures)
+    counted = sum(len(f["stars"]) for f in figures)
     out.append(f'<text x="{SKY_PAD}" y="{SKY_H - 13}" font-size="8.5" '
                f'letter-spacing="1.6" fill="{SKY_LABEL}" fill-opacity="0.45">'
                f'{counted} CHARTED &#183; {len(field)} FIELD STARS &#183; '
@@ -528,23 +612,175 @@ def chart(repos, sizes, manifest):
     out.append("</svg>")
 
     alt = ("A star chart of this account: " +
-           " &#183; ".join(f"{t} ({len(st)})" for t, _, st in figures) +
+           " &#183; ".join(f"{f['title']} ({len(f['stars'])})" for f in figures) +
            f", and {len(field)} unfiled field stars belonging to no figure.")
     return "\n".join(out) + "\n", alt, (counted, len(field))
 
 
-def block_starchart(svg, alt):
-    """The image, cache-busted by its own content.
+def plate_figure(f):
+    """One deck, on its own plate, with every star named.
 
-    GitHub proxies README images and caches them hard, so a chart that changed
-    can sit stale behind the old bytes for a long time. The tag carries eight
-    hex of the SVG's own sha256: a chart that did not change keeps its URL and
-    commits nothing, and one that did gets a URL the proxy has never seen.
+    The overview can only afford one name per figure — thirty-seven names on
+    one plate is a list, not a chart. This is where the rest of them live, and
+    it is why the names are decluttered and led by a hairline back to their own
+    star: on a plate where every star is labelled, "which name is that one's"
+    is the only question that matters.
+    """
+    w, h = DECK_W, DECK_H
+    box = (DECK_PAD, DECK_PAD + 6,
+           w - LABEL_ROOM - 2 * DECK_PAD, h - 2 * DECK_PAD - 22)
+    at = _fit(f["stars"], box)
+    out = _envelope(w, h)
+    _figure_path(out, f["stars"], at)
+    _stars_svg(out, f["stars"], at)
+
+    placed = [(at(*st[1])[1], (st[0], at(*st[1]))) for st in f["stars"]]
+    for ly, (name, (x, y)) in _declutter(placed, LABEL_GAP,
+                                         DECK_PAD + 8, h - DECK_PAD - 16):
+        if abs(ly - y) > 2:
+            # a hairline from the star to the name that had to move off it
+            out.append(f'<path d="M{x + 4:.1f} {y:.1f}L{x + 11:.1f} {ly - 3:.1f}" '
+                       f'stroke="{SKY_FIGURE}" stroke-width="0.7" '
+                       f'stroke-opacity="0.5" fill="none"/>')
+        out.append(f'<text x="{x + 13:.1f}" y="{ly:.1f}" font-size="9" '
+                   f'fill="{SKY_STAR}" fill-opacity="0.82">{_esc(name)}</text>')
+
+    out.append(f'<text x="{DECK_PAD}" y="{h - 14}" font-size="8.5" '
+               f'letter-spacing="1.6" fill="{SKY_LABEL}" fill-opacity="0.6">'
+               f'{_esc(f["title"])} &#183; {len(f["stars"])} STARS</text>')
+    out.append("</svg>")
+    alt = (f"{f['title']}: a figure of {len(f['stars'])} stars — "
+           + ", ".join(_esc(st[0]) for st in f["stars"]) + ".")
+    return "\n".join(out) + "\n", alt
+
+
+RAW = f"https://raw.githubusercontent.com/{USER}/{USER}/main"
+
+
+def _slug(title):
+    out = "".join(c.lower() if c.isalnum() else "-" for c in title)
+    return "-".join(x for x in out.split("-") if x)
+
+
+def _kb(n):
+    if n >= 1_000_000:
+        return f"{n / 1_000_000:.1f} MB"
+    if n >= 1000:
+        return f"{n // 1000} KB"
+    return f"{n} B"
+
+
+# Where a click on any plate goes. It is an anchor this file plants itself
+# rather than a heading slug, because GitHub rewrites author anchors to a
+# predictable `user-content-` + the exact name given, while a heading's slug is
+# derived from its text — and this page's headings begin with a glyph and an
+# &nbsp;, which collapse into a leading dash nobody would guess correctly.
+ROOM_ANCHOR = "chart-room"
+
+
+def _img(src, svg, width, alt):
+    """An image that does NOT open a new tab when it is clicked.
+
+    GitHub's renderer wraps every bare <img> — markdown or raw HTML, and even
+    one inside a <summary> — in
+
+        <a target="_blank" rel="noopener noreferrer nofollow" href="{the image}">
+
+    which is why clicking the plate used to leave the page for a picture of
+    it. It does *not* add that wrapper to an image the author has already put
+    inside a link. Verified against GitHub's own renderer, not assumed: a bare
+    img comes back carrying target="_blank", the same img inside a hand-written
+    anchor comes back exactly as written.
+
+    So every plate is wrapped, and the link goes to the chart room below it.
+
+    The href carries the content hash for the same reason the src does: GitHub
+    caches README images hard, and a plate that changed can otherwise sit
+    behind the old bytes.
     """
     stamp = hashlib.sha256(svg.encode("utf-8")).hexdigest()[:8]
-    src = (f"https://raw.githubusercontent.com/{USER}/{USER}/main/"
-           f"chart.svg?v={stamp}")
-    return (f'<img src="{src}" width="920" alt="{alt}" />')
+    return (f'<a href="#user-content-{ROOM_ANCHOR}">'
+            f'<img src="{RAW}/{src}?v={stamp}" width="{width}" alt="{alt}" /></a>')
+
+
+def block_starchart(sky):
+    svg, alt, _ = plate_sky(sky)
+    return _img("chart.svg", svg, 920, alt)
+
+
+def block_chartroom(sky, sizes, plates):
+    """One <details> per figure, opening in place.
+
+    <details> is the only interaction a README has: no script survives the
+    sanitizer, and an <img> is a picture the page cannot hit-test into, so a
+    click on the plate itself can never zoom it. What a click CAN do is open a
+    disclosure — natively, without leaving the page — so the deck someone
+    wants a closer look at is one click away, and the thirty names the
+    overview cannot fit live inside.
+
+    The summary is written to be worth reading closed: a figure's size and its
+    brightest star, so the row says something even when nobody opens it.
+    """
+    # The anchor every plate links to. Placed on a visible line ABOVE the
+    # disclosures rather than inside one: a fragment pointing into a closed
+    # <details> only scrolls anywhere on browsers new enough to open it, and
+    # on the rest a click would do nothing at all.
+    out = [f'<a name="{ROOM_ANCHOR}"></a>', ""]
+    for f in sky["figures"]:
+        slug = _slug(f["title"])
+        svg, salt = plates[slug]
+        lead = min(f["stars"], key=lambda st: (st[2], st[0]))
+        out.append("<details>")
+        out.append(f'<summary><b>{f["icon"]} &nbsp;{f["title"]}</b> &nbsp;— '
+                   f'{len(f["stars"])} stars, brightest <code>{_esc(lead[0])}</code></summary>')
+        out.append("<br>\n")
+        out.append('<div align="center">\n')
+        out.append(_img(f"charts/{slug}.svg", svg, 700, salt))
+        out.append("\n</div>\n")
+        out.append("| star | mag | code |")
+        out.append("|:--|:--|:--|")
+        for name, _pos, mag, private in sorted(f["stars"], key=lambda st: (st[2], st[0])):
+            if private:
+                cell = f"**{_esc(name)}** <sub>private</sub>"
+                code = "—"
+            else:
+                cell = f"[`{name}`](https://github.com/{USER}/{name})"
+                code = _kb(sizes.get(name, 0))
+            out.append(f"| {cell} | {mag} | {code} |")
+        out.append("\n</details>\n")
+
+    field = sky["field"]
+    if field:
+        out.append("<details>")
+        out.append(f'<summary><b>⌁ &nbsp;THE FIELD</b> &nbsp;— {len(field)} stars '
+                   f'in no figure at all</summary>')
+        out.append("<br>\n")
+        out.append("<sub>Unfiled repositories. They are on the plate, scattered across "
+                   "the whole sky rather than gathered into a deck, because that is "
+                   "what being unfiled looks like. File one in "
+                   "<code>decks.json</code> and it joins a figure on the next "
+                   "run.</sub>\n")
+        out.append("| star | mag | code |")
+        out.append("|:--|:--|:--|")
+        for name, _pos, mag, _private in sorted(field, key=lambda st: (st[2], st[0])):
+            out.append(f"| [`{name}`](https://github.com/{USER}/{name}) "
+                       f"| {mag} | {_kb(sizes.get(name, 0))} |")
+        out.append("\n</details>\n")
+    return "\n".join(out)
+
+
+def deck_plates(sky):
+    """Every deck's plate, as {slug: (svg, alt)}. Writes nothing.
+
+    main() writes them, and removes any plate under charts/ it did not
+    produce this run — a deck renamed or dropped from decks.json would
+    otherwise leave a plate behind that nothing links to and nothing updates,
+    and the next reader would find a chart of a fleet that no longer exists.
+    """
+    plates = {}
+    for f in sky["figures"]:
+        plates[_slug(f["title"])] = plate_figure(f)
+    return plates
 
 
 SPARK = "▁▂▃▄▅▆▇█"
@@ -919,8 +1155,11 @@ def main() -> int:
 
     index = {r["name"] for r in repos}
 
-    svg, alt, tally = chart(repos, code_bytes, manifest)
-    print(f"- chart: {tally[0]} charted, {tally[1]} field stars, {len(svg)} bytes")
+    sky = _sky(repos, code_bytes, manifest)
+    svg, alt, tally = plate_sky(sky)
+    plates = deck_plates(sky)
+    print(f"- chart: {tally[0]} charted, {tally[1]} field stars, "
+          f"{len(plates)} deck plates")
 
     ledger = load_views()
     print(f"- ledger: {len(ledger['days'])} days, "
@@ -934,7 +1173,8 @@ def main() -> int:
         "stardate": block_stardate(user, repos, langs, manifest),
         "surface":  block_surface(manifest),
         "badges":   block_badges(user, repos, ledger),
-        "starchart": block_starchart(svg, alt),
+        "starchart": block_starchart(sky),
+        "chartroom": block_chartroom(sky, code_bytes, plates),
         "systems":  block_systems(langs),
         "views":    block_views(ledger),
         "blackbox": block_blackbox(record),
@@ -972,22 +1212,34 @@ def main() -> int:
     if unknown:
         print(f"  ! template asks for unknown blocks: {', '.join(unknown)}", file=sys.stderr)
 
-    moved = []
-    if not (OUT.exists() and OUT.read_text(encoding="utf-8") == text):
-        moved.append(OUT.name)
-    if not (CHART.exists() and CHART.read_text(encoding="utf-8") == svg):
-        moved.append(CHART.name)
+    # Every file this run is responsible for, and the bytes it should hold.
+    want = {CHART: svg, OUT: text}
+    for slug, (plate, _alt) in plates.items():
+        want[CHARTS / f"{slug}.svg"] = plate
+
+    moved = [f.name for f, body in want.items()
+             if not (f.exists() and f.read_text(encoding="utf-8") == body)]
+    # A deck renamed or dropped leaves a plate nothing links to any more.
+    stale = sorted(f for f in (CHARTS.glob("*.svg") if CHARTS.exists() else [])
+                   if f not in want)
+    moved += [f"-{f.name}" for f in stale]
 
     if "--check" in sys.argv:
         print("- no change" if not moved else "- would change: " + ", ".join(moved))
         return 0
 
-    # The chart is written first. The README points at it by content hash, so
-    # the one ordering that must never happen is a committed page naming a
-    # chart that is not there yet.
-    CHART.write_text(svg, encoding="utf-8", newline="\n")
+    # The plates are written before the page. The page names each of them by
+    # content hash, so the one ordering that must never happen is a committed
+    # README pointing at a chart that is not there yet.
+    CHARTS.mkdir(exist_ok=True)
+    for f in stale:
+        f.unlink()
+    for f, body in want.items():
+        if f is not OUT:
+            f.write_text(body, encoding="utf-8", newline="\n")
     OUT.write_text(text, encoding="utf-8", newline="\n")
-    print(f"- wrote {OUT.name} ({len(text)} bytes) and {CHART.name} ({len(svg)} bytes)")
+    print(f"- wrote {OUT.name} ({len(text)} bytes), {CHART.name} and "
+          f"{len(plates)} plates" + (f", removed {len(stale)}" if stale else ""))
     return 0
 
 

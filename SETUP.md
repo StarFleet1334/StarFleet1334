@@ -7,6 +7,7 @@ top of your profile page. That repo already exists.
 ```
 README.md            generated — do not edit
 chart.svg            generated — do not edit; THE STAR CHART's plate
+charts/              generated — one plate per deck, for THE CHART ROOM
 PROCESS.md           the mechanism, end to end
 README.tpl.md        the prose. Edit this.
 manifest.json        numbers for the private project the API cannot see
