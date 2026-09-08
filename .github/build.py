@@ -213,6 +213,107 @@ def unfiled(repos):
 
 
 # ─────────────────────────────────────────────────────────────────────────────
+# ⌁ THE ROVER
+#
+# A small walker that patrols the plates, one at a time, down the page.
+#
+# Nothing can move BETWEEN two images — each <img> is an isolated painting and
+# no script or stylesheet reaches across them. So the descent is done with the
+# clock instead: every plate carries its own rover on a ROVE_CYCLE loop, and
+# plate n does its crossing in the nth slice of that loop. At any moment
+# exactly one rover is on screen, and a minute later it has walked the whole
+# page. The reader's eye supplies the continuity; the file cannot.
+#
+# It walks the hairline rule each plate already draws, so nothing was added to
+# the layout to give it somewhere to be.
+#
+# Three things this shape is load-bearing about:
+#
+#   POSITION AND MOTION LIVE ON DIFFERENT GROUPS. A CSS transform animation
+#   replaces the element's transform attribute outright, so a <g> that both
+#   sits at y=150 and animates translateX loses the y — the first version
+#   walked along the top edge of the plate, outside it.
+#
+#   IT IS PARKED, NOT ABSENT, OUTSIDE ITS SLICE. The keyframes hold it past
+#   the right edge for the rest of the cycle rather than hiding it, because a
+#   display toggle would restart the leg animation every loop.
+#
+#   prefers-reduced-motion IS NOT HONOURED inside an <img>-embedded SVG.
+#   Measured: Chromium ignores it there while honouring prefers-color-scheme
+#   in the same file. The query is written anyway — it costs nothing and other
+#   engines may respect it — but it cannot be relied on, which is the real
+#   reason the rover is small, slow, and alone on the page at any moment.
+# ─────────────────────────────────────────────────────────────────────────────
+
+ROVE_CYCLE = 64          # seconds for one descent of the whole page
+ROVE_PLATES = 4          # masthead → heading → systems → chart
+ROVE_SHARE = 22          # % of the cycle spent crossing a plate
+
+
+def rove_css(slot: int) -> str:
+    """Keyframes for the rover on plate `slot`, counting from the top."""
+    return (
+        "@keyframes rove{0%{transform:translateX(-46px)}"
+        f"{ROVE_SHARE}%{{transform:translateX(966px)}}"
+        "100%{transform:translateX(966px)}}"
+        "@keyframes bob{0%,100%{transform:translateY(0)}"
+        "50%{transform:translateY(-1.5px)}}"
+        "@keyframes legA{0%,100%{transform:rotate(22deg)}"
+        "50%{transform:rotate(-22deg)}}"
+        "@keyframes legB{0%,100%{transform:rotate(-22deg)}"
+        "50%{transform:rotate(22deg)}}"
+        # `backwards` is not optional. During an animation-delay an element
+        # renders with its NORMAL style, not the first keyframe — so without
+        # it every rover that is waiting its turn sits at translateX(0),
+        # which is half off the left edge of its plate. Three of the four
+        # were visible there at once.
+        f".rov{{animation:rove {ROVE_CYCLE}s linear infinite backwards;"
+        f"animation-delay:{slot * ROVE_CYCLE / ROVE_PLATES:.0f}s}}"
+        ".bod{animation:bob .44s ease-in-out infinite}"
+        ".lgA{animation:legA .44s ease-in-out infinite;transform-origin:0 0}"
+        ".lgB{animation:legB .44s ease-in-out infinite;transform-origin:0 0}"
+        # never relied upon — see the note above — but written all the same
+        ".parked{display:none}"
+        "@media(prefers-reduced-motion:reduce){"
+        ".rov{display:none}.parked{display:inline}}")
+
+
+def rover(y, slot, *, body_fill="#e6edf3", lamp_fill="#f0883e", themed=True):
+    """The rover, walking the rule at `y` on plate `slot`.
+
+    `themed` uses the plate's own colour classes; the star chart paints with
+    literals instead, because its sky is one fixed palette rather than two.
+    """
+    if themed:
+        # the fill classes colour the shell; the stroke classes colour the
+        # legs and the lamp arm, because a class that sets fill says nothing
+        # about stroke and the legs would come out invisible
+        body, lamp = 'class="ink"', 'class="warm"'
+        body_s, lamp_s = 'class="s-ink"', 'class="s-warm"'
+    else:
+        body = f'fill="{body_fill}"'
+        lamp = f'fill="{lamp_fill}"'
+        body_s, lamp_s = f'stroke="{body_fill}"', f'stroke="{lamp_fill}"'
+
+    legs = (f'<g class="lgA"><path d="M-3 0L-5 7" {body_s} stroke-width="1.3" '
+            f'fill="none" stroke-linecap="round"/></g>'
+            f'<g class="lgB"><path d="M3 0L5 7" {body_s} stroke-width="1.3" '
+            f'fill="none" stroke-linecap="round"/></g>')
+    shell = (f'<rect x="-7.5" y="-10" width="15" height="9" rx="2" {body}/>'
+             f'<circle cx="4" cy="-5.8" r="1.3" fill="#0d1117" fill-opacity="0.5"/>'
+             f'<path d="M-5.5 -10L-7.5 -15.5" {lamp_s} stroke-width="1.2" '
+             f'fill="none"/><circle cx="-7.5" cy="-16.5" r="1.7" {lamp}/>')
+    beast = legs + shell
+
+    out = [f'<g class="rov"><g transform="translate(0,{y})">'
+           f'<g class="bod">{beast}</g></g></g>']
+    if slot == 0:
+        # one parked rover for the whole page, not four
+        out.append(f'<g class="parked" transform="translate(300,{y})">{beast}</g>')
+    return "".join(out)
+
+
+# ─────────────────────────────────────────────────────────────────────────────
 # ⚙ SYSTEMS ONLINE — drawn, because it is the one section that is a measurement
 #
 # It was `▰▰▰▰▰▱▱▱▱▱` in a table. Ten steps is a coarse instrument: Python,
@@ -244,7 +345,7 @@ def systems_plate(langs, repo_count) -> str:
 
     o = [f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {SYS_W} {H}" '
          f'width="{SYS_W}" height="{H}" role="img">',
-         f"<style>{_hd_css()}</style>",
+         f"<style>{_hd_css()}{rove_css(2)}</style>",
          f'<rect width="{SYS_W}" height="{H}" class="bg"/>']
 
     for x, label in ((34, "LANGUAGE"), (150, "SHARE OF THE ACCOUNT"),
@@ -273,6 +374,7 @@ def systems_plate(langs, repo_count) -> str:
     o.append(_t(280, y + 32,
                 f"split between its languages by byte share, across "
                 f"{repo_count} repositories", 11, "dim", family=MONO))
+    o.append(rover(y + 10, 2))
     o.append("</svg>")
     return "\n".join(o) + "\n"
 
@@ -348,7 +450,7 @@ def heading_plate(manifest) -> str:
     m = manifest
     o = [f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {HD_W} {HD_H}" '
          f'width="{HD_W}" height="{HD_H}" role="img">',
-         f"<style>{_hd_css()}</style>",
+         f"<style>{_hd_css()}{rove_css(1)}</style>",
          f'<rect width="{HD_W}" height="{HD_H}" class="bg"/>']
 
     def box(x, y, w, h, label, sub=None):
@@ -405,6 +507,7 @@ def heading_plate(manifest) -> str:
     o.append(_t(124, HD_H - 40, _plain(m.get("surface", "")), 11.5, "ink", family=MONO))
     o.append(_t(34, HD_H - 16, "THE TRICK", 8.5, "warm", family=MONO, track=1.9))
     o.append(_t(124, HD_H - 16, _plain(m.get("trick", "")), 11.5, "accent", family=MONO))
+    o.append(rover(HD_H - 62, 1))
     o.append("</svg>")
     return "\n".join(o) + "\n"
 
@@ -508,8 +611,11 @@ def masthead(user, repos, langs, manifest) -> str:
 
     L, T, H = 34, 62, MAST_H
     css = ("".join(f".{k}{{fill:{v}}}" for k, v in LIGHT.items())
+           + "".join(f".s-{k}{{stroke:{v}}}" for k, v in LIGHT.items())
            + "@media(prefers-color-scheme:dark){"
-           + "".join(f".{k}{{fill:{v}}}" for k, v in DARK.items()) + "}")
+           + "".join(f".{k}{{fill:{v}}}" for k, v in DARK.items())
+           + "".join(f".s-{k}{{stroke:{v}}}" for k, v in DARK.items()) + "}"
+           + rove_css(0))
     o = [f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {MAST_W} {H}" '
          f'width="{MAST_W}" height="{H}" role="img">',
          f"<style>{css}</style>",
@@ -543,6 +649,7 @@ def masthead(user, repos, langs, manifest) -> str:
         # without measuring text — and it is why this run is mono, not sans.
         o.append(_t(L + 160 + 13 * 0.62 * len(lead) + 12, H - 30, "— " + rest,
                     13, "ink", family=MONO))
+    o.append(rover(H - 58, 0))
     o.append("</svg>")
     return "\n".join(o) + "\n"
 
@@ -596,6 +703,11 @@ def block_masthead(svg) -> str:
 # ─────────────────────────────────────────────────────────────────────────────
 
 SKY_W, SKY_H = 920, 400
+# A strip below the framed sky for the rover to walk on. The sky's own
+# geometry stays 920x400 — every star position and every region is derived
+# from it, and sky.json hands those coordinates to the Pages chart, so the
+# plate grows a base rather than the sky growing taller.
+SKY_FOOT = 26
 SKY_PAD = 34
 
 SKY_GROUND = "#0a0e15"
@@ -768,12 +880,16 @@ def _name_at(out, x, y, text, w, size=LABEL_SIZE, opacity=0.72):
                f'fill-opacity="{opacity}">{_esc(text)}</text>')
 
 
-def _envelope(w, h):
+def _envelope(w, h, frame_h=None):
+    """The plate. `frame_h` is where the drawn border sits when the canvas is
+    taller than the sky — the difference is the base the rover walks on."""
+    frame_h = h if frame_h is None else frame_h
     return [f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {w} {h}" '
             f'width="{w}" height="{h}" role="img">',
-            '<style>text{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}</style>',
+            '<style>text{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}'
+            + rove_css(3) + '</style>',
             f'<rect width="{w}" height="{h}" fill="{SKY_GROUND}"/>',
-            f'<rect x="6.5" y="6.5" width="{w - 13}" height="{h - 13}" '
+            f'<rect x="6.5" y="6.5" width="{w - 13}" height="{frame_h - 13}" '
             f'fill="none" stroke="{SKY_EDGE}" stroke-width="1"/>']
 
 
@@ -790,7 +906,7 @@ def plate_sky(sky):
     """The whole account on one plate: figures, field stars, deck names."""
     figures, field = sky["figures"], sky["field"]
     at = lambda x, y: (x, y)
-    out = _envelope(SKY_W, SKY_H)
+    out = _envelope(SKY_W, SKY_H + SKY_FOOT, SKY_H)
 
     for f in figures:                       # figures first — never over a star
         _figure_path(out, f["stars"], at)
@@ -810,6 +926,10 @@ def plate_sky(sky):
                f'letter-spacing="1.6" fill="{SKY_LABEL}" fill-opacity="0.45">'
                f'{counted} CHARTED &#183; {len(field)} FIELD STARS &#183; '
                f'MAGNITUDE IS CODE BYTES</text>')
+    # the sky has one palette, not two, so the rover is painted rather than
+    # classed — and it walks the plate's own frame, not the stars
+    out.append(rover(SKY_H + SKY_FOOT - 8, 3, themed=False,
+                     body_fill=SKY_STAR, lamp_fill="#f0883e"))
     out.append("</svg>")
 
     alt = ("A star chart of this account: " +

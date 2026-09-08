@@ -215,6 +215,17 @@ get 5000/hr locally — worth doing now that the budget is over sixty.
   They are absolute rather than relative to the account on purpose: a band
   computed from the largest repo would re-magnitude every star the day one
   enormous repository arrived. Sizes and opacities are `MAG_R` / `MAG_O`.
+- **The rover** — `ROVE_CYCLE` (seconds for one descent of the page),
+  `ROVE_PLATES` and `ROVE_SHARE` in `build.py`. Each plate carries its own
+  rover and crosses in its own slice of the cycle, so exactly one is on
+  screen at a time. Delete the four `rover(...)` calls and it is gone; there
+  is no other trace of it in the layout, because it walks a rule each plate
+  already drew.
+  <br>Note that `prefers-reduced-motion` is **not** honoured inside an
+  `<img>`-embedded SVG — measured, in Chromium, in a file whose
+  `prefers-color-scheme` query works. The query is written anyway, but a
+  reader cannot switch the rover off, which is why it is small, slow, and
+  alone on the page at any moment.
 - **The recorder's horizon** — `FLIGHT_DAYS`, fourteen to match the traffic
   API's own reach. Lengthening it costs one more page of runs per week.
 - **The private line.** `PRIVATE = {"AETHER"}` in `build.py` renders it without
