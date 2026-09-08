@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 400" width="920" height="400" role="img">
+<style>text{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}</style>
+<rect width="920" height="400" fill="#0a0e15"/>
+<rect x="6.5" y="6.5" width="907" height="387" fill="none" stroke="#1b2431" stroke-width="1"/>
+<path d="M138.9 96.9L135.8 107.5M135.8 107.5L73.3 92.9M135.8 107.5L107.9 170.3M107.9 170.3L102.9 197.4M102.9 197.4L94.6 196.8M94.6 196.8L84.8 190.4M84.8 190.4L64.9 214.4M102.9 197.4L140.7 203.0" fill="none" stroke="#31527f" stroke-width="1" stroke-opacity="0.55"/>
+<path d="M305.9 185.0L287.6 212.3M287.6 212.3L293.9 224.8M293.9 224.8L300.9 240.9M287.6 212.3L245.9 194.1M300.9 240.9L286.4 301.9M286.4 301.9L299.0 325.2" fill="none" stroke="#31527f" stroke-width="1" stroke-opacity="0.55"/>
+<path d="M464.8 251.5L471.9 223.5M464.8 251.5L435.7 238.3M435.7 238.3L421.4 207.2M421.4 207.2L415.1 200.8M415.1 200.8L410.1 165.0M471.9 223.5L479.7 177.6M479.7 177.6L463.4 167.0M479.7 177.6L504.3 182.2" fill="none" stroke="#31527f" stroke-width="1" stroke-opacity="0.55"/>
+<path d="M693.4 240.5L639.5 264.3M639.5 264.3L621.3 256.7M621.3 256.7L623.5 242.3M621.3 256.7L603.7 260.9M603.7 260.9L568.5 238.1M603.7 260.9L604.2 306.4M623.5 242.3L646.7 193.6M646.7 193.6L602.0 169.6" fill="none" stroke="#31527f" stroke-width="1" stroke-opacity="0.55"/>
+<path d="M850.3 209.4L796.9 214.9M796.9 214.9L752.7 128.1" fill="none" stroke="#31527f" stroke-width="1" stroke-opacity="0.55"/>
+<circle cx="524.0" cy="97.4" r="1.5" fill="#8fa4c4" fill-opacity="0.29"/>
+<circle cx="564.2" cy="98.0" r="1.1" fill="#8fa4c4" fill-opacity="0.23"/>
+<circle cx="387.4" cy="314.4" r="1.1" fill="#8fa4c4" fill-opacity="0.23"/>
+<circle cx="362.2" cy="175.1" r="1.5" fill="#8fa4c4" fill-opacity="0.29"/>
+<circle cx="662.2" cy="204.5" r="3.3" fill="#8fa4c4" fill-opacity="0.42"/>
+<circle cx="376.0" cy="42.5" r="1.5" fill="#8fa4c4" fill-opacity="0.29"/>
+<circle cx="538.0" cy="82.2" r="1.1" fill="#8fa4c4" fill-opacity="0.23"/>
+<circle cx="252.0" cy="83.2" r="1.1" fill="#8fa4c4" fill-opacity="0.23"/>
+<circle cx="634.9" cy="126.0" r="1.1" fill="#8fa4c4" fill-opacity="0.23"/>
+<circle cx="435.1" cy="85.1" r="1.1" fill="#8fa4c4" fill-opacity="0.23"/>
+<circle cx="170.2" cy="227.5" r="1.5" fill="#8fa4c4" fill-opacity="0.29"/>
+<circle cx="487.9" cy="318.4" r="1.1" fill="#8fa4c4" fill-opacity="0.23"/>
+<circle cx="138.9" cy="96.9" r="10.7" fill="#e9eef8" fill-opacity="0.10"/>
+<circle cx="138.9" cy="96.9" r="4.1" fill="#e9eef8" fill-opacity="0.94"/>
+<circle cx="84.8" cy="190.4" r="1.9" fill="#e9eef8" fill-opacity="0.64"/>
+<circle cx="107.9" cy="170.3" r="1.9" fill="#e9eef8" fill-opacity="0.64"/>
+<circle cx="73.3" cy="92.9" r="1.4" fill="#e9eef8" fill-opacity="0.50"/>
+<circle cx="135.8" cy="107.5" r="14.0" fill="#e9eef8" fill-opacity="0.10"/>
+<circle cx="135.8" cy="107.5" r="5.4" fill="#e9eef8" fill-opacity="1.00"/>
+<circle cx="64.9" cy="214.4" r="1.4" fill="#e9eef8" fill-opacity="0.50"/>
+<circle cx="94.6" cy="196.8" r="1.9" fill="#e9eef8" fill-opacity="0.64"/>
+<circle cx="102.9" cy="197.4" r="1.9" fill="#e9eef8" fill-opacity="0.64"/>
+<circle cx="140.7" cy="203.0" r="1.9" fill="#e9eef8" fill-opacity="0.64"/>
+<text x="143.8" y="111.0" text-anchor="start" font-size="9.5" fill="#e9eef8" fill-opacity="0.72">MicroServicesGEureka</text>
+<text x="119.2" y="271.0" text-anchor="middle" font-size="9" letter-spacing="2.2" fill="#5b8ede" fill-opacity="0.85">ENGINEERING DECK</text>
+<circle cx="305.9" cy="185.0" r="1.9" fill="#e9eef8" fill-opacity="0.64"/>
+<circle cx="286.4" cy="301.9" r="1.4" fill="#e9eef8" fill-opacity="0.50"/>
+<circle cx="299.0" cy="325.2" r="2.5" fill="#e9eef8" fill-opacity="0.76"/>
+<circle cx="287.6" cy="212.3" r="2.5" fill="#e9eef8" fill-opacity="0.76"/>
+<circle cx="293.9" cy="224.8" r="1.9" fill="#e9eef8" fill-opacity="0.64"/>
+<circle cx="245.9" cy="194.1" r="3.2" fill="#e9eef8" fill-opacity="0.86"/>
+<circle cx="300.9" cy="240.9" r="1.9" fill="#e9eef8" fill-opacity="0.64"/>
+<text x="253.9" y="197.6" text-anchor="start" font-size="9.5" fill="#e9eef8" fill-opacity="0.72">CarinaProject</text>
+<text x="289.6" y="355.0" text-anchor="middle" font-size="9" letter-spacing="2.2" fill="#5b8ede" fill-opacity="0.85">SCIENCE DECK</text>
+<circle cx="464.8" cy="251.5" r="1.4" fill="#e9eef8" fill-opacity="0.50"/>
+<circle cx="479.7" cy="177.6" r="1.4" fill="#e9eef8" fill-opacity="0.50"/>
+<circle cx="421.4" cy="207.2" r="1.4" fill="#e9eef8" fill-opacity="0.50"/>
+<circle cx="463.4" cy="167.0" r="1.4" fill="#e9eef8" fill-opacity="0.50"/>
+<circle cx="435.7" cy="238.3" r="1.4" fill="#e9eef8" fill-opacity="0.50"/>
+<circle cx="471.9" cy="223.5" r="1.4" fill="#e9eef8" fill-opacity="0.50"/>
+<circle cx="504.3" cy="182.2" r="1.4" fill="#e9eef8" fill-opacity="0.50"/>
+<circle cx="415.1" cy="200.8" r="1.4" fill="#e9eef8" fill-opacity="0.50"/>
+<circle cx="410.1" cy="165.0" r="1.4" fill="#e9eef8" fill-opacity="0.50"/>
+<text x="479.9" y="227.0" text-anchor="start" font-size="9.5" fill="#e9eef8" fill-opacity="0.72">Animated-Ball</text>
+<text x="460.0" y="271.0" text-anchor="middle" font-size="9" letter-spacing="2.2" fill="#5b8ede" fill-opacity="0.85">PROPULSION</text>
+<circle cx="693.4" cy="240.5" r="14.0" fill="#e9eef8" fill-opacity="0.10"/>
+<circle cx="693.4" cy="240.5" r="5.4" fill="#e9eef8" fill-opacity="1.00"/>
+<circle cx="693.4" cy="240.5" r="9.4" fill="none" stroke="#e9eef8" stroke-width="0.8" stroke-opacity="0.45" stroke-dasharray="2 2"/>
+<circle cx="623.5" cy="242.3" r="3.2" fill="#e9eef8" fill-opacity="0.86"/>
+<circle cx="603.7" cy="260.9" r="1.9" fill="#e9eef8" fill-opacity="0.64"/>
+<circle cx="639.5" cy="264.3" r="2.5" fill="#e9eef8" fill-opacity="0.76"/>
+<circle cx="568.5" cy="238.1" r="14.0" fill="#e9eef8" fill-opacity="0.10"/>
+<circle cx="568.5" cy="238.1" r="5.4" fill="#e9eef8" fill-opacity="1.00"/>
+<circle cx="621.3" cy="256.7" r="2.5" fill="#e9eef8" fill-opacity="0.76"/>
+<circle cx="646.7" cy="193.6" r="1.9" fill="#e9eef8" fill-opacity="0.64"/>
+<circle cx="602.0" cy="169.6" r="2.5" fill="#e9eef8" fill-opacity="0.76"/>
+<circle cx="604.2" cy="306.4" r="2.5" fill="#e9eef8" fill-opacity="0.76"/>
+<text x="701.4" y="244.0" text-anchor="start" font-size="9.5" fill="#e9eef8" fill-opacity="0.72">AETHER</text>
+<text x="630.4" y="355.0" text-anchor="middle" font-size="9" letter-spacing="2.2" fill="#5b8ede" fill-opacity="0.85">THE BRIDGE</text>
+<circle cx="850.3" cy="209.4" r="1.4" fill="#e9eef8" fill-opacity="0.50"/>
+<circle cx="752.7" cy="128.1" r="3.2" fill="#e9eef8" fill-opacity="0.86"/>
+<circle cx="796.9" cy="214.9" r="1.4" fill="#e9eef8" fill-opacity="0.50"/>
+<text x="744.7" y="131.6" text-anchor="end" font-size="9.5" fill="#e9eef8" fill-opacity="0.72">Java-For-Students-Advanced-</text>
+<text x="800.8" y="271.0" text-anchor="middle" font-size="9" letter-spacing="2.2" fill="#5b8ede" fill-opacity="0.85">THE ACADEMY</text>
+<text x="34" y="387" font-size="8.5" letter-spacing="1.6" fill="#5b8ede" fill-opacity="0.45">37 CHARTED &#183; 12 FIELD STARS &#183; MAGNITUDE IS CODE BYTES</text>
+</svg>
