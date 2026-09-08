@@ -183,7 +183,7 @@ from a third party — the number is this repository's own traffic, read by this
 repository.</sub>
 
 <!--LOG:views-->
-<sub>No closed day on the ledger yet. <code>.github/views.py</code> records a day only once it is over, so the first number appears after the first full UTC day. If it stays empty past that, the token cannot read traffic — it needs <b>Administration: read</b> on this repository.</sub>
+<sub><b>No <code>PROFILE_TOKEN</code> secret is set</b>, so the traffic call is never made. Everything else on this page builds without it; only this block and the survey dropdown need it. See SETUP.md § 2c.</sub>
 <!--/LOG:views-->
 
 ---
