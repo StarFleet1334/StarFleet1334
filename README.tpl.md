@@ -47,14 +47,20 @@ a <b>Chronosphere</b> that scrubs the whole board backwards through its own hist
 
 ## ⚑ &nbsp;THE SHIPPING FORECAST
 
-<sub>One line per deck, in a rationed vocabulary. The first reading is
-<b>recency</b> — how long since the newest repo in that deck was pushed:
-<i>moving</i> (a week) · <i>recent</i> (a month) · <i>quiet</i> (a quarter) ·
-<i>still</i> (a year) · <i>laid up</i>. The clause after it is which way the
-deck's attention is going. The count is how many of its repos have moved
-within the year, and the verdict is that share: <b>Good</b> above a half,
-<b>Moderate</b> above a fifth, <b>Poor</b> below. A deck can be <i>moving</i>
-and still <b>Poor</b> — one repo carrying eight.</sub>
+<sub>One line per deck, in a rationed vocabulary. <b>Recency</b> first —
+how long since the newest repo in that deck was pushed: <i>moving</i> (a week) ·
+<i>recent</i> (a month) · <i>quiet</i> (a quarter) · <i>still</i> (a year) ·
+<i>laid up</i>; the clause after it is which way the deck's attention is going,
+and it is left off entirely when there is nothing recent enough either side to
+measure a direction on. Then the date of that newest push, because the band
+saturates and a date does not. Then how many of the deck's repos have moved
+within the year, and the verdict is that share alone: <b>Good</b> above a half,
+<b>Moderate</b> above a fifth, <b>Poor</b> below — so a deck can read
+<i>moving</i> and still <b>Poor</b>, which is one repo carrying eight.<br>
+<b>THE DOCK</b> is everything not yet filed into a deck. And a private
+repository has no line here at all: the API cannot see it, so AETHER — where
+most of the last year went — is absent from this bulletin by construction, not
+by omission.</sub>
 
 <!--LOG:forecast-->
 <!--/LOG:forecast-->

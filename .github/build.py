@@ -310,6 +310,20 @@ def block_systems(langs) -> str:
 #
 # A deck can be "moving" and still "Poor": one repo carrying eight.
 #
+# The band saturates, and the date column is the answer to that. Everything
+# past a year is "laid up", and there is a great deal of space past a year: the
+# first version of this block rendered five decks as five identical lines,
+# which was true and useless. Printing the age would fix the resolution and
+# reintroduce exactly the churn the bands exist to prevent — "laid up, 13
+# months" rewrites itself every month for no news. The newest push *date* fixes
+# it for free: full resolution, and it cannot change until someone pushes.
+#
+# THE DOCK is the second half of the same problem. The forecast reads the five
+# decks, and on this account every repo touched in the last year is either
+# private or not yet filed into one — so a bulletin that covered only the decks
+# reported a becalmed fleet while the account was actually moving. Unfiled work
+# is work; it gets a line, from the same set NEW ARRIVALS draws from.
+#
 # Nothing here needs hysteresis, and it is worth saying why rather than adding
 # it for luck. Days-since-last-push only ever increases until someone pushes,
 # so a deck crosses each threshold once and in one direction; the live share
@@ -338,6 +352,18 @@ LIVE_DAYS = 365
 VERDICT_BANDS = [(0.5, "Good."), (0.2, "Moderate."), (0.0, "Poor.")]
 
 
+def unfiled(repos):
+    """Every repo not in a deck and not ignored — NEW ARRIVALS' own set.
+
+    Shared rather than recomputed so THE DOCK and NEW ARRIVALS can never
+    disagree about what is filed; a repo that appears in one and not the other
+    would read as a bug in whichever the reader looked at second.
+    """
+    filed = {n for d in DECKS for names, _ in d["rows"] for n in names}
+    return [r for r in work(repos)
+            if r["name"] not in filed and r["name"] not in IGNORE]
+
+
 def _age(stamp, today):
     """Whole days since an ISO timestamp. A repo with no pushed_at is treated
     as ancient rather than as new — an unknown date must never read as
@@ -349,45 +375,58 @@ def _age(stamp, today):
         return 10_000
 
 
+def _reading(members, today):
+    """One deck's four fields, or None if the API can see none of its repos."""
+    if not members:
+        return None
+    dated = sorted(members, key=lambda r: _age(r.get("pushed_at"), today))
+    ages = [_age(r.get("pushed_at"), today) for r in dated]
+
+    state = next(w for lim, w in STATE_BANDS if lim is None or ages[0] <= lim)
+
+    working = sum(1 for a in ages if a <= WORKING_DAYS)
+    previous = sum(1 for a in ages if WORKING_DAYS < a <= PREVIOUS_DAYS)
+    if working or previous:
+        trend = ("becoming active" if working > previous else
+                 "falling away" if working < previous else "steady")
+        reading = f"{state}, {trend}."
+    else:
+        # Nothing in six months either side. "steady" would be a claim about
+        # a trend measured on nothing at all.
+        reading = f"{state}."
+
+    newest = (dated[0].get("pushed_at") or "")[:10] or "—"
+    live = sum(1 for a in ages if a <= LIVE_DAYS)
+    verdict = next(w for lim, w in VERDICT_BANDS if live / len(ages) >= lim)
+
+    return (reading, newest, f"{live} of {len(ages)} live.", verdict)
+
+
 def block_forecast(repos) -> str:
     by_name = {r["name"]: r for r in repos}
     today = dt.datetime.now(dt.timezone.utc).date()
 
     lines = []
     for d in DECKS:
-        names = [n for names, _ in d["rows"] for n in names if n in by_name]
-        if not names:
-            continue
-        ages = sorted(_age(by_name[n].get("pushed_at"), today) for n in names)
+        members = [by_name[n] for names, _ in d["rows"] for n in names
+                   if n in by_name]
+        row = _reading(members, today)
+        if row:
+            lines.append((d["title"],) + row)
 
-        state = next(w for lim, w in STATE_BANDS if lim is None or ages[0] <= lim)
-
-        working = sum(1 for a in ages if a <= WORKING_DAYS)
-        previous = sum(1 for a in ages if WORKING_DAYS < a <= PREVIOUS_DAYS)
-        if working or previous:
-            trend = ("becoming active" if working > previous else
-                     "falling away" if working < previous else "steady")
-            reading = f"{state}, {trend}."
-        else:
-            # Nothing in six months either side. "steady" would be a claim
-            # about a trend measured on nothing at all.
-            reading = f"{state}."
-
-        live = sum(1 for a in ages if a <= LIVE_DAYS)
-        share = live / len(ages)
-        verdict = next(w for lim, w in VERDICT_BANDS if share >= lim)
-
-        lines.append((d["title"], reading, f"{live} of {len(ages)} live.", verdict))
+    dock = _reading(unfiled(repos), today)
+    if dock:
+        lines.append(("THE DOCK",) + dock)
 
     if not lines:
         return "<sub>No deck has a repository the API can see.</sub>"
 
     # Widths off the content, never typed. A hand-set column is a column that
     # skews the first time a deck is renamed.
-    w = [max(len(row[i]) for row in lines) for i in range(3)]
+    w = [max(len(row[i]) for row in lines) for i in range(4)]
     out = ["<pre>"]
-    out += [f"  {a:<{w[0]}}   {b:<{w[1]}}   {c:>{w[2]}}   {v}"
-            for a, b, c, v in lines]
+    out += [f"  {a:<{w[0]}}   {b:<{w[1]}}   {c:<{w[2]}}   {d_:>{w[3]}}   {v}"
+            for a, b, c, d_, v in lines]
     out.append("</pre>")
     return "\n".join(out)
 
@@ -641,21 +680,18 @@ def block_hold(index, manifest) -> str:
 
 
 def block_arrivals(repos, index) -> str:
-    filed = {n for d in DECKS for names, _ in d["rows"] for n in names}
-    unfiled = [r for r in work(repos)
-               if r["name"] not in filed
-               and r["name"] not in IGNORE]
-    unfiled.sort(key=lambda r: r.get("created_at", ""), reverse=True)
-    if not unfiled:
+    fresh = sorted(unfiled(repos), key=lambda r: r.get("created_at", ""),
+                   reverse=True)
+    if not fresh:
         return ("<sub>Every repository is filed. The hold is in order.</sub>")
     rows = ["| repo | language | first commit |", "|:--|:--|:--|"]
-    for r in unfiled[:8]:
+    for r in fresh[:8]:
         lang = r.get("language") or "—"
         rows.append(f"| [`{r['name']}`](https://github.com/{USER}/{r['name']}) "
                     f"| {lang} | {(r.get('created_at') or '')[:10]} |")
     tail = ""
-    if len(unfiled) > 8:
-        tail = f"\n\n<sub>…and {len(unfiled) - 8} more not yet filed.</sub>"
+    if len(fresh) > 8:
+        tail = f"\n\n<sub>…and {len(fresh) - 8} more not yet filed.</sub>"
     return "\n".join(rows) + tail
 
 

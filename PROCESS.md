@@ -143,7 +143,7 @@ This is the useful table. Each slot has exactly one thing that moves it:
 | `stardate` | repo count changes · the top four languages reorder · your newest repo changes · `heading` in `manifest.json` changes |
 | `badges` | public repo count or follower count changes |
 | `surface` | `manifest.json` is re-measured |
-| `forecast` | a deck crosses a band — a threshold in days, or a repo passing a year |
+| `forecast` | a deck crosses a band, a repo passes a year, or a deck's newest push changes |
 | `systems` | language byte shares shift enough to reorder the bars or move a `▰` |
 | `hold` | a repo named in `DECKS` is created, deleted or renamed |
 | `arrivals` | a new repo appears that is not yet filed into a deck |
