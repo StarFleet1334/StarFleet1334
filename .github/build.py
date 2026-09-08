@@ -2,9 +2,16 @@
 """Rebuild README.md from README.tpl.md and live GitHub data.
 
 Stdlib only. Reads the public API, fills the <!--LOG:x--> blocks in the
-template, writes README.md. Nothing here uses the wall clock: every value in
-the output comes off the API, so the file changes only when the account
-actually changed, and the workflow commits only when the file changes.
+template, writes README.md. Almost nothing here uses the wall clock: every
+value comes off the API, so the file changes only when the account actually
+changed, and the workflow commits only when the file changes.
+
+The two exceptions are deliberate and bounded. THE SHIPPING FORECAST and THE
+BLACK BOX are both statements about *elapsed* time, so they cannot be written
+without a today. Both are banded to the day: a forecast line can only move
+when a deck crosses one of five thresholds, and the recorder's strip is one
+tick per closed UTC day. Time passing can therefore commit — but rarely, and
+never more than once a day.
 
     python .github/build.py            # writes README.md
     python .github/build.py --check    # writes nothing, prints the diff-ability
@@ -15,6 +22,7 @@ env:  GITHUB_TOKEN   raises the rate limit to 5000/hr (the Action supplies it)
 
 from __future__ import annotations
 
+import datetime as dt
 import json
 import os
 import pathlib
@@ -133,6 +141,26 @@ def paged(path: str) -> list:
         if len(body) < 100:
             break
         page += 1
+    return out
+
+
+def paged_soft(path, cap=3):
+    """`paged`, but a refusal is *unknown* rather than *empty*.
+
+    The strict pager raises, which is right for the repo list — a build with
+    no repos should die. The recorder below must tell a quiet fortnight from
+    a rate limit, and both look like an empty list unless the failure is kept
+    distinct. Returns None when the first page could not be read.
+    """
+    out = []
+    for page in range(1, cap + 1):
+        sep = "&" if "?" in path else "?"
+        body = try_get(f"{path}{sep}per_page=100&page={page}")
+        if body is None:
+            return out or None
+        out.extend(body)
+        if len(body) < 100:
+            break
     return out
 
 
@@ -262,6 +290,108 @@ def block_systems(langs) -> str:
 
 
 
+# ─────────────────────────────────────────────────────────────────────────────
+# ⚑ THE SHIPPING FORECAST
+#
+# One line per deck, in a closed vocabulary. The real forecast's whole trick is
+# that its words are rationed — "good", "moderate" and "poor" mean exactly one
+# thing each — so a reader learns the scale once and then takes the whole
+# bulletin in at a glance. A banded word is also the only kind that can sit on
+# an hourly build: printing "quiet, 43 days" would rewrite the page every day
+# for no news at all.
+#
+# The two readings are deliberately different facts, the way the real forecast
+# separates wind from visibility:
+#
+#   STATE    how recently the deck's newest repo was pushed — one number,
+#            about the deck's most recent moment
+#   VERDICT  how much of the deck has moved within a year — a share, about
+#            the deck's breadth
+#
+# A deck can be "moving" and still "Poor": one repo carrying eight.
+#
+# Nothing here needs hysteresis, and it is worth saying why rather than adding
+# it for luck. Days-since-last-push only ever increases until someone pushes,
+# so a deck crosses each threshold once and in one direction; the live share
+# moves only when a repo ages past a year or takes a commit. Neither measure
+# can walk back and forth across a boundary between two runs, which is the
+# only thing hysteresis would buy.
+# ─────────────────────────────────────────────────────────────────────────────
+
+# (days since the newest push, what to call it). Ordered, first match wins.
+STATE_BANDS = [
+    (7, "moving"),
+    (30, "recent"),
+    (90, "quiet"),
+    (365, "still"),
+    (None, "laid up"),
+]
+
+# The trend compares how many of a deck's repos were last touched inside the
+# working window against how many fell in the window before it. Because a repo
+# has exactly one pushed_at, this reads as "how much of this deck is in recent
+# memory" — which is what attention to a deck actually looks like.
+WORKING_DAYS = 90
+PREVIOUS_DAYS = 180
+
+LIVE_DAYS = 365
+VERDICT_BANDS = [(0.5, "Good."), (0.2, "Moderate."), (0.0, "Poor.")]
+
+
+def _age(stamp, today):
+    """Whole days since an ISO timestamp. A repo with no pushed_at is treated
+    as ancient rather than as new — an unknown date must never read as
+    activity."""
+    day = (stamp or "")[:10]
+    try:
+        return (today - dt.date.fromisoformat(day)).days
+    except ValueError:
+        return 10_000
+
+
+def block_forecast(repos) -> str:
+    by_name = {r["name"]: r for r in repos}
+    today = dt.datetime.now(dt.timezone.utc).date()
+
+    lines = []
+    for d in DECKS:
+        names = [n for names, _ in d["rows"] for n in names if n in by_name]
+        if not names:
+            continue
+        ages = sorted(_age(by_name[n].get("pushed_at"), today) for n in names)
+
+        state = next(w for lim, w in STATE_BANDS if lim is None or ages[0] <= lim)
+
+        working = sum(1 for a in ages if a <= WORKING_DAYS)
+        previous = sum(1 for a in ages if WORKING_DAYS < a <= PREVIOUS_DAYS)
+        if working or previous:
+            trend = ("becoming active" if working > previous else
+                     "falling away" if working < previous else "steady")
+            reading = f"{state}, {trend}."
+        else:
+            # Nothing in six months either side. "steady" would be a claim
+            # about a trend measured on nothing at all.
+            reading = f"{state}."
+
+        live = sum(1 for a in ages if a <= LIVE_DAYS)
+        share = live / len(ages)
+        verdict = next(w for lim, w in VERDICT_BANDS if share >= lim)
+
+        lines.append((d["title"], reading, f"{live} of {len(ages)} live.", verdict))
+
+    if not lines:
+        return "<sub>No deck has a repository the API can see.</sub>"
+
+    # Widths off the content, never typed. A hand-set column is a column that
+    # skews the first time a deck is renamed.
+    w = [max(len(row[i]) for row in lines) for i in range(3)]
+    out = ["<pre>"]
+    out += [f"  {a:<{w[0]}}   {b:<{w[1]}}   {c:>{w[2]}}   {v}"
+            for a, b, c, v in lines]
+    out.append("</pre>")
+    return "\n".join(out)
+
+
 SPARK = "▁▂▃▄▅▆▇█"
 
 
@@ -315,6 +445,150 @@ def block_views(ledger) -> str:
     refs = ledger.get("referrers") or []
     if refs:
         rows.append(("Arriving from", " · ".join(f"`{r}`" for r in refs)))
+
+    out = ["| | |", "|---|---|"]
+    out += [f"| **{k}** | {v} |" for k, v in rows]
+    return "\n".join(out)
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# ✕ THE BLACK BOX
+#
+# The page reports on the account and never on itself, which means the one
+# failure it cannot show you is its own. A token that expired, an API that
+# started refusing, a workflow disabled after sixty days of inactivity: all
+# three look exactly like a quiet month.
+#
+# One tick per **closed** UTC day, for a fortnight — the same rule and the same
+# horizon as the traffic ledger next to it. The day in progress is never drawn,
+# so the strip moves at most once a day; and when a quiet day rolls off the far
+# end and a quiet day arrives at the near one, the string is unchanged and
+# nothing is committed. It reports by exception, which is the only way a
+# self-report is worth reading.
+#
+# A day is one of four things, and the fourth is the point:
+#
+#   ─  runs, none of which changed the page
+#   ┼  the page changed — a commit by the bot lands that day
+#   ╳  a run was refused
+#   ·  no run at all. The recorder itself was off.
+#
+# Box-drawing glyphs rather than ✓/✗ on purpose: they are one cell wide in
+# every monospace font, so the trace cannot skew, and a flat day genuinely
+# draws as a flat line.
+# ─────────────────────────────────────────────────────────────────────────────
+
+FLIGHT_DAYS = 14
+BOT = "github-actions[bot]"
+WORKFLOW = "log.yml"
+RUN_PAGES = 6                      # ~600 runs; a fortnight hourly is ~340
+
+TICK_QUIET, TICK_MOVED, TICK_REFUSED, TICK_DARK = "─", "┼", "╳", "·"
+BAD = {"failure", "timed_out", "startup_failure"}
+
+
+def flight_recorder():
+    """Read the last fortnight of this workflow's own runs.
+
+    Returns None when the runs could not be read at all. That is not the same
+    as a fortnight of silence, and the block must not draw fourteen dark ticks
+    because a rate limiter said no — it would be reporting an outage that is
+    entirely its own.
+    """
+    today = dt.datetime.now(dt.timezone.utc).date()
+    first = today - dt.timedelta(days=FLIGHT_DAYS)
+    since = first.isoformat()
+
+    runs = []
+    for page in range(1, RUN_PAGES + 1):
+        body = try_get(f"/repos/{USER}/{USER}/actions/workflows/{WORKFLOW}/runs"
+                       f"?created=%3E%3D{since}&per_page=100&page={page}")
+        if body is None:
+            if not runs:
+                return None
+            break
+        batch = body.get("workflow_runs") or []
+        runs.extend(batch)
+        if len(batch) < 100:
+            break
+
+    # The bot's own commits are the record of which days the page actually
+    # changed. Matching runs to commits by time would be a guess; the author
+    # is a fact.
+    commits = paged_soft(f"/repos/{USER}/{USER}/commits?since={since}T00:00:00Z") or []
+    moved = {c["commit"]["author"]["date"][:10] for c in commits
+             if (c.get("commit", {}).get("author", {}).get("name") == BOT)}
+
+    ran, refused = set(), {}
+    for r in runs:
+        day = (r.get("run_started_at") or r.get("created_at") or "")[:10]
+        if not day:
+            continue
+        ran.add(day)
+        if r.get("conclusion") in BAD:
+            refused.setdefault(day, r)
+
+    days = []
+    for i in range(FLIGHT_DAYS):
+        day = (first + dt.timedelta(days=i)).isoformat()
+        if day in refused:
+            days.append((day, TICK_REFUSED))
+        elif day in moved:
+            days.append((day, TICK_MOVED))
+        elif day in ran:
+            days.append((day, TICK_QUIET))
+        else:
+            days.append((day, TICK_DARK))
+
+    # The newest refusal in the window, and which step of it gave way. One
+    # extra call, and only when there is something to explain.
+    last = None
+    if refused:
+        day = max(refused)
+        run = refused[day]
+        jobs = try_get(f"/repos/{USER}/{USER}/actions/runs/{run['id']}/jobs") or {}
+        step = next((st["name"] for j in jobs.get("jobs", [])
+                     for st in j.get("steps", [])
+                     if st.get("conclusion") in BAD), None)
+        last = (day, step)
+
+    return {"days": days, "refusal": last}
+
+
+def block_blackbox(record) -> str:
+    if record is None:
+        return ("<sub>The recorder could not read its own runs this build — "
+                "an unauthenticated build has no quota left for them, and a "
+                "local <code>--check</code> will usually say this. It is a "
+                "statement about this run, not about the workflow.</sub>")
+
+    days = record["days"]
+    trace = "".join(t for _, t in days)
+    moved = trace.count(TICK_MOVED)
+    refused = trace.count(TICK_REFUSED)
+    dark = trace.count(TICK_DARK)
+
+    tally = [f"{moved} changed the page"]
+    if refused:
+        tally.append(f"**{refused} refused**")
+    if dark:
+        tally.append(f"**{dark} with no run at all**")
+
+    rows = [
+        (f"Last {FLIGHT_DAYS} days", f"`{trace}` &nbsp;·&nbsp; " + " &nbsp;·&nbsp; ".join(tally)),
+        ("Reading", f"`{TICK_QUIET}` ran, nothing moved &nbsp;·&nbsp; "
+                    f"`{TICK_MOVED}` the page changed &nbsp;·&nbsp; "
+                    f"`{TICK_REFUSED}` refused &nbsp;·&nbsp; "
+                    f"`{TICK_DARK}` no run at all"),
+    ]
+
+    refusal = record["refusal"]
+    if refusal:
+        day, step = refusal
+        where = f" &nbsp;·&nbsp; the *{step}* step" if step else ""
+        rows.append(("Last refusal", f"`{day}`{where}"))
+    else:
+        rows.append(("Last refusal", f"none in {FLIGHT_DAYS} days"))
 
     out = ["| | |", "|---|---|"]
     out += [f"| **{k}** | {v} |" for k, v in rows]
@@ -489,12 +763,18 @@ def main() -> int:
     print(f"- ledger: {len(ledger['days'])} days, "
           f"{sum(d['views'] for d in ledger['days'].values())} views")
 
+    record = flight_recorder()
+    print("- recorder: " + ("unreadable this run" if record is None
+                            else "".join(t for _, t in record["days"])))
+
     blocks = {
         "stardate": block_stardate(user, repos, langs, manifest),
         "surface":  block_surface(manifest),
         "badges":   block_badges(user, repos, ledger),
+        "forecast": block_forecast(repos),
         "systems":  block_systems(langs),
         "views":    block_views(ledger),
+        "blackbox": block_blackbox(record),
         "hold":     block_hold(index, manifest),
         "arrivals": block_arrivals(repos, index),
         "recent":   block_recent(repos),

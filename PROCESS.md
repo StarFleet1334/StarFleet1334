@@ -12,6 +12,7 @@ flowchart TD
     M["manifest.json<br/><i>the private project's numbers</i>"] --> C
     G["GitHub API<br/><i>/users · /repos · /languages</i>"] --> C
     T["GitHub API<br/><i>/traffic/views — 14 days</i>"] --> W
+    R["GitHub API<br/><i>/actions/runs — this workflow</i>"] --> C
     W["views.py<br/><i>merge the closed days</i>"] --> V
     C["build.py<br/><i>fill every slot</i>"] --> D["README.md"]
     D --> E{"git diff<br/>--cached --quiet"}
@@ -22,7 +23,7 @@ flowchart TD
     classDef src  fill:#161b22,stroke:#30363d,color:#e6edf3
     classDef act  fill:#0d1117,stroke:#58a6ff,color:#58a6ff
     classDef quiet fill:#0d1117,stroke:#21262d,color:#8b949e
-    class A,B,M,G,T,V src
+    class A,B,M,G,T,V,R src
     class C,W,H,I act
     class D,E,F quiet
 ```
@@ -142,29 +143,46 @@ This is the useful table. Each slot has exactly one thing that moves it:
 | `stardate` | repo count changes · the top four languages reorder · your newest repo changes · `heading` in `manifest.json` changes |
 | `badges` | public repo count or follower count changes |
 | `surface` | `manifest.json` is re-measured |
+| `forecast` | a deck crosses a band — a threshold in days, or a repo passing a year |
 | `systems` | language byte shares shift enough to reorder the bars or move a `▰` |
 | `hold` | a repo named in `DECKS` is created, deleted or renamed |
 | `arrivals` | a new repo appears that is not yet filed into a deck |
 | _(all counts)_ | a repo is **created or deleted** — picked up by the next hourly run, which also rewrites the survey dropdown |
 | `recent` | **any push to any public repo** — this is the one that moves most often |
 | `views` | a UTC day closes with at least one visit on it — see below |
+| `blackbox` | a closed day is a different *kind* of day from the one rolling off the far end |
 | `stamp` | the date or name of your newest push changes |
 
 So in practice: **within the hour of any push to any public repo, a run
 commits.** On an hour when nothing moved, nothing is committed.
 
-### The counter is the one slot that moves on its own
+### The three slots that move on their own
 
-Everything else on the page changes only because *you* did something. The
-traffic ledger changes because someone else did, which is the point of it —
-and it is the one thing that can put a commit in the history on a day you
-never touched the account.
+Most of the page changes only because *you* did something. Three blocks do
+not, and each is capped at **one commit a day at most** by the same rule:
+**the day in progress is never written.** A closed UTC day is a fact and is
+recorded once; today is still filling, and writing it would mean a fresh
+number on all twenty-four hourly runs.
 
-It is held to **one commit a day at most**, on purpose. `views.py` records a
-day only once that UTC day is over: the bucket for today is still filling,
-and writing it would mean a fresh number on all twenty-four hourly runs and
-a history of "the counter went up by one". A closed day is a fact and is
-written once. A day with no visitors changes no bytes and commits nothing.
+| block | moves because | and it says nothing when |
+|:--|:--|:--|
+| `views` | someone visited | a closed day had no visitors |
+| `blackbox` | a run failed, or the page changed, or the workflow did not run | the closed day looks like the one rolling off the far end |
+| `forecast` | time passed and a deck crossed a band | the deck is still inside the same band |
+
+`forecast` is the one that genuinely reads the clock, and it is worth being
+plain about that: a deck can go from *quiet* to *still* on a morning when
+nobody did anything at all. That is a real departure from § 4, and the cost
+is bounded rather than argued away — there are five bands, so between two
+pushes a given deck can move the page **four times, ever**. The alternative
+was printing the age in days, which would rewrite the line every morning
+and say nothing new on any of them.
+
+The recorder is the interesting case, because it reports **by exception**.
+Its strip is fourteen closed days; when a quiet day rolls off the far end
+and a quiet day arrives at the near one, the string is byte-identical and
+nothing is committed. It costs a commit only on a day that was different —
+which is the only kind of day it is worth reading about.
 
 If even that is more churn than you want, the honest lever is the cadence:
 run `views.py` from a daily cron of its own rather than from the hourly log

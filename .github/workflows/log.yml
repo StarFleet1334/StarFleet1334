@@ -40,6 +40,7 @@ on:
 
 permissions:
   contents: write
+  actions: read       # THE BLACK BOX reads this workflow's own run history
 
 concurrency:
   group: log

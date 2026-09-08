@@ -98,11 +98,13 @@ whenever you press Run workflow or fire `repository_dispatch`:
 |:--|:--|
 | the console box | `/users/…` — name, join date, repo count, top languages, newest repo |
 | the badges | live repo and follower counts |
+| THE SHIPPING FORECAST | each deck's repos, banded by how long since the newest push |
 | SYSTEMS ONLINE | `/languages` on every repo, one vote each, split by byte share |
 | THE HOLD | `DECKS`, minus any repo that no longer exists |
 | NEW ARRIVALS | every repo not yet filed into a deck |
 | RECENTLY ON THE BENCH | the five most recently pushed repos |
 | SENSOR CONTACTS | `views.json`, which `views.py` merges from `/traffic/views` |
+| THE BLACK BOX | this workflow's own last fourteen days of runs |
 | the stamp | the newest real push |
 
 Everything else — the CURRENT HEADING prose, the working notes, the footer — is
@@ -118,10 +120,13 @@ exits without committing.
 The history of this repo is therefore a record of when your work changed — not
 a year of "chore: update README" from a cron.
 
-SENSOR CONTACTS is the one deliberate exception, and it is bounded rather
-than excused: `views.py` writes a day only after that UTC day has closed, so
-the counter can move at most once a day, and only on a day that actually had
-a visitor. See PROCESS.md § 3. The profile repo itself is
+Three blocks are deliberate exceptions, and each is bounded rather than
+excused by the same rule — **the day in progress is never written**, so none
+of them can move more than once a day. SENSOR CONTACTS moves on a day that
+had a visitor; THE BLACK BOX on a day that was a different kind of day from
+the one rolling off its far end; THE SHIPPING FORECAST when a deck crosses
+one of five bands, which for a given deck can happen four times before
+someone pushes to it again. See PROCESS.md § 3. The profile repo itself is
 excluded from every "newest" calculation for the same reason: the Action pushes
 to it, so counting it would make the bot's own commit the news.
 
@@ -161,17 +166,27 @@ python .github/build.py --check    # says whether README.md would change
 python .github/build.py            # writes it
 ```
 
-Unauthenticated you get 60 API calls an hour and the build needs about 56, so
-a second local run inside the hour will hit the limit. It degrades rather than
-lying: a partial language read is discarded in favour of coarse repo counts,
-and if the API is unreachable entirely the build exits non-zero and leaves
-`README.md` exactly as it was. Set `GITHUB_TOKEN` to a personal access token
-with no scopes to get 5000/hr locally.
+Unauthenticated you get 60 API calls an hour and the build needs about 62 —
+THE BLACK BOX added six, paging this workflow's own runs — so a local build
+now runs out before it finishes. It degrades rather than lying: a partial
+language read is discarded in favour of coarse repo counts; THE BLACK BOX
+prints a sentence saying it could not read its own runs *this build*, rather
+than drawing fourteen dark ticks it has no evidence for; and if the API is
+unreachable entirely the build exits non-zero and leaves `README.md` exactly
+as it was. Set `GITHUB_TOKEN` to a personal access token with no scopes to
+get 5000/hr locally — worth doing now that the budget is over sixty.
 
 ## 6 · Things you may want to change
 
 - **Cadence** — the `cron` in `log.yml`. It commits only on real change, so a
   faster schedule costs nothing but Action minutes.
+- **The forecast's vocabulary** — `STATE_BANDS` and `VERDICT_BANDS` in
+  `build.py`. Widen a band and the page gets calmer; narrow one and it gets
+  chattier. The words are rationed on purpose — five states, three verdicts,
+  nothing else — so a reader learns the scale once and then reads the whole
+  bulletin at a glance.
+- **The recorder's horizon** — `FLIGHT_DAYS`, fourteen to match the traffic
+  API's own reach. Lengthening it costs one more page of runs per week.
 - **The private line.** `PRIVATE = {"AETHER"}` in `build.py` renders it without
   a link. Delete the row from `DECKS` if you would rather not mention it, or
   move it to a real link when the repo goes public.
