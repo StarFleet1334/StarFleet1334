@@ -4,39 +4,9 @@
   Edit the template, or the deck data in build.py, and push.
 -->
 
-<div align="center">
-
-<pre>
-<!--LOG:stardate-->
-╔══════════════════════════════════════════════════════════╗
-║                                                          ║
-║        S T A R F L E E T  ·  1 3 3 4                     ║
-║        open log / flight deck                            ║
-║                                                          ║
-║   ────────────────────────────────────────────────       ║
-║                                                          ║
-║   callsign      IDoctor                                  ║
-║   on station    since 2021-07-04                         ║
-║   manifest      55 public repositories                   ║
-║   crewed by     Java · Go · HTML/CSS · JavaScript        ║
-║   last seen in  Shelves                                  ║
-║   heading       AETHER - hands, face and voice           ║
-║                                                          ║
-╚══════════════════════════════════════════════════════════╝
-<!--/LOG:stardate-->
-</pre>
-
-<sub>
-<!--LOG:badges-->
-<img src="https://img.shields.io/badge/repos-55-0d1117?style=flat-square&labelColor=0d1117&color=58a6ff" alt="repos 55" />
-&nbsp;
-<img src="https://img.shields.io/badge/followers-10-0d1117?style=flat-square&labelColor=0d1117&color=58a6ff" alt="followers 10" />
-&nbsp;
-<img src="https://img.shields.io/badge/primary%20instrument-hands-0d1117?style=flat-square&labelColor=0d1117&color=f0883e" alt="primary instrument hands" />
-<!--/LOG:badges-->
-</sub>
-
-</div>
+<!--LOG:masthead-->
+<a name="log" href="#user-content-log"><img src="https://raw.githubusercontent.com/StarFleet1334/StarFleet1334/main/masthead.svg?v=41747fb6" width="920" alt="STARFLEET 1334 — open log / flight deck. The account’s callsign, join date, repository count and current heading." /></a>
+<!--/LOG:masthead-->
 
 ---
 

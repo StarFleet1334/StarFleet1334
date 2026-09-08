@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 208" width="920" height="208" role="img">
+<style>.bg{fill:#ffffff}.ink{fill:#1f2328}.dim{fill:#59636e}.rule{fill:#d1d9e0}.accent{fill:#0969da}.warm{fill:#bc4c00}@media(prefers-color-scheme:dark){.bg{fill:#0d1117}.ink{fill:#e6edf3}.dim{fill:#8b949e}.rule{fill:#30363d}.accent{fill:#58a6ff}.warm{fill:#f0883e}}</style>
+<rect width="920" height="208" class="bg"/>
+<rect x="34" y="28" width="3" height="34" class="warm"/>
+<text x="50" y="62" class="ink" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="31" font-weight="600" letter-spacing="7.5" textLength="430" lengthAdjust="spacingAndGlyphs">STARFLEET 1334</text>
+<rect x="50" y="78" width="430" height="1" class="rule"/>
+<text x="50" y="102" class="dim" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace" font-size="10.5" font-weight="400" letter-spacing="4.6">OPEN LOG · FLIGHT DECK</text>
+<text x="540" y="34" class="dim" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace" font-size="8.5" font-weight="400" letter-spacing="1.9">CALLSIGN</text>
+<text x="652" y="34" class="ink" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace" font-size="12" font-weight="400" letter-spacing="0">IDoctor</text>
+<text x="540" y="59" class="dim" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace" font-size="8.5" font-weight="400" letter-spacing="1.9">ON STATION</text>
+<text x="652" y="59" class="ink" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace" font-size="12" font-weight="400" letter-spacing="0">since 2021-07-04</text>
+<text x="540" y="84" class="dim" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace" font-size="8.5" font-weight="400" letter-spacing="1.9">MANIFEST</text>
+<text x="652" y="84" class="ink" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace" font-size="12" font-weight="400" letter-spacing="0">55 repositories · 10 followers</text>
+<text x="540" y="109" class="dim" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace" font-size="8.5" font-weight="400" letter-spacing="1.9">CREWED BY</text>
+<text x="652" y="109" class="ink" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace" font-size="12" font-weight="400" letter-spacing="0">Java · Go · HTML/CSS</text>
+<text x="540" y="134" class="dim" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace" font-size="8.5" font-weight="400" letter-spacing="1.9">LAST SEEN IN</text>
+<text x="652" y="134" class="ink" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace" font-size="12" font-weight="400" letter-spacing="0">Shelves</text>
+<rect x="50" y="150" width="836" height="1" class="rule"/>
+<text x="50" y="178" class="dim" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace" font-size="8.5" font-weight="400" letter-spacing="1.9">CURRENT HEADING</text>
+<text x="194" y="178" class="accent" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace" font-size="13" font-weight="600" letter-spacing="0">AETHER</text>
+<text x="254.36" y="178" class="ink" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace" font-size="13" font-weight="400" letter-spacing="0">— hands, face and voice</text>
+</svg>
