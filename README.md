@@ -5,7 +5,7 @@
 -->
 
 <!--LOG:masthead-->
-<a name="log" href="#user-content-log"><img src="https://raw.githubusercontent.com/StarFleet1334/StarFleet1334/main/masthead.svg?v=41747fb6" width="920" alt="STARFLEET 1334 — open log / flight deck. The account’s callsign, join date, repository count and current heading." /></a>
+<a name="log" href="#user-content-log"><img src="https://raw.githubusercontent.com/StarFleet1334/StarFleet1334/main/masthead.svg?v=752d98af" width="920" alt="STARFLEET 1334 — open log / flight deck. The account’s callsign, join date, repository count and current heading." /></a>
 <!--/LOG:masthead-->
 
 ---
@@ -18,16 +18,9 @@
 > vocabulary** and learns yours by watching how you actually move — so the
 > dialect is *yours*, not a manual's.
 
-<!--LOG:surface-->
-| | |
-|---|---|
-| **Surface** | 74 Python modules · 66 JS modules · ~82k lines |
-| **Spine** | FastAPI over a websocket, vanilla JS, zero framework |
-| **Eyes** | MediaPipe hand + face landmarks at frame rate |
-| **Ears** | Vosk live preview, Whisper `medium.en` final — fully offline |
-| **Rooms** | Canvas · Air Sketch (2D/3D) · Observatory · Codex · Palace · Watchtower · Console |
-| **The trick** | A motion repeated ~6× gets *proposed back to you* to bind |
-<!--/LOG:surface-->
+<!--LOG:heading-->
+<a name="heading" href="#user-content-heading"><img src="https://raw.githubusercontent.com/StarFleet1334/StarFleet1334/main/heading.svg?v=a64e4ebd" width="920" alt="AETHER's signal path: a webcam at frame rate and a fully offline headset mic feed three channels — hands, face and voice — into the desk (FastAPI over a websocket, vanilla JS, zero framework), with an agent at the other end, opening onto Canvas · Air Sketch (2D/3D) · Observatory · Codex · Palace · Watchtower · Console. 74 Python modules · 66 JS modules · ~82k lines. A motion repeated ~6× gets proposed back to you to bind." /></a>
+<!--/LOG:heading-->
 
 <sub>Also inside: a 2D alt-azimuth <b>Observatory</b> over 8,874 real catalogued stars ·
 a <b>Codex</b> that reads a codebase into a force-directed constellation — one star per

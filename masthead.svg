@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 208" width="920" height="208" role="img">
-<style>.bg{fill:#ffffff}.ink{fill:#1f2328}.dim{fill:#59636e}.rule{fill:#d1d9e0}.accent{fill:#0969da}.warm{fill:#bc4c00}@media(prefers-color-scheme:dark){.bg{fill:#0d1117}.ink{fill:#e6edf3}.dim{fill:#8b949e}.rule{fill:#30363d}.accent{fill:#58a6ff}.warm{fill:#f0883e}}</style>
+<style>.bg{fill:#ffffff}.ink{fill:#1f2328}.dim{fill:#59636e}.rule{fill:#d1d9e0}.accent{fill:#0969da}.warm{fill:#bc4c00}.box{fill:#f6f8fa}@media(prefers-color-scheme:dark){.bg{fill:#0d1117}.ink{fill:#e6edf3}.dim{fill:#8b949e}.rule{fill:#30363d}.accent{fill:#58a6ff}.warm{fill:#f0883e}.box{fill:#161b22}}</style>
 <rect width="920" height="208" class="bg"/>
 <rect x="34" y="28" width="3" height="34" class="warm"/>
 <text x="50" y="62" class="ink" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif" font-size="31" font-weight="600" letter-spacing="7.5" textLength="430" lengthAdjust="spacingAndGlyphs">STARFLEET 1334</text>

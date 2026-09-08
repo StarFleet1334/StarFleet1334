@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 318" width="920" height="318" role="img">
+<style>.bg{fill:#ffffff}.ink{fill:#1f2328}.dim{fill:#59636e}.rule{fill:#d1d9e0}.accent{fill:#0969da}.warm{fill:#bc4c00}.box{fill:#f6f8fa}.s-bg{stroke:#ffffff}.s-ink{stroke:#1f2328}.s-dim{stroke:#59636e}.s-rule{stroke:#d1d9e0}.s-accent{stroke:#0969da}.s-warm{stroke:#bc4c00}.s-box{stroke:#f6f8fa}@media(prefers-color-scheme:dark){.bg{fill:#0d1117}.ink{fill:#e6edf3}.dim{fill:#8b949e}.rule{fill:#30363d}.accent{fill:#58a6ff}.warm{fill:#f0883e}.box{fill:#161b22}.s-bg{stroke:#0d1117}.s-ink{stroke:#e6edf3}.s-dim{stroke:#8b949e}.s-rule{stroke:#30363d}.s-accent{stroke:#58a6ff}.s-warm{stroke:#f0883e}.s-box{stroke:#161b22}}</style>
+<rect width="920" height="318" class="bg"/>
+<rect x="34" y="52" width="104" height="44" class="box"/>
+<rect x="34" y="52" width="104" height="44" fill="none" class="s-rule" stroke-width="1"/>
+<text x="45" y="72" class="ink" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace" font-size="10" font-weight="400" letter-spacing="1.4">WEBCAM</text>
+<text x="45" y="86" class="dim" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace" font-size="9" font-weight="400" letter-spacing="0">at frame rate</text>
+<rect x="34" y="124" width="104" height="44" class="box"/>
+<rect x="34" y="124" width="104" height="44" fill="none" class="s-rule" stroke-width="1"/>
+<text x="45" y="144" class="ink" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace" font-size="10" font-weight="400" letter-spacing="1.4">HEADSET MIC</text>
+<text x="45" y="158" class="dim" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace" font-size="9" font-weight="400" letter-spacing="0">fully offline</text>
+<path d="M138 74H160V66H186" class="s-rule" stroke-width="1" fill="none"/>
+<text x="192" y="69" class="accent" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace" font-size="11" font-weight="400" letter-spacing="0">hands</text>
+<path d="M138 74H160V86H186" class="s-rule" stroke-width="1" fill="none"/>
+<text x="192" y="89" class="accent" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace" font-size="11" font-weight="400" letter-spacing="0">face</text>
+<path d="M138 146H160V138H186" class="s-rule" stroke-width="1" fill="none"/>
+<text x="192" y="141" class="accent" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace" font-size="11" font-weight="400" letter-spacing="0">voice</text>
+<path d="M250 69H286" class="s-rule" stroke-width="1" fill="none"/>
+<path d="M250 89H286" class="s-rule" stroke-width="1" fill="none"/>
+<path d="M250 141H286" class="s-rule" stroke-width="1" fill="none"/>
+<path d="M286 69V141" class="s-rule" stroke-width="1" fill="none"/>
+<path d="M286 108H324" class="s-rule" stroke-width="1" fill="none"/>
+<path d="M324 105L330 108L324 111Z" class="rule"/>
+<rect x="330" y="74" width="168" height="68" class="box"/>
+<rect x="330" y="74" width="168" height="68" fill="none" class="s-rule" stroke-width="1"/>
+<text x="341" y="94" class="ink" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace" font-size="10" font-weight="400" letter-spacing="1.4">THE DESK</text>
+<text x="341" y="108" class="dim" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace" font-size="9" font-weight="400" letter-spacing="0">FastAPI over a websocket</text>
+<text x="341" y="128" class="dim" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace" font-size="9" font-weight="400" letter-spacing="0">vanilla JS, zero framework</text>
+<path d="M414 188V152" class="s-rule" stroke-width="1" fill="none"/>
+<path d="M411 158L414 152L417 158Z" class="rule"/>
+<rect x="330" y="188" width="168" height="40" class="box"/>
+<rect x="330" y="188" width="168" height="40" fill="none" class="s-rule" stroke-width="1"/>
+<text x="341" y="208" class="ink" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace" font-size="10" font-weight="400" letter-spacing="1.4">AN AGENT</text>
+<text x="341" y="222" class="dim" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace" font-size="9" font-weight="400" letter-spacing="0">at the other end</text>
+<path d="M498 108H540" class="s-rule" stroke-width="1" fill="none"/>
+<path d="M540 105L546 108L540 111Z" class="rule"/>
+<text x="552" y="80" class="dim" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace" font-size="8.5" font-weight="400" letter-spacing="1.9">7 ROOMS</text>
+<text x="552" y="102" class="ink" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace" font-size="11" font-weight="400" letter-spacing="0">Canvas · Air Sketch (2D/3D) · Observatory</text>
+<text x="552" y="119" class="ink" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace" font-size="11" font-weight="400" letter-spacing="0">· Codex · Palace · Watchtower · Console</text>
+<rect x="34" y="256" width="852" height="1" class="rule"/>
+<text x="34" y="278" class="dim" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace" font-size="8.5" font-weight="400" letter-spacing="1.9">SURFACE</text>
+<text x="124" y="278" class="ink" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace" font-size="11.5" font-weight="400" letter-spacing="0">74 Python modules · 66 JS modules · ~82k lines</text>
+<text x="34" y="302" class="warm" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace" font-size="8.5" font-weight="400" letter-spacing="1.9">THE TRICK</text>
+<text x="124" y="302" class="accent" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace" font-size="11.5" font-weight="400" letter-spacing="0">A motion repeated ~6× gets proposed back to you to bind</text>
+</svg>
