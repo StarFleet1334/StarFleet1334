@@ -174,36 +174,6 @@ and should show.</sub>
 
 </details>
 
-## ◉ &nbsp;SENSOR CONTACTS
-
-<sub>Who has been on the deck. GitHub's traffic API remembers fourteen days and
-then forgets, so <code>.github/views.py</code> keeps the ledger in
-<code>views.json</code> and the totals below count from it. Nothing here comes
-from a third party — the number is this repository's own traffic, read by this
-repository.</sub>
-
-<!--LOG:views-->
-<sub><b>No <code>PROFILE_TOKEN</code> secret is set</b>, so the traffic call is never made. Everything else on this page builds without it; only this block and the survey dropdown need it. See SETUP.md § 2c.</sub>
-<!--/LOG:views-->
-
----
-
-## ✕ &nbsp;THE BLACK BOX
-
-<sub>This page rebuilds itself hourly, which means the one failure it cannot
-otherwise show you is its own — an expired token, an API that started
-refusing, a workflow disabled for inactivity all look exactly like a quiet
-month. So the recorder keeps a fortnight of its own runs, one tick per closed
-day, and reports by exception.</sub>
-
-<!--LOG:blackbox-->
-| | |
-|---|---|
-| **Last 14 days** | `─╳┼─────┼─────` &nbsp;·&nbsp; 2 changed the page &nbsp;·&nbsp; **1 refused** |
-| **Reading** | `─` ran, nothing moved &nbsp;·&nbsp; `┼` the page changed &nbsp;·&nbsp; `╳` refused &nbsp;·&nbsp; `·` no run at all |
-| **Last refusal** | `2026-09-08` &nbsp;·&nbsp; the *rebuild the log* step |
-<!--/LOG:blackbox-->
-
 ---
 
 ## ⛬ &nbsp;WORKING NOTES
