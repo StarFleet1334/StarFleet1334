@@ -7,6 +7,8 @@ top of your profile page. That repo already exists.
 ```
 README.md            generated — do not edit
 chart.svg            generated — do not edit; THE STAR CHART's plate
+docs/index.html      the interactive chart. Hand-written; the build never touches it
+docs/sky.json        generated — the star positions the page reads
 PROCESS.md           the mechanism, end to end
 README.tpl.md        the prose. Edit this.
 manifest.json        numbers for the private project the API cannot see
@@ -90,6 +92,26 @@ Note that a public repository's Actions logs are world-readable, so surveying a
 private repo publishes what the survey prints about it. The survey warns you at
 the top of its own report.
 
+## 2d · Turn on Pages, or the plate opens a 404
+
+**Settings → Pages → Source: Deploy from a branch → `main` / `/docs` → Save.**
+
+The plate in THE STAR CHART links to
+`https://starfleet1334.github.io/StarFleet1334/`, which is `docs/index.html`
+served by Pages. Until Pages is switched on that link 404s — the README is
+correct and the site simply is not published yet.
+
+Two things about this that are easy to get wrong:
+
+- This repo is a **project** site, not a user site. A user site would have to
+  be named `StarFleet1334.github.io`; this one is named `StarFleet1334`, so
+  the URL carries the repo path. If you ever rename the repo, `PAGES` in
+  `build.py` follows the name automatically but the old link dies.
+- `docs/index.html` is **hand-written and the build never rewrites it**. Only
+  `docs/sky.json` is generated. That split is on purpose: an hourly run
+  produces a one-line diff in a data file rather than a regenerated
+  application, and the page can be edited like the program it is.
+
 ## 3 · What updates on its own
 
 Hourly at :17, on every push to the template, the data or the generator, and
@@ -100,6 +122,7 @@ whenever you press Run workflow or fire `repository_dispatch`:
 | the console box | `/users/…` — name, join date, repo count, top languages, newest repo |
 | the badges | live repo and follower counts |
 | THE STAR CHART | `chart.svg`, redrawn from the repo list and each repo's code bytes |
+| the interactive chart | `docs/sky.json` — the same positions, as data |
 | SYSTEMS ONLINE | `/languages` on every repo, one vote each, split by byte share |
 | THE HOLD | `DECKS`, minus any repo that no longer exists |
 | NEW ARRIVALS | every repo not yet filed into a deck |

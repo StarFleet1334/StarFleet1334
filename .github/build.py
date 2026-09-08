@@ -39,6 +39,7 @@ TPL = ROOT / "README.tpl.md"
 OUT = ROOT / "README.md"
 MANIFEST = ROOT / "manifest.json"
 CHART = ROOT / "chart.svg"
+SKYJSON = ROOT / "docs" / "sky.json"
 
 API = "https://api.github.com"
 
@@ -563,42 +564,81 @@ def plate_sky(sky):
 RAW = f"https://raw.githubusercontent.com/{USER}/{USER}/main"
 
 
-# The plate plants its own anchor and links to it. A link that goes nowhere is
-# the point: it is what stops GitHub supplying one that does.
-PLATE_ANCHOR = "star-chart"
+# A project repo's Pages site. `USER/USER` is not the user site — that would
+# have to be named USER.github.io — so this is served from the project path.
+PAGES = f"https://{USER.lower()}.github.io/{USER}/"
 
 
-def _img(src, svg, width, alt):
-    """An image that does NOT open a new tab when it is clicked.
+def _img(src, svg, width, alt, href):
+    """The plate, wrapped in a link the author supplies.
 
     GitHub's renderer wraps every bare <img> — markdown or raw HTML, and even
     one inside a <summary> — in
 
         <a target="_blank" rel="noopener noreferrer nofollow" href="{the image}">
 
-    which is why clicking the plate used to leave the page for a picture of
-    it. It does *not* add that wrapper to an image the author has already put
-    inside a link. Verified against GitHub's own renderer, not assumed: a bare
-    img comes back carrying target="_blank", the same img inside a hand-written
-    anchor comes back exactly as written.
+    which is why clicking the plate used to open a new tab onto the bare SVG.
+    It does *not* add that wrapper to an image the author has already put
+    inside a link. Verified against GitHub's own renderer rather than assumed:
+    a bare img comes back carrying target="_blank"; the same img inside a
+    hand-written anchor comes back exactly as written.
 
-    So the plate is wrapped in an anchor pointing at itself. Clicking it does
-    nothing, which is the whole intention — a README cannot make a picture do
-    anything, and the alternative is not "something better" but "a new tab
-    onto the bare file".
+    So the plate is wrapped, and the link goes to the chart that can actually
+    be clicked. GitHub strips `target` from author anchors as well, which is
+    the other half of what makes this work: the chart opens in the SAME tab,
+    not a new one.
 
-    The href carries the content hash for the same reason the src does: GitHub
-    caches README images hard, and a plate that changed can otherwise sit
-    behind the old bytes.
+    The src carries the content hash because GitHub caches README images hard,
+    and a plate that changed can otherwise sit behind the old bytes.
     """
     stamp = hashlib.sha256(svg.encode("utf-8")).hexdigest()[:8]
-    return (f'<a name="{PLATE_ANCHOR}" href="#user-content-{PLATE_ANCHOR}">'
+    return (f'<a href="{href}">'
             f'<img src="{RAW}/{src}?v={stamp}" width="{width}" alt="{alt}" /></a>')
+
+
+def sky_json(sky, sizes) -> str:
+    """The same sky the plate draws, as data for the page that can be clicked.
+
+    Positions and edges are the ones plate_sky() uses, not a second layout
+    computed on the other side — a chart whose stars sat somewhere else from
+    the picture that links to it would be a different sky wearing its name.
+
+    Sorted keys and a fixed separator so the file is byte-stable: this is
+    committed, and a dict that serialises in a different order every run would
+    commit hourly for a change nobody made.
+    """
+    def star(st, deck=None):
+        name, (x, y), mag, private = st
+        row = {"n": name, "x": round(x, 1), "y": round(y, 1), "m": mag,
+               "b": int(sizes.get(name, 0))}
+        if private:
+            row["p"] = 1
+        if deck:
+            row["d"] = deck
+        return row
+
+    figures = []
+    for f in sky["figures"]:
+        pts = [st[1] for st in f["stars"]]
+        figures.append({
+            "title": f["title"], "icon": f["icon"], "blurb": f["blurb"],
+            "stars": [star(st, f["title"]) for st in f["stars"]],
+            "edges": [[i, j] for i, j in _figure(pts)],
+        })
+    doc = {
+        "user": USER,
+        "w": SKY_W, "h": SKY_H,
+        "bands": [[lim, m] for lim, m in MAG_BANDS],
+        "figures": figures,
+        "field": [star(st) for st in sky["field"]],
+    }
+    return json.dumps(doc, sort_keys=True, separators=(",", ":"),
+                      ensure_ascii=False) + "\n"
 
 
 def block_starchart(sky):
     svg, alt, _ = plate_sky(sky)
-    return _img("chart.svg", svg, 920, alt)
+    return _img("chart.svg", svg, 920, alt, PAGES)
 
 
 SPARK = "▁▂▃▄▅▆▇█"
@@ -962,7 +1002,9 @@ def main() -> int:
 
     sky = _sky(repos, code_bytes, manifest)
     svg, alt, tally = plate_sky(sky)
-    print(f"- chart: {tally[0]} charted, {tally[1]} field stars")
+    data = sky_json(sky, code_bytes)
+    print(f"- chart: {tally[0]} charted, {tally[1]} field stars, "
+          f"{len(data)} bytes of sky data")
 
     ledger = load_views()
     print(f"- ledger: {len(ledger['days'])} days, "
@@ -1013,7 +1055,7 @@ def main() -> int:
     if unknown:
         print(f"  ! template asks for unknown blocks: {', '.join(unknown)}", file=sys.stderr)
 
-    want = {CHART: svg, OUT: text}
+    want = {CHART: svg, SKYJSON: data, OUT: text}
     moved = [f.name for f, body in want.items()
              if not (f.exists() and f.read_text(encoding="utf-8") == body)]
 
@@ -1021,13 +1063,16 @@ def main() -> int:
         print("- no change" if not moved else "- would change: " + ", ".join(moved))
         return 0
 
-    # The chart is written before the page. The page names it by content hash,
-    # so the one ordering that must never happen is a committed README
-    # pointing at a chart that is not there yet.
+    # The chart and the data are written before the page. The page names the
+    # chart by content hash and links to the site the data feeds, so the one
+    # ordering that must never happen is a committed README pointing at
+    # something that is not there yet.
+    SKYJSON.parent.mkdir(exist_ok=True)
     CHART.write_text(svg, encoding="utf-8", newline="\n")
+    SKYJSON.write_text(data, encoding="utf-8", newline="\n")
     OUT.write_text(text, encoding="utf-8", newline="\n")
-    print(f"- wrote {OUT.name} ({len(text)} bytes) and {CHART.name} "
-          f"({len(svg)} bytes)")
+    print(f"- wrote {OUT.name} ({len(text)} bytes), {CHART.name} "
+          f"({len(svg)} bytes) and docs/sky.json ({len(data)} bytes)")
     return 0
 
 

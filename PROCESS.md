@@ -9,6 +9,8 @@ flowchart TD
     A["README.tpl.md<br/><i>your prose, nine empty slots</i>"] --> C
     B["decks.json<br/><i>THE HOLD + the ignore list</i>"] --> C
     V["views.json<br/><i>the traffic ledger</i>"] --> C
+    C --> J["docs/sky.json<br/><i>the same sky, as data</i>"]
+    J --> P["GitHub Pages<br/><i>the chart you can click</i>"]
     M["manifest.json<br/><i>the private project's numbers</i>"] --> C
     G["GitHub API<br/><i>/users · /repos · /languages</i>"] --> C
     T["GitHub API<br/><i>/traffic/views — 14 days</i>"] --> W
@@ -24,7 +26,8 @@ flowchart TD
     classDef act  fill:#0d1117,stroke:#58a6ff,color:#58a6ff
     classDef quiet fill:#0d1117,stroke:#21262d,color:#8b949e
     class A,B,M,G,T,V,R src
-    class C,W,H,I act
+    class C,W,H,I,P act
+    class J quiet
     class D,E,F quiet
 ```
 
@@ -147,6 +150,7 @@ This is the useful table. Each slot has exactly one thing that moves it:
 | `systems` | language byte shares shift enough to reorder the bars or move a `▰` |
 | `hold` | a repo named in `DECKS` is created, deleted or renamed |
 | `starchart` | `chart.svg`'s bytes change — the tag carries their hash, so the two can never disagree |
+| `docs/sky.json` | the same trigger as the plate; it is the same sky, written as data for the Pages chart |
 | `arrivals` | a new repo appears that is not yet filed into a deck |
 | _(all counts)_ | a repo is **created or deleted** — picked up by the next hourly run, which also rewrites the survey dropdown |
 | `views` | a UTC day closes with at least one visit on it — see below |

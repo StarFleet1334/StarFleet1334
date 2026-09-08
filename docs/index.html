@@ -1,0 +1,635 @@
+<!doctype html>
+<!--
+  ┌────────────────────────────────────────────────────────────────────────┐
+  │  THIS FILE IS HAND-WRITTEN. Unlike README.md and chart.svg, the build  │
+  │  never touches it — it only rewrites docs/sky.json beside it.          │
+  │                                                                        │
+  │  That split is deliberate. The page is a program and should be edited  │
+  │  as one; the sky is data and changes when the account does. Keeping    │
+  │  them apart means an hourly run produces a one-line diff in a JSON     │
+  │  file rather than a regenerated application.                           │
+  └────────────────────────────────────────────────────────────────────────┘
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>The Star Chart · StarFleet1334</title>
+<meta name="description" content="Every repository on the account as a star: click one for its catalogue entry, drag to pan, scroll to zoom.">
+<meta name="color-scheme" content="dark">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect width='16' height='16' fill='%230a0e15'/><circle cx='8' cy='8' r='2.4' fill='%23e9eef8'/><circle cx='3.5' cy='4' r='1' fill='%23e9eef8' opacity='.7'/><circle cx='12.5' cy='11' r='1.2' fill='%23e9eef8' opacity='.8'/></svg>">
+<style>
+:root{
+  --sky:#0a0e15;
+  --edge:#1b2431;
+  --panel:#0e131c;
+  --star:#e9eef8;
+  --figure:#31527f;
+  --label:#5b8ede;
+  --field:#8fa4c4;
+  --dim:#6d7d95;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  background:var(--sky);
+  color:var(--star);
+  font-family:var(--mono);
+  font-size:13px;
+  overflow:hidden;
+  overscroll-behavior:none;
+}
+
+#sky{
+  position:fixed;
+  inset:0;
+  display:block;
+  width:100%;
+  height:100%;
+  touch-action:none;
+  cursor:grab;
+}
+#sky:active{cursor:grabbing}
+#sky.over{cursor:pointer}
+#sky:focus-visible{outline:2px solid var(--label);outline-offset:-4px}
+
+/* ── the bar ───────────────────────────────────────────────────────────── */
+
+header{
+  position:fixed;
+  top:0;left:0;right:0;
+  display:flex;
+  align-items:center;
+  gap:18px;
+  padding:12px 18px;
+  background:linear-gradient(var(--sky),rgba(10,14,21,.82) 62%,transparent);
+  pointer-events:none;
+  z-index:3;
+  flex-wrap:wrap;
+}
+header > *{pointer-events:auto}
+h1{
+  margin:0;
+  font-size:12px;
+  font-weight:600;
+  letter-spacing:.22em;
+  color:var(--label);
+  white-space:nowrap;
+}
+.tally{color:var(--dim);letter-spacing:.06em;font-size:11px;white-space:nowrap}
+.back{
+  margin-left:auto;
+  color:var(--label);
+  text-decoration:none;
+  letter-spacing:.1em;
+  font-size:11px;
+  border:1px solid var(--edge);
+  padding:5px 11px;
+  white-space:nowrap;
+}
+.back:hover,.back:focus-visible{border-color:var(--label);outline:none}
+
+/* ── the deck rail ─────────────────────────────────────────────────────── */
+
+#rail{
+  position:fixed;
+  left:18px;bottom:16px;
+  display:flex;
+  gap:7px;
+  flex-wrap:wrap;
+  max-width:min(660px,calc(100vw - 36px));
+  z-index:3;
+}
+.chip{
+  font:inherit;
+  font-size:10.5px;
+  letter-spacing:.13em;
+  color:var(--dim);
+  background:rgba(14,19,28,.86);
+  border:1px solid var(--edge);
+  padding:5px 10px;
+  cursor:pointer;
+}
+.chip:hover{color:var(--star);border-color:var(--figure)}
+.chip[aria-pressed="true"]{color:var(--star);border-color:var(--label)}
+.chip:focus-visible{outline:1px solid var(--label);outline-offset:1px}
+
+/* ── the dossier ───────────────────────────────────────────────────────── */
+
+#panel{
+  position:fixed;
+  top:0;right:0;bottom:0;
+  width:min(340px,86vw);
+  background:var(--panel);
+  border-left:1px solid var(--edge);
+  padding:64px 22px 22px;
+  transform:translateX(101%);
+  transition:transform .22s ease;
+  z-index:4;
+  overflow-y:auto;
+}
+#panel.open{transform:none}
+#panel h2{
+  margin:0 0 4px;
+  font-size:15px;
+  font-weight:600;
+  letter-spacing:.02em;
+  word-break:break-word;
+}
+#panel .deck{
+  color:var(--label);
+  font-size:10.5px;
+  letter-spacing:.16em;
+  margin:0 0 18px;
+}
+#panel dl{
+  display:grid;
+  grid-template-columns:auto 1fr;
+  gap:0;
+  margin:0 0 20px;
+  font-size:11.5px;
+}
+#panel dt{
+  color:var(--dim);
+  letter-spacing:.1em;
+  font-size:9.5px;
+  padding:8px 14px 8px 0;
+  border-bottom:1px solid var(--edge);
+  white-space:nowrap;
+}
+#panel dd{
+  margin:0;
+  padding:8px 0;
+  border-bottom:1px solid var(--edge);
+  text-align:right;
+}
+#panel .go{
+  display:inline-block;
+  color:var(--label);
+  text-decoration:none;
+  border:1px solid var(--edge);
+  padding:8px 14px;
+  letter-spacing:.1em;
+  font-size:11px;
+}
+#panel .go:hover,#panel .go:focus-visible{border-color:var(--label);outline:none}
+#panel .note{color:var(--dim);font-size:11px;line-height:1.6;margin:16px 0 0}
+#shut{
+  position:absolute;
+  top:16px;right:16px;
+  background:none;
+  border:1px solid var(--edge);
+  color:var(--dim);
+  font:inherit;
+  font-size:12px;
+  width:28px;height:28px;
+  cursor:pointer;
+}
+#shut:hover,#shut:focus-visible{color:var(--star);border-color:var(--label);outline:none}
+
+/* ── hover readout ─────────────────────────────────────────────────────── */
+
+#tip{
+  position:fixed;
+  z-index:5;
+  padding:4px 8px;
+  background:rgba(14,19,28,.94);
+  border:1px solid var(--edge);
+  color:var(--star);
+  font-size:11px;
+  pointer-events:none;
+  white-space:nowrap;
+  opacity:0;
+  transition:opacity .1s;
+}
+#tip.on{opacity:1}
+
+#hint{
+  position:fixed;
+  right:18px;bottom:16px;
+  color:var(--dim);
+  font-size:10.5px;
+  letter-spacing:.09em;
+  z-index:3;
+  text-align:right;
+  pointer-events:none;
+}
+#status{
+  position:fixed;
+  inset:0;
+  display:grid;
+  place-content:center;
+  color:var(--dim);
+  letter-spacing:.14em;
+  font-size:11px;
+  text-align:center;
+  padding:24px;
+  z-index:6;
+  background:var(--sky);
+}
+#status a{color:var(--label)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+@media (prefers-reduced-motion: reduce){
+  *{transition:none!important}
+}
+@media (max-width:620px){
+  #hint{display:none}
+  #panel{width:100%;border-left:0}
+}
+</style>
+</head>
+<body>
+
+<canvas id="sky" tabindex="0" aria-label="Star chart of the account. Every repository is a star."></canvas>
+
+<header>
+  <h1>✷ THE STAR CHART</h1>
+  <span class="tally" id="tally"></span>
+  <a class="back" id="back" href="https://github.com/StarFleet1334">← THE LOG</a>
+</header>
+
+<div id="rail" role="group" aria-label="Decks"></div>
+
+<aside id="panel" aria-live="polite" hidden>
+  <button id="shut" aria-label="Close">✕</button>
+  <h2 id="p-name"></h2>
+  <p class="deck" id="p-deck"></p>
+  <dl>
+    <div style="display:contents"><dt>MAGNITUDE</dt><dd id="p-mag"></dd></div>
+    <div style="display:contents"><dt>CODE</dt><dd id="p-code"></dd></div>
+    <div style="display:contents"><dt>POSITION</dt><dd id="p-pos"></dd></div>
+  </dl>
+  <a class="go" id="p-go" href="#">OPEN THE REPOSITORY →</a>
+  <p class="note" id="p-note"></p>
+</aside>
+
+<div id="tip" role="status"></div>
+<div id="hint">DRAG TO PAN &nbsp;·&nbsp; SCROLL TO ZOOM &nbsp;·&nbsp; CLICK A STAR</div>
+<div id="status">READING THE SKY…</div>
+<ul class="sr" id="sr" aria-label="Every star on the chart"></ul>
+
+<script>
+(function () {
+  "use strict";
+
+  var C = {
+    star: "#e9eef8", figure: "#31527f", label: "#5b8ede",
+    field: "#8fa4c4", sky: "#0a0e15"
+  };
+  // The plate's own magnitude table, so a star is the same size in both.
+  var MAG_R = {1: 5.4, 2: 4.1, 3: 3.2, 4: 2.5, 5: 1.9, 6: 1.4};
+  var MAG_O = {1: 1, 2: .94, 3: .86, 4: .76, 5: .64, 6: .5};
+
+  var cv = document.getElementById("sky");
+  var ctx = cv.getContext("2d");
+  var tip = document.getElementById("tip");
+  var panel = document.getElementById("panel");
+  var statusEl = document.getElementById("status");
+
+  var sky = null, stars = [], focus = null, hover = null, picked = null;
+  var view = {k: 1, x: 0, y: 0}, home = {k: 1, x: 0, y: 0};
+  var dpr = 1, W = 0, H = 0;
+
+  function esc(s) { return String(s).replace(/[<>&"]/g, function (c) {
+    return {"<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;"}[c]; }); }
+
+  function bytes(n) {
+    if (!n) return "—";
+    if (n >= 1e6) return (n / 1e6).toFixed(1) + " MB";
+    if (n >= 1e3) return Math.round(n / 1e3) + " KB";
+    return n + " B";
+  }
+
+  // ── loading ───────────────────────────────────────────────────────────
+  fetch("sky.json", {cache: "no-cache"})
+    .then(function (r) {
+      if (!r.ok) throw new Error(r.status + " " + r.statusText);
+      return r.json();
+    })
+    .then(start)
+    .catch(function (e) {
+      // Say which of the two it is. A blank sky and a missing file look the
+      // same on screen and have completely different fixes.
+      statusEl.innerHTML = "COULD NOT READ <code>sky.json</code> — " + esc(e.message) +
+        "<br><br>It is written by <code>.github/build.py</code> on every run of the log " +
+        "workflow.<br>If this page is newly published, the first run may not have " +
+        "happened yet.<br><br><a href='https://github.com/StarFleet1334'>← back to the log</a>";
+    });
+
+  function start(data) {
+    sky = data;
+    statusEl.remove();
+    document.getElementById("back").href = "https://github.com/" + data.user;
+
+    sky.figures.forEach(function (f) {
+      f.stars.forEach(function (s) { s.fig = f; stars.push(s); });
+    });
+    sky.field.forEach(function (s) { s.fig = null; stars.push(s); });
+
+    document.getElementById("tally").textContent =
+      stars.length + " STARS · " + sky.figures.length + " FIGURES · " +
+      sky.field.length + " IN NO FIGURE";
+
+    buildRail();
+    buildScreenReaderList();
+    resize();
+    window.addEventListener("resize", resize);
+    wire();
+  }
+
+  function buildRail() {
+    var rail = document.getElementById("rail");
+    // One entry per figure, plus the field — which is a group in the rail even
+    // though it is not a figure, because "show me only what is unfiled" is the
+    // question the chart is best at answering.
+    var groups = sky.figures.concat([{title: "THE FIELD", field: true,
+                                      blurb: "Repositories not filed into any deck"}]);
+    groups.forEach(function (g) {
+      var b = document.createElement("button");
+      b.className = "chip";
+      b.type = "button";
+      b.setAttribute("aria-pressed", "false");
+      b.textContent = (g.icon ? g.icon + " " : "") + g.title;
+      b.title = g.blurb || "";
+      b.addEventListener("click", function () {
+        focus = (focus === g) ? null : g;      // a second press releases it
+        [].forEach.call(rail.children, function (chip, i) {
+          chip.setAttribute("aria-pressed", String(focus === groups[i]));
+        });
+        draw();
+      });
+      rail.appendChild(b);
+    });
+  }
+
+  function buildScreenReaderList() {
+    // The canvas is unreadable to a screen reader, so the same catalogue is
+    // in the DOM as plain links. It costs nothing and it is the difference
+    // between a chart and a picture nobody else can use.
+    var ul = document.getElementById("sr");
+    stars.forEach(function (s) {
+      var li = document.createElement("li");
+      li.innerHTML = '<a href="https://github.com/' + esc(sky.user) + '/' +
+        esc(s.n) + '">' + esc(s.n) + "</a> — magnitude " + s.m + ", " +
+        bytes(s.b) + (s.fig ? ", in " + esc(s.fig.title) : ", unfiled");
+      ul.appendChild(li);
+    });
+  }
+
+  // ── view ──────────────────────────────────────────────────────────────
+  var placed = false;
+
+  function resize() {
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    W = cv.clientWidth; H = cv.clientHeight;
+    cv.width = Math.round(W * dpr);
+    cv.height = Math.round(H * dpr);
+
+    var pad = 40;
+    var k = Math.min((W - pad * 2) / sky.w, (H - pad * 2) / sky.h);
+    var next = {k: k, x: (W - sky.w * k) / 2, y: (H - sky.h * k) / 2};
+
+    if (!placed) {
+      view = {k: next.k, x: next.x, y: next.y};
+      placed = true;
+    } else {
+      // Keep where the reader is looking. The sky point at the middle of the
+      // old viewport stays at the middle of the new one, and the zoom keeps
+      // its ratio to home — otherwise every resize throws away the pan.
+      var mid = toSky(W / 2, H / 2);
+      view.k *= next.k / home.k;
+      view.x = W / 2 - mid[0] * view.k;
+      view.y = H / 2 - mid[1] * view.k;
+    }
+    home = next;
+    draw();
+  }
+
+  function toScreen(x, y) { return [x * view.k + view.x, y * view.k + view.y]; }
+  function toSky(px, py) { return [(px - view.x) / view.k, (py - view.y) / view.k]; }
+
+  function zoomAt(px, py, factor) {
+    var k2 = Math.max(home.k * 0.6, Math.min(home.k * 14, view.k * factor));
+    var f = k2 / view.k;
+    view.x = px - (px - view.x) * f;
+    view.y = py - (py - view.y) * f;
+    view.k = k2;
+    draw();
+  }
+
+  // ── drawing ───────────────────────────────────────────────────────────
+  function alphaFor(s) {
+    if (!focus) return 1;
+    if (focus.field) return s.fig ? 0.16 : 1;
+    return s.fig && s.fig.title === focus.title ? 1 : 0.16;
+  }
+
+  function draw() {
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, W, H);
+    ctx.fillStyle = C.sky;
+    ctx.fillRect(0, 0, W, H);
+
+    // the plate's border, so the page and the picture frame the same sky
+    var a = toScreen(0, 0), b = toScreen(sky.w, sky.h);
+    ctx.strokeStyle = "#1b2431";
+    ctx.lineWidth = 1;
+    ctx.strokeRect(a[0] + .5, a[1] + .5, b[0] - a[0], b[1] - a[1]);
+
+    sky.figures.forEach(function (f) {
+      var dim = focus && (focus.field || focus.title !== f.title);
+      ctx.strokeStyle = C.figure;
+      ctx.globalAlpha = dim ? 0.12 : 0.55;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      f.edges.forEach(function (e) {
+        var p = toScreen(f.stars[e[0]].x, f.stars[e[0]].y);
+        var q = toScreen(f.stars[e[1]].x, f.stars[e[1]].y);
+        ctx.moveTo(p[0], p[1]); ctx.lineTo(q[0], q[1]);
+      });
+      ctx.stroke();
+    });
+    ctx.globalAlpha = 1;
+
+    stars.forEach(function (s) {
+      var p = toScreen(s.x, s.y);
+      var r = MAG_R[s.m] * Math.max(1, Math.sqrt(view.k / home.k));
+      var al = alphaFor(s);
+      if (!s.fig) r *= 0.8;
+
+      if (s.m <= 2 && s.fig && al === 1) {
+        ctx.globalAlpha = 0.10;
+        ctx.fillStyle = C.star;
+        ctx.beginPath(); ctx.arc(p[0], p[1], r * 2.6, 0, 6.2832); ctx.fill();
+      }
+      ctx.globalAlpha = MAG_O[s.m] * (s.fig ? 1 : 0.45) * al;
+      ctx.fillStyle = s.fig ? C.star : C.field;
+      ctx.beginPath(); ctx.arc(p[0], p[1], r, 0, 6.2832); ctx.fill();
+
+      if (s.p) {                                   // private: not catalogued
+        ctx.globalAlpha = 0.45 * al;
+        ctx.strokeStyle = C.star;
+        ctx.lineWidth = 0.9;
+        ctx.setLineDash([2, 2]);
+        ctx.beginPath(); ctx.arc(p[0], p[1], r + 4, 0, 6.2832); ctx.stroke();
+        ctx.setLineDash([]);
+      }
+      if (s === picked) {
+        ctx.globalAlpha = al;
+        ctx.strokeStyle = C.label;
+        ctx.lineWidth = 1.2;
+        ctx.beginPath(); ctx.arc(p[0], p[1], r + 7, 0, 6.2832); ctx.stroke();
+      }
+    });
+    ctx.globalAlpha = 1;
+
+    // Names appear once there is room for them. Drawing thirty-seven at the
+    // home zoom is the illegible smear the plate deliberately avoids.
+    var near = view.k / home.k;
+    ctx.font = "11px " + getComputedStyle(document.body).fontFamily;
+    ctx.textBaseline = "middle";
+    stars.forEach(function (s) {
+      var show = s === hover || s === picked || near > 2.2 ||
+                 (near > 1.35 && s.m <= 2);
+      if (!show) return;
+      var p = toScreen(s.x, s.y);
+      ctx.globalAlpha = (s === hover || s === picked) ? 0.95 : 0.7 * alphaFor(s);
+      ctx.fillStyle = C.star;
+      var w = ctx.measureText(s.n).width;
+      var right = p[0] + 10 + w < W - 12;
+      ctx.textAlign = right ? "left" : "right";
+      ctx.fillText(s.n, p[0] + (right ? 10 : -10), p[1]);
+    });
+    ctx.globalAlpha = 1;
+
+    sky.figures.forEach(function (f) {
+      var xs = f.stars.map(function (s) { return s.x; });
+      var ys = f.stars.map(function (s) { return s.y; });
+      var c = toScreen((Math.min.apply(null, xs) + Math.max.apply(null, xs)) / 2,
+                       Math.max.apply(null, ys) + 26);
+      ctx.globalAlpha = focus && focus.title !== f.title ? 0.2 : 0.85;
+      ctx.fillStyle = C.label;
+      ctx.font = "9px " + getComputedStyle(document.body).fontFamily;
+      ctx.textAlign = "center";
+      ctx.fillText(f.title.split("").join(" "), c[0], c[1]);
+    });
+    ctx.globalAlpha = 1;
+  }
+
+  // ── hit testing ───────────────────────────────────────────────────────
+  function at(px, py) {
+    var best = null, bd = 15 * 15;
+    for (var i = 0; i < stars.length; i++) {
+      var s = stars[i];
+      if (alphaFor(s) < 1) continue;
+      var p = toScreen(s.x, s.y);
+      var d = (p[0] - px) * (p[0] - px) + (p[1] - py) * (p[1] - py);
+      if (d < bd) { bd = d; best = s; }
+    }
+    return best;
+  }
+
+  function show(s) {
+    picked = s;
+    document.getElementById("p-name").textContent = s.n;
+    document.getElementById("p-deck").textContent =
+      s.fig ? s.fig.title : "IN NO FIGURE — NOT YET FILED";
+    document.getElementById("p-mag").textContent =
+      s.m + (s.p ? "  (asserted)" : "");
+    document.getElementById("p-code").textContent = s.p ? "not measurable" : bytes(s.b);
+    document.getElementById("p-pos").textContent = s.x.toFixed(0) + ", " + s.y.toFixed(0);
+    var go = document.getElementById("p-go");
+    go.href = "https://github.com/" + sky.user + "/" + s.n;
+    go.hidden = !!s.p;
+    document.getElementById("p-note").textContent = s.p
+      ? "Private. The API cannot measure it, so this magnitude is manifest.json's word rather than a reading — which is what the dashed ring means."
+      : (s.fig ? s.fig.blurb : "Unfiled. File it in decks.json and it joins a figure on the next run.");
+    panel.hidden = false;
+    panel.classList.add("open");
+    draw();
+  }
+
+  function shut() {
+    panel.classList.remove("open");
+    picked = null;
+    draw();
+  }
+
+  // ── input ─────────────────────────────────────────────────────────────
+  function wire() {
+    var drag = null, moved = 0;
+
+    cv.addEventListener("pointerdown", function (e) {
+      cv.setPointerCapture(e.pointerId);
+      drag = {x: e.clientX, y: e.clientY, vx: view.x, vy: view.y};
+      moved = 0;
+    });
+
+    cv.addEventListener("pointermove", function (e) {
+      var r = cv.getBoundingClientRect();
+      var px = e.clientX - r.left, py = e.clientY - r.top;
+      if (drag) {
+        var dx = e.clientX - drag.x, dy = e.clientY - drag.y;
+        moved = Math.max(moved, Math.abs(dx) + Math.abs(dy));
+        view.x = drag.vx + dx; view.y = drag.vy + dy;
+        draw();
+        return;
+      }
+      var s = at(px, py);
+      if (s !== hover) {
+        hover = s;
+        cv.classList.toggle("over", !!s);
+        draw();
+      }
+      if (s) {
+        tip.textContent = s.n + "  ·  mag " + s.m + "  ·  " + (s.p ? "private" : bytes(s.b));
+        tip.classList.add("on");
+        var tw = tip.offsetWidth, th = tip.offsetHeight;
+        tip.style.left = Math.min(window.innerWidth - tw - 8, px + 16) + "px";
+        tip.style.top = Math.max(8, py - th - 12) + "px";
+      } else {
+        tip.classList.remove("on");
+      }
+    });
+
+    function release(e) {
+      // A drag is not a click. Without the threshold, panning the sky opens
+      // the dossier of whatever happened to be under the finger.
+      if (drag && moved < 5) {
+        var r = cv.getBoundingClientRect();
+        var s = at(e.clientX - r.left, e.clientY - r.top);
+        if (s) { show(s); } else { shut(); }
+      }
+      drag = null;
+    }
+    cv.addEventListener("pointerup", release);
+    cv.addEventListener("pointercancel", function () { drag = null; });
+    cv.addEventListener("pointerleave", function () {
+      hover = null; tip.classList.remove("on"); draw();
+    });
+
+    cv.addEventListener("wheel", function (e) {
+      e.preventDefault();
+      var r = cv.getBoundingClientRect();
+      zoomAt(e.clientX - r.left, e.clientY - r.top,
+             Math.pow(0.998, e.deltaY * (e.deltaMode === 1 ? 18 : 1)));
+    }, {passive: false});
+
+    document.getElementById("shut").addEventListener("click", shut);
+
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape") { shut(); focus = null; draw(); }
+      else if (e.key === "+" || e.key === "=") zoomAt(W / 2, H / 2, 1.25);
+      else if (e.key === "-" || e.key === "_") zoomAt(W / 2, H / 2, 0.8);
+      else if (e.key === "0") { view = {k: home.k, x: home.x, y: home.y}; draw(); }
+      else return;
+      e.preventDefault();
+    });
+  }
+})();
+</script>
+</body>
+</html>
