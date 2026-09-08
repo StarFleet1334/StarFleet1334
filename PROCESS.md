@@ -8,9 +8,11 @@ result only when the bytes actually changed.**
 flowchart TD
     A["README.tpl.md<br/><i>your prose, nine empty slots</i>"] --> C
     B["decks.json<br/><i>THE HOLD + the ignore list</i>"] --> C
-    Y["YEAR_NOTES<br/><i>in build.py</i>"] --> C
+    V["views.json<br/><i>the traffic ledger</i>"] --> C
     M["manifest.json<br/><i>the private project's numbers</i>"] --> C
     G["GitHub API<br/><i>/users · /repos · /languages</i>"] --> C
+    T["GitHub API<br/><i>/traffic/views — 14 days</i>"] --> W
+    W["views.py<br/><i>merge the closed days</i>"] --> V
     C["build.py<br/><i>fill every slot</i>"] --> D["README.md"]
     D --> E{"git diff<br/>--cached --quiet"}
     E -->|identical| F["exit 0 — nothing committed"]
@@ -20,8 +22,8 @@ flowchart TD
     classDef src  fill:#161b22,stroke:#30363d,color:#e6edf3
     classDef act  fill:#0d1117,stroke:#58a6ff,color:#58a6ff
     classDef quiet fill:#0d1117,stroke:#21262d,color:#8b949e
-    class A,B,M,G,Y src
-    class C,H,I act
+    class A,B,M,G,T,V src
+    class C,W,H,I act
     class D,E,F quiet
 ```
 
@@ -32,7 +34,7 @@ flowchart TD
 | trigger | when | latency |
 |:--|:--|:--|
 | **cron** `17 * * * *` | every hour, at :17 | up to 1 h |
-| **push** to `main` or `master` | only if it touches `README.tpl.md`, `manifest.json`, `.github/build.py`, or `.github/workflows/log.yml` | seconds |
+| **push** to `main` or `master` | only if it touches `README.tpl.md`, `manifest.json`, `decks.json`, `.github/build.py`, `.github/views.py`, or `.github/workflows/log.yml` | seconds |
 | **workflow_dispatch** | Actions → log → Run workflow | immediate |
 | **repository_dispatch** | `gh api repos/StarFleet1334/StarFleet1334/dispatches -f event_type=refresh` | immediate |
 
@@ -140,16 +142,34 @@ This is the useful table. Each slot has exactly one thing that moves it:
 | `stardate` | repo count changes · the top four languages reorder · your newest repo changes · `heading` in `manifest.json` changes |
 | `badges` | public repo count or follower count changes |
 | `surface` | `manifest.json` is re-measured |
-| `timeline` | a repo is created in a year with no `YEAR_NOTES` line, or you edit one |
 | `systems` | language byte shares shift enough to reorder the bars or move a `▰` |
 | `hold` | a repo named in `DECKS` is created, deleted or renamed |
 | `arrivals` | a new repo appears that is not yet filed into a deck |
 | _(all counts)_ | a repo is **created or deleted** — picked up by the next hourly run, which also rewrites the survey dropdown |
 | `recent` | **any push to any public repo** — this is the one that moves most often |
+| `views` | a UTC day closes with at least one visit on it — see below |
 | `stamp` | the date or name of your newest push changes |
 
 So in practice: **within the hour of any push to any public repo, a run
-commits.** On an hour when nothing moved, nothing is committed. That is the
+commits.** On an hour when nothing moved, nothing is committed.
+
+### The counter is the one slot that moves on its own
+
+Everything else on the page changes only because *you* did something. The
+traffic ledger changes because someone else did, which is the point of it —
+and it is the one thing that can put a commit in the history on a day you
+never touched the account.
+
+It is held to **one commit a day at most**, on purpose. `views.py` records a
+day only once that UTC day is over: the bucket for today is still filling,
+and writing it would mean a fresh number on all twenty-four hourly runs and
+a history of "the counter went up by one". A closed day is a fact and is
+written once. A day with no visitors changes no bytes and commits nothing.
+
+If even that is more churn than you want, the honest lever is the cadence:
+run `views.py` from a daily cron of its own rather than from the hourly log
+build. The ledger merges by `max` and reaches fourteen days back, so it
+loses nothing as long as it runs at least once a fortnight. That is the
 intended behaviour, not a coincidence — and it is why the footer stamp is your newest real push and
 not `datetime.now()`. A "generated on" line would make every single run
 different, and the commit history would become a year of noise that says
@@ -245,9 +265,6 @@ Push. The push matches `.github/build.py`, so the run is immediate and the repo
 moves out of NEW ARRIVALS into the deck table.
 
 **A repo you never want listed** → add its name to `IGNORE`.
-
-**A new year** → a line in `YEAR_NOTES`. Forget, and the timeline lists that
-year's repos instead. It cannot silently stop.
 
 **AETHER's numbers** → the API cannot see a private repo, so they arrive by
 hand:

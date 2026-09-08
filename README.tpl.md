@@ -45,13 +45,6 @@ a <b>Chronosphere</b> that scrubs the whole board backwards through its own hist
 
 ---
 
-## ⧗ &nbsp;SHIP'S LOG
-
-<!--LOG:timeline-->
-<!--/LOG:timeline-->
-
----
-
 ## ⚙ &nbsp;SYSTEMS ONLINE
 
 <sub>Every repository gets one vote, split between its languages by byte share — so no single vendored bundle can outrank a language that was actually written.</sub>
@@ -81,6 +74,19 @@ a <b>Chronosphere</b> that scrubs the whole board backwards through its own hist
 
 <!--LOG:recent-->
 <!--/LOG:recent-->
+
+---
+
+## ◉ &nbsp;SENSOR CONTACTS
+
+<sub>Who has been on the deck. GitHub's traffic API remembers fourteen days and
+then forgets, so <code>.github/views.py</code> keeps the ledger in
+<code>views.json</code> and the totals below count from it. Nothing here comes
+from a third party — the number is this repository's own traffic, read by this
+repository.</sub>
+
+<!--LOG:views-->
+<!--/LOG:views-->
 
 ---
 

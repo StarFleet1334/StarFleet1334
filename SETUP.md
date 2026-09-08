@@ -11,6 +11,8 @@ README.tpl.md        the prose. Edit this.
 manifest.json        numbers for the private project the API cannot see
 decks.json           THE HOLD and the ignore list — data, hand- or tool-edited
 .github/build.py     the generator
+.github/views.py     merges the last 14 days of traffic into views.json
+views.json           the visit ledger — the API forgets, this does not
 .github/manifest.py  measures a local project and rewrites manifest.json
 .github/survey.py    analyses one repo, proposes a decks.json change
 .github/apply.py     writes an approved proposal into decks.json
@@ -50,22 +52,38 @@ environment that has no protection rules runs **immediately** — so without thi
 step the survey would analyse and apply in one go, and it would look like it
 worked. Free on public repositories.
 
-## 2c · Optional — the PROFILE_TOKEN secret
+## 2c · The PROFILE_TOKEN secret
 
-Everything works without it. Two things need it:
+The page builds without it. Three things need it:
 
+- **SENSOR CONTACTS** — the traffic API needs push-level access, and
+  `traffic` is not among the permissions a workflow `GITHUB_TOKEN` can be
+  granted at all. No `permissions:` block can buy it; only a PAT can;
 - **surveying a private repository** — `GITHUB_TOKEN` is scoped to this repo
   alone, so a private repo looks deleted to it;
 - **keeping the survey dropdown current** — `GITHUB_TOKEN` is forbidden from
   pushing changes to any file under `.github/workflows/`, and the dropdown
   lives in one.
 
-Create a PAT with read access to your repositories and permission to update
-workflows, then **Settings → Secrets and variables → Actions → New repository
-secret → `PROFILE_TOKEN`**.
+Create the PAT, then **Settings → Secrets and variables → Actions → New
+repository secret → `PROFILE_TOKEN`**.
 
-Without it the log run skips the roster step, says so in the log, and updates
-the page exactly as before. Nothing breaks; only the dropdown goes stale.
+| kind | what to tick |
+|:--|:--|
+| fine-grained | this repository → **Administration: Read**, **Contents:
+Read and write**, **Workflows: Read and write**; plus **Metadata: Read** on
+all repositories for the survey |
+| classic | `repo` and `workflow` |
+
+**Administration: Read is the one that is easy to miss.** Without it the
+traffic call answers 403, `views.py` prints *that token cannot read traffic*
+and leaves the ledger alone, and SENSOR CONTACTS sits there saying so. If
+you already had a `PROFILE_TOKEN` before this section existed, it almost
+certainly lacks that box — edit the token, do not make a second one.
+
+Without the secret entirely the log run skips the roster and the traffic
+steps, says so in the log, and updates the page exactly as before. Nothing
+breaks.
 
 Note that a public repository's Actions logs are world-readable, so surveying a
 private repo publishes what the survey prints about it. The survey warns you at
@@ -81,10 +99,10 @@ whenever you press Run workflow or fire `repository_dispatch`:
 | the console box | `/users/…` — name, join date, repo count, top languages, newest repo |
 | the badges | live repo and follower counts |
 | SYSTEMS ONLINE | `/languages` on every repo, one vote each, split by byte share |
-| SHIP'S LOG | repo creation dates, with your prose per year |
 | THE HOLD | `DECKS`, minus any repo that no longer exists |
 | NEW ARRIVALS | every repo not yet filed into a deck |
 | RECENTLY ON THE BENCH | the five most recently pushed repos |
+| SENSOR CONTACTS | `views.json`, which `views.py` merges from `/traffic/views` |
 | the stamp | the newest real push |
 
 Everything else — the CURRENT HEADING prose, the working notes, the footer — is
@@ -98,7 +116,12 @@ byte-identical file, `git diff --cached --quiet` finds nothing, and the job
 exits without committing.
 
 The history of this repo is therefore a record of when your work changed — not
-a year of "chore: update README" from a cron. The profile repo itself is
+a year of "chore: update README" from a cron.
+
+SENSOR CONTACTS is the one deliberate exception, and it is bounded rather
+than excused: `views.py` writes a day only after that UTC day has closed, so
+the counter can move at most once a day, and only on a day that actually had
+a visitor. See PROCESS.md § 3. The profile repo itself is
 excluded from every "newest" calculation for the same reason: the Action pushes
 to it, so counting it would make the bot's own commit the news.
 
@@ -118,9 +141,6 @@ To skip the ceremony, edit `decks.json` by hand and push:
 **A repo is deleted.** Nothing to do — the next hourly run drops it from every
 count, and any deck row that pointed at it disappears rather than leaving a
 dead link.
-
-**A new year starts.** Add a line to `YEAR_NOTES`. If you forget, the timeline
-lists that year's repos instead — it cannot silently stop.
 
 **AETHER's numbers change.** From anywhere:
 
@@ -161,3 +181,11 @@ with no scopes to get 5000/hr locally.
   the activity graph were removed; every number now comes from a GitHub API
   call this repo makes itself. The only image left is the shields.io badge row,
   and it degrades to alt text if that host is down.
+- **The visit counter is a real one, not a hit badge.** The usual profile
+  counters are an `<img>` pointing at someone else's server, which counts a
+  render rather than a visitor, is undercounted by GitHub's image proxy, hands
+  a stranger your traffic, and shows nothing if that host goes away. This one
+  is GitHub's own measurement of this repository, kept in a file you own. The
+  honest trade is scope: it counts visits to **the repository page**, which is
+  the only page-view number GitHub exposes at all — there is no API for views
+  of the profile itself.

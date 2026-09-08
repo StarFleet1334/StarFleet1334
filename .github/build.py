@@ -64,18 +64,27 @@ def load_decks():
 
 DECKS, IGNORE, PRIVATE = load_decks()
 
-# One line per year of the log. A year with data but no line here gets its
-# repos listed instead, so the timeline can never silently stop at 2026.
-YEAR_NOTES = {
-    2021: ["first commit pushed into the dark"],
-    2022: ["java, properly", "data structures and the JVM's temper"],
-    2023: ["services, queues, contracts"],
-    2024: ["kafka, CQRS, eureka", "go's concurrency",
-           "wiremock, gatling, new relic", "ocaml and java, written for students"],
-    2025: ["an inventory platform", "a repository analyzer",
-           "a quiz generator that lives in the browser"],
-    2026: ["AETHER - hands, face, voice, and an agent at the desk"],
-}
+VIEWSF = ROOT / "views.json"
+
+
+def load_views():
+    """The traffic ledger, or nothing.
+
+    Unlike decks.json this one may legitimately not exist yet — the first
+    run of .github/views.py creates it — so a missing or unreadable file is
+    an empty ledger and the block below says so in a sentence. Failing the
+    build here would mean a token problem takes down the whole page.
+    """
+    if not VIEWSF.exists():
+        return {"days": {}, "referrers": []}
+    try:
+        data = json.loads(VIEWSF.read_text(encoding="utf-8"))
+    except ValueError as e:
+        print(f"  ! views.json is not valid JSON ({e}); ignoring", file=sys.stderr)
+        return {"days": {}, "referrers": []}
+    return {"days": data.get("days") or {},
+            "referrers": data.get("referrers") or []}
+
 
 # Language byte counts are the truth, but a few names read better rolled up.
 LANG_ALIAS = {"HTML": "HTML/CSS", "CSS": "HTML/CSS", "SCSS": "HTML/CSS"}
@@ -217,18 +226,24 @@ def block_stardate(u, repos, langs, manifest) -> str:
     return box(rows)
 
 
-def block_badges(u, repos) -> str:
+def block_badges(u, repos, ledger) -> str:
     def badge(label, value, color):
         lab = urllib.parse.quote(label)
         val = urllib.parse.quote(str(value))
         return (f'<img src="https://img.shields.io/badge/{lab}-{val}-0d1117'
                 f'?style=flat-square&labelColor=0d1117&color={color}" alt="{label} {value}" />')
 
-    return "\n&nbsp;\n".join([
+    row = [
         badge("repos", len(repos), "58a6ff"),
         badge("followers", u.get("followers", 0), "58a6ff"),
-        badge("primary instrument", "hands", "f0883e"),
-    ])
+    ]
+    seen = sum(d["views"] for d in (ledger.get("days") or {}).values())
+    if seen:
+        # Only once there is something to report. A badge reading "views 0" is
+        # a claim about the account rather than about the ledger's age.
+        row.append(badge("logged views", f"{seen:,}", "3fb950"))
+    row.append(badge("primary instrument", "hands", "f0883e"))
+    return "\n&nbsp;\n".join(row)
 
 
 def block_systems(langs) -> str:
@@ -247,23 +262,63 @@ def block_systems(langs) -> str:
 
 
 
-def block_timeline(repos) -> str:
-    by_year: dict[int, list] = {}
-    for r in repos:
-        y = int((r.get("created_at") or "0000")[:4] or 0)
-        by_year.setdefault(y, []).append(r["name"])
-    years = sorted(set(by_year) | set(YEAR_NOTES))
-    lines = ["```mermaid", "timeline", "    title trajectory"]
-    for y in years:
-        if y < 2000:
-            continue
-        notes = YEAR_NOTES.get(y) or by_year.get(y, [])[:3]
-        if not notes:
-            continue
-        safe = [n.replace(":", "-") for n in notes]
-        lines.append(f"    {y} : " + " : ".join(safe))
-    lines.append("```")
-    return "\n".join(lines)
+SPARK = "▁▂▃▄▅▆▇█"
+
+
+def spark(values) -> str:
+    """A fixed-height sparkline. An empty or flat run must not divide by zero,
+    and a run of all-equal days deliberately draws as a flat middle rather
+    than as a full bar — a wall of █ reads as a spike that never happened."""
+    if not values:
+        return ""
+    hi, lo = max(values), min(values)
+    if hi == lo:
+        return ("▄" if hi else "▁") * len(values)
+    span = len(SPARK) - 1
+    return "".join(SPARK[round(span * (v - lo) / (hi - lo))] for v in values)
+
+
+def block_views(ledger) -> str:
+    """What the traffic ledger has, or the reason it has nothing.
+
+    It rests rather than vanishing. There are two reasons for an empty
+    ledger — it is younger than one closed day, or the token cannot read
+    traffic — and the resting sentence names both, in order. A section that
+    disappears when it has no data can only ever be found again by accident.
+    """
+    days = ledger.get("days") or {}
+    if not days:
+        return ("<sub>No closed day on the ledger yet. <code>.github/views.py</code> "
+                "records a day only once it is over, so the first number appears "
+                "after the first full UTC day. If it stays empty past that, the "
+                "token cannot read traffic — it needs <b>Administration: read</b> "
+                "on this repository.</sub>")
+
+    order = sorted(days)
+    total = sum(days[d]["views"] for d in order)
+    uniq = sum(days[d]["uniques"] for d in order)
+    recent = order[-14:]
+    r_views = sum(days[d]["views"] for d in recent)
+    r_uniq = sum(days[d]["uniques"] for d in recent)
+    line = spark([days[d]["views"] for d in recent])
+    busiest = max(order, key=lambda d: days[d]["views"])
+
+    # Days *recorded*, not days elapsed. The ledger has a hole for any day the
+    # workflow could not reach inside the API's fourteen, and counting the
+    # calendar instead would claim a coverage the file does not have.
+    rows = [
+        ("Since", f"`{order[0]}` &nbsp;·&nbsp; {len(order)} days on the ledger"),
+        ("All time", f"**{total:,}** views &nbsp;·&nbsp; {uniq:,} distinct"),
+        ("Last 14 days", f"`{line}` &nbsp;·&nbsp; {r_views:,} views &nbsp;·&nbsp; {r_uniq:,} distinct"),
+        ("Busiest day", f"`{busiest}` &nbsp;·&nbsp; {days[busiest]['views']:,} views"),
+    ]
+    refs = ledger.get("referrers") or []
+    if refs:
+        rows.append(("Arriving from", " · ".join(f"`{r}`" for r in refs)))
+
+    out = ["| | |", "|---|---|"]
+    out += [f"| **{k}** | {v} |" for k, v in rows]
+    return "\n".join(out)
 
 
 def cell(desc: str, aether_lines: str) -> str:
@@ -430,12 +485,16 @@ def main() -> int:
 
     index = {r["name"] for r in repos}
 
+    ledger = load_views()
+    print(f"- ledger: {len(ledger['days'])} days, "
+          f"{sum(d['views'] for d in ledger['days'].values())} views")
+
     blocks = {
         "stardate": block_stardate(user, repos, langs, manifest),
         "surface":  block_surface(manifest),
-        "badges":   block_badges(user, repos),
+        "badges":   block_badges(user, repos, ledger),
         "systems":  block_systems(langs),
-        "timeline": block_timeline(repos),
+        "views":    block_views(ledger),
         "hold":     block_hold(index, manifest),
         "arrivals": block_arrivals(repos, index),
         "recent":   block_recent(repos),
