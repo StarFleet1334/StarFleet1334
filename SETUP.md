@@ -17,8 +17,6 @@ README.tpl.md        the prose. Edit this.
 manifest.json        numbers for the private project the API cannot see
 decks.json           THE HOLD and the ignore list — data, hand- or tool-edited
 .github/build.py     the generator
-.github/views.py     merges the last 14 days of traffic into views.json
-views.json           the visit ledger — the API forgets, this does not
 .github/manifest.py  measures a local project and rewrites manifest.json
 .github/survey.py    analyses one repo, proposes a decks.json change
 .github/apply.py     writes an approved proposal into decks.json
@@ -58,49 +56,20 @@ environment that has no protection rules runs **immediately** — so without thi
 step the survey would analyse and apply in one go, and it would look like it
 worked. Free on public repositories.
 
-## 2c · The PROFILE_TOKEN secret
+## 2c · Optional — the PROFILE_TOKEN secret
 
-The page builds without it. Three things need it:
+Everything on the page builds without it. Two things still want it:
 
-- **SENSOR CONTACTS** — the traffic API needs push-level access, and
-  `traffic` is not among the permissions a workflow `GITHUB_TOKEN` can be
-  granted at all. No `permissions:` block can buy it; only a PAT can;
 - **surveying a private repository** — `GITHUB_TOKEN` is scoped to this repo
   alone, so a private repo looks deleted to it;
 - **keeping the survey dropdown current** — `GITHUB_TOKEN` is forbidden from
   pushing changes to any file under `.github/workflows/`, and the dropdown
   lives in one.
 
-Create the PAT, then **Settings → Secrets and variables → Actions → New
-repository secret → `PROFILE_TOKEN`**.
-
-| kind | what to tick |
-|:--|:--|
-| fine-grained | this repository → **Administration: Read**, **Contents:
-Read and write**, **Workflows: Read and write**; plus **Metadata: Read** on
-all repositories for the survey |
-| classic | `repo` and `workflow` |
-
-**Administration: Read is the one that is easy to miss.** Without it the
-traffic call answers 403, `views.py` records `state: denied` in
-`views.json`, and SENSOR CONTACTS says exactly that on the page. If you
-already had a `PROFILE_TOKEN` before this section existed, it almost
-certainly lacks that box — edit the token, do not make a second one.
-
-**An empty counter is not automatically a broken one.** `views.json`
-carries a `state`, and SENSOR CONTACTS prints a different sentence for
-each: `no-token`, `denied`, `error`, and `ok`. `ok` with no days means the
-call worked and nobody has opened the repository — which is common,
-because **this counts the repository page and opening your profile is not
-a visit to it**. Read the block before changing the token.
-
-Without the secret entirely the log run skips the roster and the traffic
-steps, says so in the log, and updates the page exactly as before. Nothing
-breaks.
-
-Note that a public repository's Actions logs are world-readable, so surveying a
-private repo publishes what the survey prints about it. The survey warns you at
-the top of its own report.
+Create a PAT with read access to your repositories and permission to update
+workflows, then **Settings → Secrets and variables → Actions → New repository
+secret → `PROFILE_TOKEN`**. Without it the log run skips the roster step, says
+so, and updates the page exactly as before.
 
 ## 2d · Turn on Pages, or the plate opens a 404
 
@@ -135,8 +104,6 @@ whenever you press Run workflow or fire `repository_dispatch`:
 | SYSTEMS ONLINE | `/languages` on every repo, one vote each, split by byte share, drawn to scale |
 | THE HOLD | `decks.json`, minus any repo that no longer exists; each summary carries its own count |
 | NEW ARRIVALS | every repo not yet filed into a deck |
-| SENSOR CONTACTS | `views.json`, which `views.py` merges from `/traffic/views` |
-| THE BLACK BOX | this workflow's own last fourteen days of runs |
 | the stamp | the newest real push |
 
 Everything else — the CURRENT HEADING prose, the working notes, the footer — is
@@ -152,12 +119,10 @@ exits without committing.
 The history of this repo is therefore a record of when your work changed — not
 a year of "chore: update README" from a cron.
 
-Two blocks are deliberate exceptions, and both are bounded by the same rule
-— **the day in progress is never written**, so neither can move more than
-once a day. SENSOR CONTACTS moves on a day that had a visitor; THE BLACK BOX
-on a day that was a different kind of day from the one rolling off its far
-end. Everything else, THE STAR CHART included, still moves only when the
-account does. See PROCESS.md § 3. The profile repo itself is
+There are no exceptions to this any more. The two blocks that read the clock
+— SENSOR CONTACTS and THE BLACK BOX — have both been removed, so every value
+on the page comes off the API and nothing can commit merely because time
+passed. The profile repo itself is
 excluded from every "newest" calculation for the same reason: the Action pushes
 to it, so counting it would make the bot's own commit the news.
 
@@ -197,15 +162,12 @@ python .github/build.py --check    # says whether README.md would change
 python .github/build.py            # writes it
 ```
 
-Unauthenticated you get 60 API calls an hour and the build needs about 62 —
-THE BLACK BOX added six, paging this workflow's own runs — so a local build
-now runs out before it finishes. It degrades rather than lying: a partial
-language read is discarded in favour of coarse repo counts; THE BLACK BOX
-prints a sentence saying it could not read its own runs *this build*, rather
-than drawing fourteen dark ticks it has no evidence for; and if the API is
-unreachable entirely the build exits non-zero and leaves `README.md` exactly
-as it was. Set `GITHUB_TOKEN` to a personal access token with no scopes to
-get 5000/hr locally — worth doing now that the budget is over sixty.
+Unauthenticated you get 60 API calls an hour and the build needs about 56, so
+a second local run inside the hour will hit the limit. It degrades rather than
+lying: a partial language read is discarded in favour of coarse repo counts,
+and if the API is unreachable entirely the build exits non-zero and leaves
+`README.md` exactly as it was. Set `GITHUB_TOKEN` to a personal access token
+with no scopes to get 5000/hr locally.
 
 ## 6 · Things you may want to change
 
@@ -226,8 +188,6 @@ get 5000/hr locally — worth doing now that the budget is over sixty.
   `prefers-color-scheme` query works. The query is written anyway, but a
   reader cannot switch the rover off, which is why it is small, slow, and
   alone on the page at any moment.
-- **The recorder's horizon** — `FLIGHT_DAYS`, fourteen to match the traffic
-  API's own reach. Lengthening it costs one more page of runs per week.
 - **The private line.** `PRIVATE = {"AETHER"}` in `build.py` renders it without
   a link. Delete the row from `DECKS` if you would rather not mention it, or
   move it to a real link when the repo goes public.
@@ -238,11 +198,3 @@ get 5000/hr locally — worth doing now that the budget is over sixty.
   badge row went with the masthead, which carries the same counts and is drawn
   by this repo. Every pixel and every number on the page now comes from a file
   in it.
-- **The visit counter is a real one, not a hit badge.** The usual profile
-  counters are an `<img>` pointing at someone else's server, which counts a
-  render rather than a visitor, is undercounted by GitHub's image proxy, hands
-  a stranger your traffic, and shows nothing if that host goes away. This one
-  is GitHub's own measurement of this repository, kept in a file you own. The
-  honest trade is scope: it counts visits to **the repository page**, which is
-  the only page-view number GitHub exposes at all — there is no API for views
-  of the profile itself.

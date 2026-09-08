@@ -8,14 +8,10 @@ result only when the bytes actually changed.**
 flowchart TD
     A["README.tpl.md<br/><i>your prose, the empty slots</i>"] --> C
     B["decks.json<br/><i>THE HOLD + the ignore list</i>"] --> C
-    V["views.json<br/><i>the traffic ledger</i>"] --> C
     C --> J["docs/sky.json<br/><i>the same sky, as data</i>"]
     J --> P["GitHub Pages<br/><i>the chart you can click</i>"]
     M["manifest.json<br/><i>the private project's numbers</i>"] --> C
     G["GitHub API<br/><i>/users · /repos · /languages</i>"] --> C
-    T["GitHub API<br/><i>/traffic/views — 14 days</i>"] --> W
-    R["GitHub API<br/><i>/actions/runs — this workflow</i>"] --> C
-    W["views.py<br/><i>merge the closed days</i>"] --> V
     C["build.py<br/><i>fill every slot</i>"] --> D["README.md"]
     D --> E{"git diff<br/>--cached --quiet"}
     E -->|identical| F["exit 0 — nothing committed"]
@@ -25,8 +21,8 @@ flowchart TD
     classDef src  fill:#161b22,stroke:#30363d,color:#e6edf3
     classDef act  fill:#0d1117,stroke:#58a6ff,color:#58a6ff
     classDef quiet fill:#0d1117,stroke:#21262d,color:#8b949e
-    class A,B,M,G,T,V,R src
-    class C,W,H,I,P act
+    class A,B,M,G src
+    class C,H,I,P act
     class J quiet
     class D,E,F quiet
 ```
@@ -38,7 +34,7 @@ flowchart TD
 | trigger | when | latency |
 |:--|:--|:--|
 | **cron** `17 * * * *` | every hour, at :17 | up to 1 h |
-| **push** to `main` or `master` | only if it touches `README.tpl.md`, `manifest.json`, `decks.json`, `.github/build.py`, `.github/views.py`, or `.github/workflows/log.yml` | seconds |
+| **push** to `main` or `master` | only if it touches `README.tpl.md`, `manifest.json`, `decks.json`, `.github/build.py`, or `.github/workflows/log.yml` | seconds |
 | **workflow_dispatch** | Actions → log → Run workflow | immediate |
 | **repository_dispatch** | `gh api repos/StarFleet1334/StarFleet1334/dispatches -f event_type=refresh` | immediate |
 
@@ -152,46 +148,11 @@ This is the useful table. Each slot has exactly one thing that moves it:
 | `docs/sky.json` | the same trigger as the plate; it is the same sky, written as data for the Pages chart |
 | `arrivals` | a new repo appears that is not yet filed into a deck |
 | _(all counts)_ | a repo is **created or deleted** — picked up by the next hourly run, which also rewrites the survey dropdown |
-| `views` | a UTC day closes with at least one visit on it — see below |
-| `blackbox` | a closed day is a different *kind* of day from the one rolling off the far end |
 | `stamp` | the date or name of your newest push changes |
 
 So in practice: **within the hour of anything actually changing on the
 account, a run commits.** On an hour when nothing moved, nothing is
 committed.
-
-### The three slots that move on their own
-
-Most of the page changes only because *you* did something. Three blocks do
-not, and each is capped at **one commit a day at most** by the same rule:
-**the day in progress is never written.** A closed UTC day is a fact and is
-recorded once; today is still filling, and writing it would mean a fresh
-number on all twenty-four hourly runs.
-
-| block | moves because | and it says nothing when |
-|:--|:--|:--|
-| `views` | someone visited | a closed day had no visitors |
-| `blackbox` | a run failed, or the page changed, or the workflow did not run | the closed day looks like the one rolling off the far end |
-
-Neither reads the clock for a *value* — only to decide which days are
-closed. THE SHIPPING FORECAST did read it, which is why it is gone: it is
-the one block that could commit on a morning when nobody had done anything
-at all.
-
-The recorder is the interesting case, because it reports **by exception**.
-Its strip is fourteen closed days; when a quiet day rolls off the far end
-and a quiet day arrives at the near one, the string is byte-identical and
-nothing is committed. It costs a commit only on a day that was different —
-which is the only kind of day it is worth reading about.
-
-If even that is more churn than you want, the honest lever is the cadence:
-run `views.py` from a daily cron of its own rather than from the hourly log
-build. The ledger merges by `max` and reaches fourteen days back, so it
-loses nothing as long as it runs at least once a fortnight. That is the
-intended behaviour, not a coincidence — and it is why the footer stamp is your newest real push and
-not `datetime.now()`. A "generated on" line would make every single run
-different, and the commit history would become a year of noise that says
-nothing about your work.
 
 ### Why the bot cannot loop
 

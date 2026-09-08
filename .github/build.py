@@ -2,15 +2,9 @@
 """Rebuild README.md from README.tpl.md and live GitHub data.
 
 Stdlib only. Reads the public API, fills the <!--LOG:x--> blocks in the
-template, writes README.md. Almost nothing here uses the wall clock: every
-value comes off the API, so the file changes only when the account actually
+template, writes README.md. Nothing here reads the wall clock: every value
+comes off the API, so the file changes only when the account actually
 changed, and the workflow commits only when the file changes.
-
-The one exception is deliberate and bounded. THE BLACK BOX is a statement
-about *elapsed* time, so it cannot be written without a today — but it reads
-the clock only to decide which days are closed, never for a value, and its
-strip is one tick per closed UTC day. Time passing can therefore commit, and
-never more than once a day.
 
     python .github/build.py            # writes README.md
     python .github/build.py --check    # writes nothing, prints the diff-ability
@@ -21,7 +15,6 @@ env:  GITHUB_TOKEN   raises the rate limit to 5000/hr (the Action supplies it)
 
 from __future__ import annotations
 
-import datetime as dt
 import hashlib
 import json
 import os
@@ -78,29 +71,6 @@ def load_decks():
 
 DECKS, IGNORE, PRIVATE = load_decks()
 
-VIEWSF = ROOT / "views.json"
-
-
-def load_views():
-    """The traffic ledger, or nothing.
-
-    Unlike decks.json this one may legitimately not exist yet — the first
-    run of .github/views.py creates it — so a missing or unreadable file is
-    an empty ledger and the block below says so in a sentence. Failing the
-    build here would mean a token problem takes down the whole page.
-    """
-    if not VIEWSF.exists():
-        return {"days": {}, "referrers": []}
-    try:
-        data = json.loads(VIEWSF.read_text(encoding="utf-8"))
-    except ValueError as e:
-        print(f"  ! views.json is not valid JSON ({e}); ignoring", file=sys.stderr)
-        return {"days": {}, "referrers": []}
-    return {"days": data.get("days") or {},
-            "referrers": data.get("referrers") or [],
-            "state": data.get("state") or "unknown",
-            "note": data.get("note") or ""}
-
 
 # Language byte counts are the truth, but a few names read better rolled up.
 LANG_ALIAS = {"HTML": "HTML/CSS", "CSS": "HTML/CSS", "SCSS": "HTML/CSS"}
@@ -149,26 +119,6 @@ def paged(path: str) -> list:
         if len(body) < 100:
             break
         page += 1
-    return out
-
-
-def paged_soft(path, cap=3):
-    """`paged`, but a refusal is *unknown* rather than *empty*.
-
-    The strict pager raises, which is right for the repo list — a build with
-    no repos should die. The recorder below must tell a quiet fortnight from
-    a rate limit, and both look like an empty list unless the failure is kept
-    distinct. Returns None when the first page could not be read.
-    """
-    out = []
-    for page in range(1, cap + 1):
-        sep = "&" if "?" in path else "?"
-        body = try_get(f"{path}{sep}per_page=100&page={page}")
-        if body is None:
-            return out or None
-        out.extend(body)
-        if len(body) < 100:
-            break
     return out
 
 
@@ -394,11 +344,10 @@ def block_systems(svg, langs) -> str:
 # ─────────────────────────────────────────────────────────────────────────────
 # ⌖ CURRENT HEADING — the signal path
 #
-# This was a six-row label/value table, which made the most important section
-# on the page look exactly like the two least important ones: SENSOR CONTACTS
-# and THE BLACK BOX are the same shape, so the eye had no reason to stop here.
-# Worse, a list of parts never answers the question the section exists for,
-# which is *what is this thing*.
+# This was a six-row label/value table — the same shape as every other table
+# on the page — so the section that says what is actually being built looked
+# like reference data. And a list of parts never answers the question the
+# section exists for, which is *what is this thing*.
 #
 # So it is a block diagram, after the one in an instrument manual: what goes
 # in, what it becomes, where it lands. A webcam and a mic on the left, three
@@ -1018,235 +967,6 @@ def block_starchart(sky):
     return _img("chart.svg", svg, 920, alt, PAGES)
 
 
-SPARK = "▁▂▃▄▅▆▇█"
-
-
-def spark(values) -> str:
-    """A fixed-height sparkline. An empty or flat run must not divide by zero,
-    and a run of all-equal days deliberately draws as a flat middle rather
-    than as a full bar — a wall of █ reads as a spike that never happened."""
-    if not values:
-        return ""
-    hi, lo = max(values), min(values)
-    if hi == lo:
-        return ("▄" if hi else "▁") * len(values)
-    span = len(SPARK) - 1
-    return "".join(SPARK[round(span * (v - lo) / (hi - lo))] for v in values)
-
-
-def block_views(ledger) -> str:
-    """What the traffic ledger has, or the reason it has nothing.
-
-    It rests rather than vanishing. There are two reasons for an empty
-    ledger — it is younger than one closed day, or the token cannot read
-    traffic — and the resting sentence names both, in order. A section that
-    disappears when it has no data can only ever be found again by accident.
-    """
-    days = ledger.get("days") or {}
-    if not days:
-        # Say which of the three it is. An empty ledger used to print one
-        # sentence that guessed, and the three causes need three different
-        # actions — one of which is "nothing, this is correct".
-        state = ledger.get("state", "unknown")
-        if state == "denied":
-            return ("<sub><b>The token cannot read traffic.</b> "
-                    "<code>/traffic/views</code> needs <b>Administration: "
-                    "Read</b> on this repository, and it is not one of the "
-                    "permissions a workflow's own <code>GITHUB_TOKEN</code> can "
-                    "be granted — so <code>PROFILE_TOKEN</code> has to carry it. "
-                    "See SETUP.md § 2c.</sub>")
-        if state == "no-token":
-            return ("<sub><b>No <code>PROFILE_TOKEN</code> secret is set</b>, so "
-                    "the traffic call is never made. Everything else on this "
-                    "page builds without it; only this block and the survey "
-                    "dropdown need it. See SETUP.md § 2c.</sub>")
-        if state == "error":
-            return (f"<sub>The traffic call failed this run — "
-                    f"<i>{_esc(ledger.get('note', 'no reason given'))}</i>. The "
-                    f"ledger is untouched and the next run will try again.</sub>")
-        if state == "ok":
-            return ("<sub><b>The counter is working and the number is zero.</b> "
-                    "The API answered; no closed day has had a visit yet. Worth "
-                    "knowing why that is not surprising: this counts views of "
-                    "the <b>repository</b> page, which is the only page-view "
-                    "number GitHub exposes — opening the profile is not a visit "
-                    "to <code>StarFleet1334/StarFleet1334</code>.</sub>")
-        return ("<sub>No closed day on the ledger yet. "
-                "<code>.github/views.py</code> records a day only once it is "
-                "over, so the first number appears after the first full UTC "
-                "day.</sub>")
-
-    order = sorted(days)
-    total = sum(days[d]["views"] for d in order)
-    uniq = sum(days[d]["uniques"] for d in order)
-    recent = order[-14:]
-    r_views = sum(days[d]["views"] for d in recent)
-    r_uniq = sum(days[d]["uniques"] for d in recent)
-    line = spark([days[d]["views"] for d in recent])
-    busiest = max(order, key=lambda d: days[d]["views"])
-
-    # Days *recorded*, not days elapsed. The ledger has a hole for any day the
-    # workflow could not reach inside the API's fourteen, and counting the
-    # calendar instead would claim a coverage the file does not have.
-    rows = [
-        ("Since", f"`{order[0]}` &nbsp;·&nbsp; {len(order)} days on the ledger"),
-        ("All time", f"**{total:,}** views &nbsp;·&nbsp; {uniq:,} distinct"),
-        ("Last 14 days", f"`{line}` &nbsp;·&nbsp; {r_views:,} views &nbsp;·&nbsp; {r_uniq:,} distinct"),
-        ("Busiest day", f"`{busiest}` &nbsp;·&nbsp; {days[busiest]['views']:,} views"),
-    ]
-    refs = ledger.get("referrers") or []
-    if refs:
-        rows.append(("Arriving from", " · ".join(f"`{r}`" for r in refs)))
-
-    out = ["| | |", "|---|---|"]
-    out += [f"| **{k}** | {v} |" for k, v in rows]
-    return "\n".join(out)
-
-
-# ─────────────────────────────────────────────────────────────────────────────
-# ✕ THE BLACK BOX
-#
-# The page reports on the account and never on itself, which means the one
-# failure it cannot show you is its own. A token that expired, an API that
-# started refusing, a workflow disabled after sixty days of inactivity: all
-# three look exactly like a quiet month.
-#
-# One tick per **closed** UTC day, for a fortnight — the same rule and the same
-# horizon as the traffic ledger next to it. The day in progress is never drawn,
-# so the strip moves at most once a day; and when a quiet day rolls off the far
-# end and a quiet day arrives at the near one, the string is unchanged and
-# nothing is committed. It reports by exception, which is the only way a
-# self-report is worth reading.
-#
-# A day is one of four things, and the fourth is the point:
-#
-#   ─  runs, none of which changed the page
-#   ┼  the page changed — a commit by the bot lands that day
-#   ╳  a run was refused
-#   ·  no run at all. The recorder itself was off.
-#
-# Box-drawing glyphs rather than ✓/✗ on purpose: they are one cell wide in
-# every monospace font, so the trace cannot skew, and a flat day genuinely
-# draws as a flat line.
-# ─────────────────────────────────────────────────────────────────────────────
-
-FLIGHT_DAYS = 14
-BOT = "github-actions[bot]"
-WORKFLOW = "log.yml"
-RUN_PAGES = 6                      # ~600 runs; a fortnight hourly is ~340
-
-TICK_QUIET, TICK_MOVED, TICK_REFUSED, TICK_DARK = "─", "┼", "╳", "·"
-BAD = {"failure", "timed_out", "startup_failure"}
-
-
-def flight_recorder():
-    """Read the last fortnight of this workflow's own runs.
-
-    Returns None when the runs could not be read at all. That is not the same
-    as a fortnight of silence, and the block must not draw fourteen dark ticks
-    because a rate limiter said no — it would be reporting an outage that is
-    entirely its own.
-    """
-    today = dt.datetime.now(dt.timezone.utc).date()
-    first = today - dt.timedelta(days=FLIGHT_DAYS)
-    since = first.isoformat()
-
-    runs = []
-    for page in range(1, RUN_PAGES + 1):
-        body = try_get(f"/repos/{USER}/{USER}/actions/workflows/{WORKFLOW}/runs"
-                       f"?created=%3E%3D{since}&per_page=100&page={page}")
-        if body is None:
-            if not runs:
-                return None
-            break
-        batch = body.get("workflow_runs") or []
-        runs.extend(batch)
-        if len(batch) < 100:
-            break
-
-    # The bot's own commits are the record of which days the page actually
-    # changed. Matching runs to commits by time would be a guess; the author
-    # is a fact.
-    commits = paged_soft(f"/repos/{USER}/{USER}/commits?since={since}T00:00:00Z") or []
-    moved = {c["commit"]["author"]["date"][:10] for c in commits
-             if (c.get("commit", {}).get("author", {}).get("name") == BOT)}
-
-    ran, refused = set(), {}
-    for r in runs:
-        day = (r.get("run_started_at") or r.get("created_at") or "")[:10]
-        if not day:
-            continue
-        ran.add(day)
-        if r.get("conclusion") in BAD:
-            refused.setdefault(day, r)
-
-    days = []
-    for i in range(FLIGHT_DAYS):
-        day = (first + dt.timedelta(days=i)).isoformat()
-        if day in refused:
-            days.append((day, TICK_REFUSED))
-        elif day in moved:
-            days.append((day, TICK_MOVED))
-        elif day in ran:
-            days.append((day, TICK_QUIET))
-        else:
-            days.append((day, TICK_DARK))
-
-    # The newest refusal in the window, and which step of it gave way. One
-    # extra call, and only when there is something to explain.
-    last = None
-    if refused:
-        day = max(refused)
-        run = refused[day]
-        jobs = try_get(f"/repos/{USER}/{USER}/actions/runs/{run['id']}/jobs") or {}
-        step = next((st["name"] for j in jobs.get("jobs", [])
-                     for st in j.get("steps", [])
-                     if st.get("conclusion") in BAD), None)
-        last = (day, step)
-
-    return {"days": days, "refusal": last}
-
-
-def block_blackbox(record) -> str:
-    if record is None:
-        return ("<sub>The recorder could not read its own runs this build — "
-                "an unauthenticated build has no quota left for them, and a "
-                "local <code>--check</code> will usually say this. It is a "
-                "statement about this run, not about the workflow.</sub>")
-
-    days = record["days"]
-    trace = "".join(t for _, t in days)
-    moved = trace.count(TICK_MOVED)
-    refused = trace.count(TICK_REFUSED)
-    dark = trace.count(TICK_DARK)
-
-    tally = [f"{moved} changed the page"]
-    if refused:
-        tally.append(f"**{refused} refused**")
-    if dark:
-        tally.append(f"**{dark} with no run at all**")
-
-    rows = [
-        (f"Last {FLIGHT_DAYS} days", f"`{trace}` &nbsp;·&nbsp; " + " &nbsp;·&nbsp; ".join(tally)),
-        ("Reading", f"`{TICK_QUIET}` ran, nothing moved &nbsp;·&nbsp; "
-                    f"`{TICK_MOVED}` the page changed &nbsp;·&nbsp; "
-                    f"`{TICK_REFUSED}` refused &nbsp;·&nbsp; "
-                    f"`{TICK_DARK}` no run at all"),
-    ]
-
-    refusal = record["refusal"]
-    if refusal:
-        day, step = refusal
-        where = f" &nbsp;·&nbsp; the *{step}* step" if step else ""
-        rows.append(("Last refusal", f"`{day}`{where}"))
-    else:
-        rows.append(("Last refusal", f"none in {FLIGHT_DAYS} days"))
-
-    out = ["| | |", "|---|---|"]
-    out += [f"| **{k}** | {v} |" for k, v in rows]
-    return "\n".join(out)
-
-
 def cell(desc: str, aether_lines: str) -> str:
     """Render a deck row's description safely.
 
@@ -1426,21 +1146,11 @@ def main() -> int:
     print(f"- chart: {tally[0]} charted, {tally[1]} field stars, "
           f"{len(data)} bytes of sky data")
 
-    ledger = load_views()
-    print(f"- ledger: {len(ledger['days'])} days, "
-          f"{sum(d['views'] for d in ledger['days'].values())} views")
-
-    record = flight_recorder()
-    print("- recorder: " + ("unreadable this run" if record is None
-                            else "".join(t for _, t in record["days"])))
-
     blocks = {
         "masthead": block_masthead(mast),
         "heading":  block_heading(head_svg, manifest),
         "starchart": block_starchart(sky),
         "systems":  block_systems(sys_svg, langs),
-        "views":    block_views(ledger),
-        "blackbox": block_blackbox(record),
         "hold":     block_hold(index, manifest),
         "arrivals": block_arrivals(repos, index),
         "stamp":    block_stamp(repos),

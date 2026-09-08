@@ -32,7 +32,6 @@ on:
     branches: [main, master]
     paths:
       - "README.tpl.md"
-      - ".github/views.py"
       - "manifest.json"
       - "decks.json"
       - ".github/build.py"
@@ -40,7 +39,6 @@ on:
 
 permissions:
   contents: write
-  actions: read       # THE BLACK BOX reads this workflow's own run history
 
 concurrency:
   group: log
@@ -63,20 +61,6 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-
-      # The traffic API answers for the last fourteen days and nothing
-      # before, so the ledger has to be kept here rather than asked for. It
-      # runs BEFORE the build because the build reads views.json.
-      #
-      # PROFILE_TOKEN is required for this one, not merely nice to have:
-      # traffic is not among the permissions a workflow GITHUB_TOKEN can be
-      # granted, so it answers 403 no matter what `permissions:` says. Without
-      # the secret views.py prints why and leaves the ledger alone.
-      - name: record the traffic
-        env:
-          PROFILE_TOKEN: ${{ secrets.PROFILE_TOKEN }}
-          PROFILE_USER: ${{ github.repository_owner }}
-        run: python .github/views.py
 
       - name: rebuild the log
         env:
@@ -104,7 +88,7 @@ jobs:
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add README.md masthead.svg heading.svg systems.svg chart.svg docs/sky.json views.json .github/workflows/survey.yml
+          git add README.md masthead.svg heading.svg systems.svg chart.svg docs/sky.json .github/workflows/survey.yml
           if git diff --cached --quiet; then
             echo "no change — the log stands"
             exit 0

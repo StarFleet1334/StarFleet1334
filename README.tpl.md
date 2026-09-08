@@ -93,30 +93,6 @@ and should show.</sub>
 
 </details>
 
-## ◉ &nbsp;SENSOR CONTACTS
-
-<sub>Who has been on the deck. GitHub's traffic API remembers fourteen days and
-then forgets, so <code>.github/views.py</code> keeps the ledger in
-<code>views.json</code> and the totals below count from it. Nothing here comes
-from a third party — the number is this repository's own traffic, read by this
-repository.</sub>
-
-<!--LOG:views-->
-<!--/LOG:views-->
-
----
-
-## ✕ &nbsp;THE BLACK BOX
-
-<sub>This page rebuilds itself hourly, which means the one failure it cannot
-otherwise show you is its own — an expired token, an API that started
-refusing, a workflow disabled for inactivity all look exactly like a quiet
-month. So the recorder keeps a fortnight of its own runs, one tick per closed
-day, and reports by exception.</sub>
-
-<!--LOG:blackbox-->
-<!--/LOG:blackbox-->
-
 ---
 
 ## ⛬ &nbsp;WORKING NOTES
