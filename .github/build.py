@@ -97,7 +97,9 @@ def load_views():
         print(f"  ! views.json is not valid JSON ({e}); ignoring", file=sys.stderr)
         return {"days": {}, "referrers": []}
     return {"days": data.get("days") or {},
-            "referrers": data.get("referrers") or []}
+            "referrers": data.get("referrers") or [],
+            "state": data.get("state") or "unknown",
+            "note": data.get("note") or ""}
 
 
 # Language byte counts are the truth, but a few names read better rolled up.
@@ -922,11 +924,37 @@ def block_views(ledger) -> str:
     """
     days = ledger.get("days") or {}
     if not days:
-        return ("<sub>No closed day on the ledger yet. <code>.github/views.py</code> "
-                "records a day only once it is over, so the first number appears "
-                "after the first full UTC day. If it stays empty past that, the "
-                "token cannot read traffic — it needs <b>Administration: read</b> "
-                "on this repository.</sub>")
+        # Say which of the three it is. An empty ledger used to print one
+        # sentence that guessed, and the three causes need three different
+        # actions — one of which is "nothing, this is correct".
+        state = ledger.get("state", "unknown")
+        if state == "denied":
+            return ("<sub><b>The token cannot read traffic.</b> "
+                    "<code>/traffic/views</code> needs <b>Administration: "
+                    "Read</b> on this repository, and it is not one of the "
+                    "permissions a workflow's own <code>GITHUB_TOKEN</code> can "
+                    "be granted — so <code>PROFILE_TOKEN</code> has to carry it. "
+                    "See SETUP.md § 2c.</sub>")
+        if state == "no-token":
+            return ("<sub><b>No <code>PROFILE_TOKEN</code> secret is set</b>, so "
+                    "the traffic call is never made. Everything else on this "
+                    "page builds without it; only this block and the survey "
+                    "dropdown need it. See SETUP.md § 2c.</sub>")
+        if state == "error":
+            return (f"<sub>The traffic call failed this run — "
+                    f"<i>{_esc(ledger.get('note', 'no reason given'))}</i>. The "
+                    f"ledger is untouched and the next run will try again.</sub>")
+        if state == "ok":
+            return ("<sub><b>The counter is working and the number is zero.</b> "
+                    "The API answered; no closed day has had a visit yet. Worth "
+                    "knowing why that is not surprising: this counts views of "
+                    "the <b>repository</b> page, which is the only page-view "
+                    "number GitHub exposes — opening the profile is not a visit "
+                    "to <code>StarFleet1334/StarFleet1334</code>.</sub>")
+        return ("<sub>No closed day on the ledger yet. "
+                "<code>.github/views.py</code> records a day only once it is "
+                "over, so the first number appears after the first full UTC "
+                "day.</sub>")
 
     order = sorted(days)
     total = sum(days[d]["views"] for d in order)

@@ -82,10 +82,17 @@ all repositories for the survey |
 | classic | `repo` and `workflow` |
 
 **Administration: Read is the one that is easy to miss.** Without it the
-traffic call answers 403, `views.py` prints *that token cannot read traffic*
-and leaves the ledger alone, and SENSOR CONTACTS sits there saying so. If
-you already had a `PROFILE_TOKEN` before this section existed, it almost
+traffic call answers 403, `views.py` records `state: denied` in
+`views.json`, and SENSOR CONTACTS says exactly that on the page. If you
+already had a `PROFILE_TOKEN` before this section existed, it almost
 certainly lacks that box — edit the token, do not make a second one.
+
+**An empty counter is not automatically a broken one.** `views.json`
+carries a `state`, and SENSOR CONTACTS prints a different sentence for
+each: `no-token`, `denied`, `error`, and `ok`. `ok` with no days means the
+call worked and nobody has opened the repository — which is common,
+because **this counts the repository page and opening your profile is not
+a visit to it**. Read the block before changing the token.
 
 Without the secret entirely the log run skips the roster and the traffic
 steps, says so in the log, and updates the page exactly as before. Nothing

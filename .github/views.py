@@ -80,6 +80,7 @@ def load() -> dict:
                          f"refusing to overwrite it")
     data.setdefault("days", {})
     data.setdefault("referrers", [])
+    data.setdefault("state", "unknown")
     return data
 
 
@@ -102,11 +103,29 @@ def fetch_referrers() -> list[str]:
 def main() -> int:
     check = "--check" in sys.argv
 
+    ledger = load()
+
+    def settle(state, note=""):
+        """Record WHY this run found what it found.
+
+        An empty ledger has three completely different causes — no secret, a
+        token that cannot read traffic, and a repository nobody has opened —
+        and until now all three produced the same silent empty file and the
+        same guessing sentence on the page. The state is stored WITHOUT a
+        timestamp on purpose: it changes when the answer changes, so the file
+        does not churn on a run that learned nothing new.
+        """
+        ledger["state"] = state
+        if note:
+            ledger["note"] = note
+        elif "note" in ledger:
+            del ledger["note"]
+
     if not (os.environ.get("PROFILE_TOKEN") or os.environ.get("GITHUB_TOKEN")):
         print("- no token; the ledger stands as it is")
+        settle("no-token")
+        _save(ledger, check)
         return 0
-
-    ledger = load()
     before = json.dumps(ledger, sort_keys=True)
 
     try:
@@ -117,9 +136,13 @@ def main() -> int:
         why = ("that token cannot read traffic — it needs Administration: read"
                if e.code in (403, 404) else str(e))
         print(f"! traffic for {REPO}: {why}; the ledger stands", file=sys.stderr)
+        settle("denied" if e.code in (403, 404) else "error", why)
+        _save(ledger, check)
         return 0
     except (urllib.error.URLError, TimeoutError, ValueError) as e:
         print(f"! traffic for {REPO}: {e}; the ledger stands", file=sys.stderr)
+        settle("error", str(e))
+        _save(ledger, check)
         return 0
 
     today = dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%d")
@@ -145,16 +168,24 @@ def main() -> int:
         print(f"  ! referrers: {e}; keeping the last set", file=sys.stderr)
 
     total = sum(d["views"] for d in ledger["days"].values())
+    # The call worked. Whether it returned anything is a separate fact: the
+    # traffic API omits days with no views, so a reachable repository nobody
+    # has opened answers with an empty list, exactly like a refusal used to.
+    settle("ok", "" if ledger["days"] else
+           "the API answered, and no closed day has had a visit")
     print(f"- {len(ledger['days'])} days on the ledger, {total} views "
-          f"({added} new, {moved} revised)")
+          f"({added} new, {moved} revised) — state {ledger['state']}")
+    _save(ledger, check)
+    return 0
 
+
+def _save(ledger, check):
     text = json.dumps(ledger, indent=2, sort_keys=True) + "\n"
     if check:
-        print("- no change" if json.dumps(ledger, sort_keys=True) == before
-              else "- views.json would change")
-        return 0
+        same = LEDGER.exists() and LEDGER.read_text(encoding="utf-8") == text
+        print("- no change" if same else "- views.json would change")
+        return
     LEDGER.write_text(text, encoding="utf-8", newline="\n")
-    return 0
 
 
 if __name__ == "__main__":
