@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 354" width="920" height="354" role="img">
+<style>.bg{fill:#ffffff}.ink{fill:#1f2328}.dim{fill:#59636e}.rule{fill:#d1d9e0}.accent{fill:#0969da}.warm{fill:#bc4c00}.box{fill:#f6f8fa}.s-bg{stroke:#ffffff}.s-ink{stroke:#1f2328}.s-dim{stroke:#59636e}.s-rule{stroke:#d1d9e0}.s-accent{stroke:#0969da}.s-warm{stroke:#bc4c00}.s-box{stroke:#f6f8fa}@media(prefers-color-scheme:dark){.bg{fill:#0d1117}.ink{fill:#e6edf3}.dim{fill:#8b949e}.rule{fill:#30363d}.accent{fill:#58a6ff}.warm{fill:#f0883e}.box{fill:#161b22}.s-bg{stroke:#0d1117}.s-ink{stroke:#e6edf3}.s-dim{stroke:#8b949e}.s-rule{stroke:#30363d}.s-accent{stroke:#58a6ff}.s-warm{stroke:#f0883e}.s-box{stroke:#161b22}}</style>
+<rect width="920" height="354" class="bg"/>
+<text x="34" y="26" class="dim" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace" font-size="8.5" font-weight="400" letter-spacing="1.9">LANGUAGE</text>
+<text x="150" y="26" class="dim" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace" font-size="8.5" font-weight="400" letter-spacing="1.9">SHARE OF THE ACCOUNT</text>
+<text x="530" y="26" class="dim" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace" font-size="8.5" font-weight="400" letter-spacing="1.9">WHERE IT ACTUALLY SHOWS UP</text>
+<rect x="34" y="36" width="852" height="1" class="rule"/>
+<text x="34" y="72" class="ink" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace" font-size="12" font-weight="400" letter-spacing="0">Java</text>
+<rect x="150" y="62" width="300" height="13" class="box"/>
+<rect x="150" y="62" width="300.0" height="13" class="accent" fill-opacity="1.00"/>
+<text x="462" y="72" class="dim" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace" font-size="10.5" font-weight="400" letter-spacing="0">50.9%</text>
+<text x="530" y="72" class="ink" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace" font-size="10" font-weight="400" letter-spacing="0">services, CQRS, Kafka, Eureka, chat, CRM</text>
+<text x="34" y="102" class="ink" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace" font-size="12" font-weight="400" letter-spacing="0">Go</text>
+<rect x="150" y="92" width="300" height="13" class="box"/>
+<rect x="150" y="92" width="135.0" height="13" class="accent" fill-opacity="0.91"/>
+<text x="462" y="102" class="dim" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace" font-size="10.5" font-weight="400" letter-spacing="0">22.9%</text>
+<text x="530" y="102" class="ink" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace" font-size="10" font-weight="400" letter-spacing="0">goroutines, scrapers, a file finder, a UI, a clock</text>
+<text x="34" y="132" class="ink" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace" font-size="12" font-weight="400" letter-spacing="0">HTML/CSS</text>
+<rect x="150" y="122" width="300" height="13" class="box"/>
+<rect x="150" y="122" width="43.5" height="13" class="accent" fill-opacity="0.82"/>
+<text x="462" y="132" class="dim" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace" font-size="10.5" font-weight="400" letter-spacing="0"> 7.4%</text>
+<text x="530" y="132" class="ink" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace" font-size="10" font-weight="400" letter-spacing="0">hand-written, every rule of it</text>
+<text x="34" y="162" class="ink" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace" font-size="12" font-weight="400" letter-spacing="0">JavaScript</text>
+<rect x="150" y="152" width="300" height="13" class="box"/>
+<rect x="150" y="152" width="38.4" height="13" class="accent" fill-opacity="0.73"/>
+<text x="462" y="162" class="dim" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace" font-size="10.5" font-weight="400" letter-spacing="0"> 6.5%</text>
+<text x="530" y="162" class="ink" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace" font-size="10" font-weight="400" letter-spacing="0">vanilla, no framework, on purpose</text>
+<text x="34" y="192" class="ink" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace" font-size="12" font-weight="400" letter-spacing="0">Python</text>
+<rect x="150" y="182" width="300" height="13" class="box"/>
+<rect x="150" y="182" width="29.8" height="13" class="accent" fill-opacity="0.64"/>
+<text x="462" y="192" class="dim" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace" font-size="10.5" font-weight="400" letter-spacing="0"> 5.1%</text>
+<text x="530" y="192" class="ink" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace" font-size="10" font-weight="400" letter-spacing="0">AETHER's entire backend — FastAPI, MediaPipe, Whisper</text>
+<text x="34" y="222" class="ink" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace" font-size="12" font-weight="400" letter-spacing="0">Kotlin</text>
+<rect x="150" y="212" width="300" height="13" class="box"/>
+<rect x="150" y="212" width="12.6" height="13" class="accent" fill-opacity="0.55"/>
+<text x="462" y="222" class="dim" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace" font-size="10.5" font-weight="400" letter-spacing="0"> 2.1%</text>
+<text x="530" y="222" class="ink" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace" font-size="10" font-weight="400" letter-spacing="0">an Android detour</text>
+<text x="34" y="252" class="ink" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace" font-size="12" font-weight="400" letter-spacing="0">Dart</text>
+<rect x="150" y="242" width="300" height="13" class="box"/>
+<rect x="150" y="242" width="10.6" height="13" class="accent" fill-opacity="0.46"/>
+<text x="462" y="252" class="dim" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace" font-size="10.5" font-weight="400" letter-spacing="0"> 1.8%</text>
+<text x="530" y="252" class="ink" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace" font-size="10" font-weight="400" letter-spacing="0">a chat system that had to run on a phone</text>
+<text x="34" y="282" class="ink" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace" font-size="12" font-weight="400" letter-spacing="0">OCaml</text>
+<rect x="150" y="272" width="300" height="13" class="box"/>
+<rect x="150" y="272" width="9.4" height="13" class="accent" fill-opacity="0.37"/>
+<text x="462" y="282" class="dim" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace" font-size="10.5" font-weight="400" letter-spacing="0"> 1.6%</text>
+<text x="530" y="282" class="ink" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace" font-size="10" font-weight="400" letter-spacing="0">a teaching language, and a good one</text>
+<rect x="34" y="312" width="852" height="1" class="rule"/>
+<text x="34" y="334" class="warm" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace" font-size="8.5" font-weight="400" letter-spacing="1.9">ONE VOTE PER REPOSITORY</text>
+<text x="280" y="334" class="dim" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace" font-size="11" font-weight="400" letter-spacing="0">split between its languages by byte share, across 55 repositories</text>
+</svg>

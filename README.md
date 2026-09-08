@@ -71,16 +71,7 @@ and should show.</sub>
 <sub>Every repository gets one vote, split between its languages by byte share — so no single vendored bundle can outrank a language that was actually written.</sub>
 
 <!--LOG:systems-->
-| | instrument | where it actually shows up |
-|:--|:--|:--|
-| `▰▰▰▰▰▰▰▰▰▰` | **Java** | services, CQRS, Kafka, Eureka, chat, CRM |
-| `▰▰▰▰▰▱▱▱▱▱` | **Go** | goroutines, scrapers, a file finder, a UI, a clock |
-| `▰▱▱▱▱▱▱▱▱▱` | **HTML/CSS** | hand-written, every rule of it |
-| `▰▱▱▱▱▱▱▱▱▱` | **JavaScript** | vanilla, no framework, on purpose |
-| `▰▱▱▱▱▱▱▱▱▱` | **Python** | AETHER's entire backend — FastAPI, MediaPipe, Whisper |
-| `▰▱▱▱▱▱▱▱▱▱` | **Kotlin** | an Android detour |
-| `▰▱▱▱▱▱▱▱▱▱` | **Dart** | a chat system that had to run on a phone |
-| `▰▱▱▱▱▱▱▱▱▱` | **OCaml** | a teaching language, and a good one |
+<a name="systems" href="#user-content-systems"><img src="https://raw.githubusercontent.com/StarFleet1334/StarFleet1334/main/systems.svg?v=682674cf" width="920" alt="Share of the account by language, one vote per repository split by byte share: Java 51%, Go 23%, HTML/CSS 7%, JavaScript 7%, Python 5%, Kotlin 2%, Dart 2%, OCaml 2%." /></a>
 <!--/LOG:systems-->
 
 ---
@@ -89,7 +80,7 @@ and should show.</sub>
 
 <!--LOG:hold-->
 <details>
-<summary><b>⚭ &nbsp;ENGINEERING DECK</b> &nbsp;— distributed Java, events, contracts</summary>
+<summary><b>⚭ &nbsp;ENGINEERING DECK</b> &nbsp;— distributed Java, events, contracts &nbsp;·&nbsp; <code>9 repositories</code></summary>
 <br>
 
 | repo | what it is |
@@ -106,7 +97,7 @@ and should show.</sub>
 </details>
 
 <details>
-<summary><b>⌖ &nbsp;SCIENCE DECK</b> &nbsp;— proving it works before claiming it does</summary>
+<summary><b>⌖ &nbsp;SCIENCE DECK</b> &nbsp;— proving it works before claiming it does &nbsp;·&nbsp; <code>7 repositories</code></summary>
 <br>
 
 | repo | what it is |
@@ -120,7 +111,7 @@ and should show.</sub>
 </details>
 
 <details>
-<summary><b>⚙ &nbsp;PROPULSION</b> &nbsp;— Go, and things that had to be fast or small</summary>
+<summary><b>⚙ &nbsp;PROPULSION</b> &nbsp;— Go, and things that had to be fast or small &nbsp;·&nbsp; <code>9 repositories</code></summary>
 <br>
 
 | repo | what it is |
@@ -134,7 +125,7 @@ and should show.</sub>
 </details>
 
 <details>
-<summary><b>◈ &nbsp;THE BRIDGE</b> &nbsp;— things people actually touch</summary>
+<summary><b>◈ &nbsp;THE BRIDGE</b> &nbsp;— things people actually touch &nbsp;·&nbsp; <code>9 repositories</code></summary>
 <br>
 
 | repo | what it is |
@@ -149,7 +140,7 @@ and should show.</sub>
 </details>
 
 <details>
-<summary><b>⌂ &nbsp;THE ACADEMY</b> &nbsp;— repos written to be read by someone else</summary>
+<summary><b>⌂ &nbsp;THE ACADEMY</b> &nbsp;— repos written to be read by someone else &nbsp;·&nbsp; <code>3 repositories</code></summary>
 <br>
 
 | repo | what it is |
@@ -217,28 +208,26 @@ day, and reports by exception.</sub>
 
 ## ⛬ &nbsp;WORKING NOTES
 
-<table>
-<tr>
-<td width="30%"><b>Measured, not guessed</b></td>
-<td>A number read off the machine beats a number I reasoned my way to. Anything about layout, timing or hit-testing gets checked in the real environment — not in a stub that agrees with me.</td>
-</tr>
-<tr>
-<td><b>The failure should be a sentence</b></td>
-<td>A thing that can't do the thing says which of the two reasons it is, in words. Stack traces are for me; sentences are for whoever is holding it.</td>
-</tr>
-<tr>
-<td><b>Fail closed on the dangerous half</b></td>
-<td>If the redactor throws, the file does not go into the archive. The right default is the one where the bad outcome is impossible, not the one where it's unlikely.</td>
-</tr>
-<tr>
-<td><b>Rest, don't vanish</b></td>
-<td>A control with nothing to act on stays visible and explains itself, dimmed. Something that disappears when idle can only ever be discovered by accident.</td>
-</tr>
-<tr>
-<td><b>Ship the whole thought</b></td>
-<td>The finding, the evidence and the fix are one thing in three parts. Three loose notes are three orphans.</td>
-</tr>
-</table>
+<sub>Five things this desk keeps being right about.</sub>
+
+<dl>
+
+<dt><b>01 &nbsp;·&nbsp; Measured, not guessed</b></dt>
+<dd>A number read off the machine beats a number I reasoned my way to. Anything about layout, timing or hit-testing gets checked in the real environment — not in a stub that agrees with me.</dd>
+
+<dt><b>02 &nbsp;·&nbsp; The failure should be a sentence</b></dt>
+<dd>A thing that can't do the thing says which of the two reasons it is, in words. Stack traces are for me; sentences are for whoever is holding it.</dd>
+
+<dt><b>03 &nbsp;·&nbsp; Fail closed on the dangerous half</b></dt>
+<dd>If the redactor throws, the file does not go into the archive. The right default is the one where the bad outcome is impossible, not the one where it's unlikely.</dd>
+
+<dt><b>04 &nbsp;·&nbsp; Rest, don't vanish</b></dt>
+<dd>A control with nothing to act on stays visible and explains itself, dimmed. Something that disappears when idle can only ever be discovered by accident.</dd>
+
+<dt><b>05 &nbsp;·&nbsp; Ship the whole thought</b></dt>
+<dd>The finding, the evidence and the fix are one thing in three parts. Three loose notes are three orphans.</dd>
+
+</dl>
 
 ---
 
