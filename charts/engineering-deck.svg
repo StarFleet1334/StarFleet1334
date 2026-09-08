@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 400" width="700" height="400" role="img">
+<style>text{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}</style>
+<rect width="700" height="400" fill="#0a0e15"/>
+<rect x="6.5" y="6.5" width="687" height="387" fill="none" stroke="#1b2431" stroke-width="1"/>
+<path d="M337.6 46.5L329.3 74.2M329.3 74.2L165.7 36.0M329.3 74.2L256.3 238.6M256.3 238.6L243.2 309.4M243.2 309.4L221.4 308.1M221.4 308.1L195.9 291.3M195.9 291.3L143.8 354.0M243.2 309.4L342.2 324.3" fill="none" stroke="#31527f" stroke-width="1" stroke-opacity="0.55"/>
+<circle cx="337.6" cy="46.5" r="10.7" fill="#e9eef8" fill-opacity="0.10"/>
+<circle cx="337.6" cy="46.5" r="4.1" fill="#e9eef8" fill-opacity="0.94"/>
+<circle cx="195.9" cy="291.3" r="1.9" fill="#e9eef8" fill-opacity="0.64"/>
+<circle cx="256.3" cy="238.6" r="1.9" fill="#e9eef8" fill-opacity="0.64"/>
+<circle cx="165.7" cy="36.0" r="1.4" fill="#e9eef8" fill-opacity="0.50"/>
+<circle cx="329.3" cy="74.2" r="14.0" fill="#e9eef8" fill-opacity="0.10"/>
+<circle cx="329.3" cy="74.2" r="5.4" fill="#e9eef8" fill-opacity="1.00"/>
+<circle cx="143.8" cy="354.0" r="1.4" fill="#e9eef8" fill-opacity="0.50"/>
+<circle cx="221.4" cy="308.1" r="1.9" fill="#e9eef8" fill-opacity="0.64"/>
+<circle cx="243.2" cy="309.4" r="1.9" fill="#e9eef8" fill-opacity="0.64"/>
+<circle cx="342.2" cy="324.3" r="1.9" fill="#e9eef8" fill-opacity="0.64"/>
+<text x="178.7" y="38.0" font-size="9" fill="#e9eef8" fill-opacity="0.82">CQRS</text>
+<path d="M341.6 46.5L348.6 47.5" stroke="#31527f" stroke-width="0.7" stroke-opacity="0.5" fill="none"/>
+<text x="350.6" y="50.5" font-size="9" fill="#e9eef8" fill-opacity="0.82">ecommerce-inventory-platform</text>
+<text x="342.3" y="76.2" font-size="9" fill="#e9eef8" fill-opacity="0.82">MicroServicesGEureka</text>
+<text x="269.3" y="240.6" font-size="9" fill="#e9eef8" fill-opacity="0.82">KafkaRatingService</text>
+<text x="208.9" y="293.3" font-size="9" fill="#e9eef8" fill-opacity="0.82">KafkaInMicroService</text>
+<text x="234.4" y="310.1" font-size="9" fill="#e9eef8" fill-opacity="0.82">Tolerant-Streams</text>
+<path d="M247.2 309.4L254.2 319.6" stroke="#31527f" stroke-width="0.7" stroke-opacity="0.5" fill="none"/>
+<text x="256.2" y="322.6" font-size="9" fill="#e9eef8" fill-opacity="0.82">SCom</text>
+<path d="M346.2 324.3L353.2 332.1" stroke="#31527f" stroke-width="0.7" stroke-opacity="0.5" fill="none"/>
+<text x="355.2" y="335.1" font-size="9" fill="#e9eef8" fill-opacity="0.82">2Com</text>
+<text x="156.8" y="356.0" font-size="9" fill="#e9eef8" fill-opacity="0.82">Spring-Boot-MicroService</text>
+<text x="30" y="386" font-size="8.5" letter-spacing="1.6" fill="#5b8ede" fill-opacity="0.6">ENGINEERING DECK &#183; 9 STARS</text>
+</svg>

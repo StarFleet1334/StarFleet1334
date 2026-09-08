@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 400" width="700" height="400" role="img">
+<style>text{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}</style>
+<rect width="700" height="400" fill="#0a0e15"/>
+<rect x="6.5" y="6.5" width="687" height="387" fill="none" stroke="#1b2431" stroke-width="1"/>
+<path d="M421.8 333.8L226.0 354.0M226.0 354.0L64.2 36.0" fill="none" stroke="#31527f" stroke-width="1" stroke-opacity="0.55"/>
+<circle cx="421.8" cy="333.8" r="1.4" fill="#e9eef8" fill-opacity="0.50"/>
+<circle cx="64.2" cy="36.0" r="3.2" fill="#e9eef8" fill-opacity="0.86"/>
+<circle cx="226.0" cy="354.0" r="1.4" fill="#e9eef8" fill-opacity="0.50"/>
+<text x="77.2" y="38.0" font-size="9" fill="#e9eef8" fill-opacity="0.82">Java-For-Students-Advanced-</text>
+<text x="434.8" y="335.8" font-size="9" fill="#e9eef8" fill-opacity="0.82">Ocaml-For-Begginer-Students-Edition-</text>
+<text x="239.0" y="356.0" font-size="9" fill="#e9eef8" fill-opacity="0.82">duckietown-lx</text>
+<text x="30" y="386" font-size="8.5" letter-spacing="1.6" fill="#5b8ede" fill-opacity="0.6">THE ACADEMY &#183; 3 STARS</text>
+</svg>

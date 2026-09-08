@@ -71,10 +71,16 @@ a <b>Chronosphere</b> that scrubs the whole board backwards through its own hist
 <div align="center">
 
 <!--LOG:starchart-->
-<img src="https://raw.githubusercontent.com/StarFleet1334/StarFleet1334/main/chart.svg?v=742b48bb" width="920" alt="A star chart of this account: ENGINEERING DECK (9) &#183; SCIENCE DECK (7) &#183; PROPULSION (9) &#183; THE BRIDGE (9) &#183; THE ACADEMY (3), and 12 unfiled field stars belonging to no figure." />
+<a href="#user-content-chart-room"><img src="https://raw.githubusercontent.com/StarFleet1334/StarFleet1334/main/chart.svg?v=742b48bb" width="920" alt="A star chart of this account: ENGINEERING DECK (9) &#183; SCIENCE DECK (7) &#183; PROPULSION (9) &#183; THE BRIDGE (9) &#183; THE ACADEMY (3), and 12 unfiled field stars belonging to no figure." /></a>
 <!--/LOG:starchart-->
 
 </div>
+
+<sub>The plate is a picture and a README cannot hit-test into one — GitHub
+strips every script, and an image loaded through <code>&lt;img&gt;</code>
+receives no clicks. So the chart opens <b>below</b> rather than in place:
+clicking it takes you to the room, and each deck there unfolds where it
+stands, without leaving the page.</sub>
 
 <sub>One star per repository. Each deck of THE HOLD is a figure traced over its
 own patch of sky; everything not yet filed into a deck is a field star,
@@ -88,6 +94,152 @@ else — no seed, no force-directed pass, no dependence on its neighbours — so
 new repository adds a star and moves no other one. The figures are minimum
 spanning trees, so they do change when a star arrives, which is a real change
 and should show.</sub>
+
+### ⌖ &nbsp;THE CHART ROOM
+
+<sub>One row per figure. Open one and it unfolds here — the deck's own plate
+with <b>every</b> star named, and the catalogue behind it. The overview above
+can only afford one name per figure; the rest live in here.</sub>
+
+<!--LOG:chartroom-->
+<a name="chart-room"></a>
+
+<details>
+<summary><b>⚭ &nbsp;ENGINEERING DECK</b> &nbsp;— 9 stars, brightest <code>MicroServicesGEureka</code></summary>
+<br>
+
+<div align="center">
+
+<a href="#user-content-chart-room"><img src="https://raw.githubusercontent.com/StarFleet1334/StarFleet1334/main/charts/engineering-deck.svg?v=13aea7ef" width="700" alt="ENGINEERING DECK: a figure of 9 stars — ecommerce-inventory-platform, KafkaInMicroService, KafkaRatingService, CQRS, MicroServicesGEureka, Spring-Boot-MicroService, Tolerant-Streams, SCom, 2Com." /></a>
+
+</div>
+
+| star | mag | code |
+|:--|:--|:--|
+| [`MicroServicesGEureka`](https://github.com/StarFleet1334/MicroServicesGEureka) | 1 | 4.2 MB |
+| [`ecommerce-inventory-platform`](https://github.com/StarFleet1334/ecommerce-inventory-platform) | 2 | 575 KB |
+| [`2Com`](https://github.com/StarFleet1334/2Com) | 5 | 17 KB |
+| [`KafkaInMicroService`](https://github.com/StarFleet1334/KafkaInMicroService) | 5 | 44 KB |
+| [`KafkaRatingService`](https://github.com/StarFleet1334/KafkaRatingService) | 5 | 30 KB |
+| [`SCom`](https://github.com/StarFleet1334/SCom) | 5 | 29 KB |
+| [`Tolerant-Streams`](https://github.com/StarFleet1334/Tolerant-Streams) | 5 | 36 KB |
+| [`CQRS`](https://github.com/StarFleet1334/CQRS) | 6 | 6 KB |
+| [`Spring-Boot-MicroService`](https://github.com/StarFleet1334/Spring-Boot-MicroService) | 6 | 0 B |
+
+</details>
+
+<details>
+<summary><b>⌖ &nbsp;SCIENCE DECK</b> &nbsp;— 7 stars, brightest <code>CarinaProject</code></summary>
+<br>
+
+<div align="center">
+
+<a href="#user-content-chart-room"><img src="https://raw.githubusercontent.com/StarFleet1334/StarFleet1334/main/charts/science-deck.svg?v=37be8130" width="700" alt="SCIENCE DECK: a figure of 7 stars — WireMock-Demo, WireMock-Api, WireMock-Data, GatlingReport, newrelic-lighthouse-demo, CarinaProject, Demo-TestService." /></a>
+
+</div>
+
+| star | mag | code |
+|:--|:--|:--|
+| [`CarinaProject`](https://github.com/StarFleet1334/CarinaProject) | 3 | 154 KB |
+| [`GatlingReport`](https://github.com/StarFleet1334/GatlingReport) | 4 | 64 KB |
+| [`WireMock-Data`](https://github.com/StarFleet1334/WireMock-Data) | 4 | 77 KB |
+| [`Demo-TestService`](https://github.com/StarFleet1334/Demo-TestService) | 5 | 29 KB |
+| [`WireMock-Demo`](https://github.com/StarFleet1334/WireMock-Demo) | 5 | 19 KB |
+| [`newrelic-lighthouse-demo`](https://github.com/StarFleet1334/newrelic-lighthouse-demo) | 5 | 30 KB |
+| [`WireMock-Api`](https://github.com/StarFleet1334/WireMock-Api) | 6 | 5 KB |
+
+</details>
+
+<details>
+<summary><b>⚙ &nbsp;PROPULSION</b> &nbsp;— 9 stars, brightest <code>Animated-Ball</code></summary>
+<br>
+
+<div align="center">
+
+<a href="#user-content-chart-room"><img src="https://raw.githubusercontent.com/StarFleet1334/StarFleet1334/main/charts/propulsion.svg?v=5fb07c30" width="700" alt="PROPULSION: a figure of 9 stars — Channels-and-Routines-GoLang-, TransitionToGo, WebScrapper_Go, FileFinder, GoUI, Animated-Ball, Clock, Little-Game-in-GoLang, cards." /></a>
+
+</div>
+
+| star | mag | code |
+|:--|:--|:--|
+| [`Animated-Ball`](https://github.com/StarFleet1334/Animated-Ball) | 6 | 1 KB |
+| [`Channels-and-Routines-GoLang-`](https://github.com/StarFleet1334/Channels-and-Routines-GoLang-) | 6 | 602 B |
+| [`Clock`](https://github.com/StarFleet1334/Clock) | 6 | 3 KB |
+| [`FileFinder`](https://github.com/StarFleet1334/FileFinder) | 6 | 679 B |
+| [`GoUI`](https://github.com/StarFleet1334/GoUI) | 6 | 6 KB |
+| [`Little-Game-in-GoLang`](https://github.com/StarFleet1334/Little-Game-in-GoLang) | 6 | 1 KB |
+| [`TransitionToGo`](https://github.com/StarFleet1334/TransitionToGo) | 6 | 8 KB |
+| [`WebScrapper_Go`](https://github.com/StarFleet1334/WebScrapper_Go) | 6 | 2 KB |
+| [`cards`](https://github.com/StarFleet1334/cards) | 6 | 1 KB |
+
+</details>
+
+<details>
+<summary><b>◈ &nbsp;THE BRIDGE</b> &nbsp;— 9 stars, brightest <code>AETHER</code></summary>
+<br>
+
+<div align="center">
+
+<a href="#user-content-chart-room"><img src="https://raw.githubusercontent.com/StarFleet1334/StarFleet1334/main/charts/the-bridge.svg?v=695bb5d3" width="700" alt="THE BRIDGE: a figure of 9 stars — AETHER, QuiziGeneratorWebExtension, RepositoryAnalyzer, GymCRM-System, GymApplication, Chess, steganography, Chat-Sytem-, Java-Chat-App." /></a>
+
+</div>
+
+| star | mag | code |
+|:--|:--|:--|
+| **AETHER** <sub>private</sub> | 1 | — |
+| [`GymApplication`](https://github.com/StarFleet1334/GymApplication) | 1 | 4.3 MB |
+| [`QuiziGeneratorWebExtension`](https://github.com/StarFleet1334/QuiziGeneratorWebExtension) | 3 | 219 KB |
+| [`Chat-Sytem-`](https://github.com/StarFleet1334/Chat-Sytem-) | 4 | 142 KB |
+| [`Chess`](https://github.com/StarFleet1334/Chess) | 4 | 50 KB |
+| [`GymCRM-System`](https://github.com/StarFleet1334/GymCRM-System) | 4 | 72 KB |
+| [`Java-Chat-App`](https://github.com/StarFleet1334/Java-Chat-App) | 4 | 99 KB |
+| [`RepositoryAnalyzer`](https://github.com/StarFleet1334/RepositoryAnalyzer) | 5 | 30 KB |
+| [`steganography`](https://github.com/StarFleet1334/steganography) | 5 | 17 KB |
+
+</details>
+
+<details>
+<summary><b>⌂ &nbsp;THE ACADEMY</b> &nbsp;— 3 stars, brightest <code>Java-For-Students-Advanced-</code></summary>
+<br>
+
+<div align="center">
+
+<a href="#user-content-chart-room"><img src="https://raw.githubusercontent.com/StarFleet1334/StarFleet1334/main/charts/the-academy.svg?v=59ed77af" width="700" alt="THE ACADEMY: a figure of 3 stars — Ocaml-For-Begginer-Students-Edition-, Java-For-Students-Advanced-, duckietown-lx." /></a>
+
+</div>
+
+| star | mag | code |
+|:--|:--|:--|
+| [`Java-For-Students-Advanced-`](https://github.com/StarFleet1334/Java-For-Students-Advanced-) | 3 | 205 KB |
+| [`Ocaml-For-Begginer-Students-Edition-`](https://github.com/StarFleet1334/Ocaml-For-Begginer-Students-Edition-) | 6 | 13 KB |
+| [`duckietown-lx`](https://github.com/StarFleet1334/duckietown-lx) | 6 | 0 B |
+
+</details>
+
+<details>
+<summary><b>⌁ &nbsp;THE FIELD</b> &nbsp;— 12 stars in no figure at all</summary>
+<br>
+
+<sub>Unfiled repositories. They are on the plate, scattered across the whole sky rather than gathered into a deck, because that is what being unfiled looks like. File one in <code>decks.json</code> and it joins a figure on the next run.</sub>
+
+| star | mag | code |
+|:--|:--|:--|
+| [`Shelves`](https://github.com/StarFleet1334/Shelves) | 2 | 548 KB |
+| [`CMDGeneration`](https://github.com/StarFleet1334/CMDGeneration) | 5 | 24 KB |
+| [`MemoryGame-Flipping_ties`](https://github.com/StarFleet1334/MemoryGame-Flipping_ties) | 5 | 15 KB |
+| [`SimD`](https://github.com/StarFleet1334/SimD) | 5 | 49 KB |
+| [`network_cm`](https://github.com/StarFleet1334/network_cm) | 5 | 46 KB |
+| [`Demo_API`](https://github.com/StarFleet1334/Demo_API) | 6 | 2 KB |
+| [`InstagramDesign`](https://github.com/StarFleet1334/InstagramDesign) | 6 | 0 B |
+| [`SimpleAuthenticationAp`](https://github.com/StarFleet1334/SimpleAuthenticationAp) | 6 | 9 KB |
+| [`SpamMaker`](https://github.com/StarFleet1334/SpamMaker) | 6 | 31 B |
+| [`my-library`](https://github.com/StarFleet1334/my-library) | 6 | 6 KB |
+| [`my-program`](https://github.com/StarFleet1334/my-program) | 6 | 0 B |
+| [`social-media-app-Task-`](https://github.com/StarFleet1334/social-media-app-Task-) | 6 | 9 KB |
+
+</details>
+
+<!--/LOG:chartroom-->
 
 ---
 
