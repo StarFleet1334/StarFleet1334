@@ -54,11 +54,14 @@ a <b>Chronosphere</b> that scrubs the whole board backwards through its own hist
 
 </div>
 
-<sub>The plate is a picture and a README cannot hit-test into one — GitHub
-strips every script, and an image loaded through <code>&lt;img&gt;</code>
-receives no clicks. So the chart opens <b>below</b> rather than in place:
-clicking it takes you to the room, and each deck there unfolds where it
-stands, without leaving the page.</sub>
+<sub>It is a picture, and it stays one. A README cannot make an image
+interactive: GitHub strips <code>&lt;script&gt;</code>, inline
+<code>&lt;svg&gt;</code>, <code>&lt;style&gt;</code> and even
+<code>&lt;map&gt;</code>, and an SVG loaded through <code>&lt;img&gt;</code> is
+painted in the browser's secure mode, where no click, no hover and no script
+reaches inside it. The plate is wrapped in a link that goes nowhere, which is
+the only way to stop GitHub wrapping it in one that opens the bare file in a
+new tab.</sub>
 
 <sub>One star per repository. Each deck of THE HOLD is a figure traced over its
 own patch of sky; everything not yet filed into a deck is a field star,
@@ -72,15 +75,6 @@ else — no seed, no force-directed pass, no dependence on its neighbours — so
 new repository adds a star and moves no other one. The figures are minimum
 spanning trees, so they do change when a star arrives, which is a real change
 and should show.</sub>
-
-### ⌖ &nbsp;THE CHART ROOM
-
-<sub>One row per figure. Open one and it unfolds here — the deck's own plate
-with <b>every</b> star named, and the catalogue behind it. The overview above
-can only afford one name per figure; the rest live in here.</sub>
-
-<!--LOG:chartroom-->
-<!--/LOG:chartroom-->
 
 ---
 
@@ -106,15 +100,6 @@ can only afford one name per figure; the rest live in here.</sub>
 <!--/LOG:arrivals-->
 
 </details>
-
----
-
-## ◈ &nbsp;RECENTLY ON THE BENCH
-
-<!--LOG:recent-->
-<!--/LOG:recent-->
-
----
 
 ## ◉ &nbsp;SENSOR CONTACTS
 

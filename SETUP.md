@@ -7,7 +7,6 @@ top of your profile page. That repo already exists.
 ```
 README.md            generated — do not edit
 chart.svg            generated — do not edit; THE STAR CHART's plate
-charts/              generated — one plate per deck, for THE CHART ROOM
 PROCESS.md           the mechanism, end to end
 README.tpl.md        the prose. Edit this.
 manifest.json        numbers for the private project the API cannot see
@@ -104,7 +103,6 @@ whenever you press Run workflow or fire `repository_dispatch`:
 | SYSTEMS ONLINE | `/languages` on every repo, one vote each, split by byte share |
 | THE HOLD | `DECKS`, minus any repo that no longer exists |
 | NEW ARRIVALS | every repo not yet filed into a deck |
-| RECENTLY ON THE BENCH | the five most recently pushed repos |
 | SENSOR CONTACTS | `views.json`, which `views.py` merges from `/traffic/views` |
 | THE BLACK BOX | this workflow's own last fourteen days of runs |
 | the stamp | the newest real push |

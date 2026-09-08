@@ -149,13 +149,13 @@ This is the useful table. Each slot has exactly one thing that moves it:
 | `starchart` | `chart.svg`'s bytes change — the tag carries their hash, so the two can never disagree |
 | `arrivals` | a new repo appears that is not yet filed into a deck |
 | _(all counts)_ | a repo is **created or deleted** — picked up by the next hourly run, which also rewrites the survey dropdown |
-| `recent` | **any push to any public repo** — this is the one that moves most often |
 | `views` | a UTC day closes with at least one visit on it — see below |
 | `blackbox` | a closed day is a different *kind* of day from the one rolling off the far end |
 | `stamp` | the date or name of your newest push changes |
 
-So in practice: **within the hour of any push to any public repo, a run
-commits.** On an hour when nothing moved, nothing is committed.
+So in practice: **within the hour of anything actually changing on the
+account, a run commits.** On an hour when nothing moved, nothing is
+committed.
 
 ### The three slots that move on their own
 
