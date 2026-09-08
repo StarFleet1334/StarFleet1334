@@ -6,6 +6,7 @@ top of your profile page. That repo already exists.
 
 ```
 README.md            generated — do not edit
+chart.svg            generated — do not edit; THE STAR CHART's plate
 PROCESS.md           the mechanism, end to end
 README.tpl.md        the prose. Edit this.
 manifest.json        numbers for the private project the API cannot see
@@ -98,7 +99,7 @@ whenever you press Run workflow or fire `repository_dispatch`:
 |:--|:--|
 | the console box | `/users/…` — name, join date, repo count, top languages, newest repo |
 | the badges | live repo and follower counts |
-| THE SHIPPING FORECAST | each deck's repos, banded by how long since the newest push |
+| THE STAR CHART | `chart.svg`, redrawn from the repo list and each repo's code bytes |
 | SYSTEMS ONLINE | `/languages` on every repo, one vote each, split by byte share |
 | THE HOLD | `DECKS`, minus any repo that no longer exists |
 | NEW ARRIVALS | every repo not yet filed into a deck |
@@ -120,13 +121,12 @@ exits without committing.
 The history of this repo is therefore a record of when your work changed — not
 a year of "chore: update README" from a cron.
 
-Three blocks are deliberate exceptions, and each is bounded rather than
-excused by the same rule — **the day in progress is never written**, so none
-of them can move more than once a day. SENSOR CONTACTS moves on a day that
-had a visitor; THE BLACK BOX on a day that was a different kind of day from
-the one rolling off its far end; THE SHIPPING FORECAST when a deck crosses
-one of five bands, which for a given deck can happen four times before
-someone pushes to it again. See PROCESS.md § 3. The profile repo itself is
+Two blocks are deliberate exceptions, and both are bounded by the same rule
+— **the day in progress is never written**, so neither can move more than
+once a day. SENSOR CONTACTS moves on a day that had a visitor; THE BLACK BOX
+on a day that was a different kind of day from the one rolling off its far
+end. Everything else, THE STAR CHART included, still moves only when the
+account does. See PROCESS.md § 3. The profile repo itself is
 excluded from every "newest" calculation for the same reason: the Action pushes
 to it, so counting it would make the bot's own commit the news.
 
@@ -180,11 +180,10 @@ get 5000/hr locally — worth doing now that the budget is over sixty.
 
 - **Cadence** — the `cron` in `log.yml`. It commits only on real change, so a
   faster schedule costs nothing but Action minutes.
-- **The forecast's vocabulary** — `STATE_BANDS` and `VERDICT_BANDS` in
-  `build.py`. Widen a band and the page gets calmer; narrow one and it gets
-  chattier. The words are rationed on purpose — five states, three verdicts,
-  nothing else — so a reader learns the scale once and then reads the whole
-  bulletin at a glance.
+- **The chart's magnitudes** — `MAG_BANDS` in `build.py`, in bytes of code.
+  They are absolute rather than relative to the account on purpose: a band
+  computed from the largest repo would re-magnitude every star the day one
+  enormous repository arrived. Sizes and opacities are `MAG_R` / `MAG_O`.
 - **The recorder's horizon** — `FLIGHT_DAYS`, fourteen to match the traffic
   API's own reach. Lengthening it costs one more page of runs per week.
 - **The private line.** `PRIVATE = {"AETHER"}` in `build.py` renders it without

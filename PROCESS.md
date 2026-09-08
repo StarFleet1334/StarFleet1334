@@ -143,9 +143,10 @@ This is the useful table. Each slot has exactly one thing that moves it:
 | `stardate` | repo count changes · the top four languages reorder · your newest repo changes · `heading` in `manifest.json` changes |
 | `badges` | public repo count or follower count changes |
 | `surface` | `manifest.json` is re-measured |
-| `forecast` | a deck crosses a band, a repo passes a year, or a deck's newest push changes |
+| `starchart` | a repo is created, deleted, refiled, or crosses a magnitude band |
 | `systems` | language byte shares shift enough to reorder the bars or move a `▰` |
 | `hold` | a repo named in `DECKS` is created, deleted or renamed |
+| `starchart` | `chart.svg`'s bytes change — the tag carries their hash, so the two can never disagree |
 | `arrivals` | a new repo appears that is not yet filed into a deck |
 | _(all counts)_ | a repo is **created or deleted** — picked up by the next hourly run, which also rewrites the survey dropdown |
 | `recent` | **any push to any public repo** — this is the one that moves most often |
@@ -168,15 +169,11 @@ number on all twenty-four hourly runs.
 |:--|:--|:--|
 | `views` | someone visited | a closed day had no visitors |
 | `blackbox` | a run failed, or the page changed, or the workflow did not run | the closed day looks like the one rolling off the far end |
-| `forecast` | time passed and a deck crossed a band | the deck is still inside the same band |
 
-`forecast` is the one that genuinely reads the clock, and it is worth being
-plain about that: a deck can go from *quiet* to *still* on a morning when
-nobody did anything at all. That is a real departure from § 4, and the cost
-is bounded rather than argued away — there are five bands, so between two
-pushes a given deck can move the page **four times, ever**. The alternative
-was printing the age in days, which would rewrite the line every morning
-and say nothing new on any of them.
+Neither reads the clock for a *value* — only to decide which days are
+closed. THE SHIPPING FORECAST did read it, which is why it is gone: it is
+the one block that could commit on a morning when nobody had done anything
+at all.
 
 The recorder is the interesting case, because it reports **by exception**.
 Its strip is fourteen closed days; when a quiet day rolls off the far end

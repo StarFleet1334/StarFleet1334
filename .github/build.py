@@ -6,11 +6,10 @@ template, writes README.md. Almost nothing here uses the wall clock: every
 value comes off the API, so the file changes only when the account actually
 changed, and the workflow commits only when the file changes.
 
-The two exceptions are deliberate and bounded. THE SHIPPING FORECAST and THE
-BLACK BOX are both statements about *elapsed* time, so they cannot be written
-without a today. Both are banded to the day: a forecast line can only move
-when a deck crosses one of five thresholds, and the recorder's strip is one
-tick per closed UTC day. Time passing can therefore commit — but rarely, and
+The one exception is deliberate and bounded. THE BLACK BOX is a statement
+about *elapsed* time, so it cannot be written without a today — but it reads
+the clock only to decide which days are closed, never for a value, and its
+strip is one tick per closed UTC day. Time passing can therefore commit, and
 never more than once a day.
 
     python .github/build.py            # writes README.md
@@ -23,9 +22,11 @@ env:  GITHUB_TOKEN   raises the rate limit to 5000/hr (the Action supplies it)
 from __future__ import annotations
 
 import datetime as dt
+import hashlib
 import json
 import os
 import pathlib
+import math
 import re
 import sys
 import urllib.error
@@ -37,6 +38,7 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 TPL = ROOT / "README.tpl.md"
 OUT = ROOT / "README.md"
 MANIFEST = ROOT / "manifest.json"
+CHART = ROOT / "chart.svg"
 
 API = "https://api.github.com"
 
@@ -290,68 +292,6 @@ def block_systems(langs) -> str:
 
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# ⚑ THE SHIPPING FORECAST
-#
-# One line per deck, in a closed vocabulary. The real forecast's whole trick is
-# that its words are rationed — "good", "moderate" and "poor" mean exactly one
-# thing each — so a reader learns the scale once and then takes the whole
-# bulletin in at a glance. A banded word is also the only kind that can sit on
-# an hourly build: printing "quiet, 43 days" would rewrite the page every day
-# for no news at all.
-#
-# The two readings are deliberately different facts, the way the real forecast
-# separates wind from visibility:
-#
-#   STATE    how recently the deck's newest repo was pushed — one number,
-#            about the deck's most recent moment
-#   VERDICT  how much of the deck has moved within a year — a share, about
-#            the deck's breadth
-#
-# A deck can be "moving" and still "Poor": one repo carrying eight.
-#
-# The band saturates, and the date column is the answer to that. Everything
-# past a year is "laid up", and there is a great deal of space past a year: the
-# first version of this block rendered five decks as five identical lines,
-# which was true and useless. Printing the age would fix the resolution and
-# reintroduce exactly the churn the bands exist to prevent — "laid up, 13
-# months" rewrites itself every month for no news. The newest push *date* fixes
-# it for free: full resolution, and it cannot change until someone pushes.
-#
-# THE DOCK is the second half of the same problem. The forecast reads the five
-# decks, and on this account every repo touched in the last year is either
-# private or not yet filed into one — so a bulletin that covered only the decks
-# reported a becalmed fleet while the account was actually moving. Unfiled work
-# is work; it gets a line, from the same set NEW ARRIVALS draws from.
-#
-# Nothing here needs hysteresis, and it is worth saying why rather than adding
-# it for luck. Days-since-last-push only ever increases until someone pushes,
-# so a deck crosses each threshold once and in one direction; the live share
-# moves only when a repo ages past a year or takes a commit. Neither measure
-# can walk back and forth across a boundary between two runs, which is the
-# only thing hysteresis would buy.
-# ─────────────────────────────────────────────────────────────────────────────
-
-# (days since the newest push, what to call it). Ordered, first match wins.
-STATE_BANDS = [
-    (7, "moving"),
-    (30, "recent"),
-    (90, "quiet"),
-    (365, "still"),
-    (None, "laid up"),
-]
-
-# The trend compares how many of a deck's repos were last touched inside the
-# working window against how many fell in the window before it. Because a repo
-# has exactly one pushed_at, this reads as "how much of this deck is in recent
-# memory" — which is what attention to a deck actually looks like.
-WORKING_DAYS = 90
-PREVIOUS_DAYS = 180
-
-LIVE_DAYS = 365
-VERDICT_BANDS = [(0.5, "Good."), (0.2, "Moderate."), (0.0, "Poor.")]
-
-
 def unfiled(repos):
     """Every repo not in a deck and not ignored — NEW ARRIVALS' own set.
 
@@ -364,130 +304,247 @@ def unfiled(repos):
             if r["name"] not in filed and r["name"] not in IGNORE]
 
 
-def _age(stamp, today):
-    """Whole days since an ISO timestamp. A repo with no pushed_at is treated
-    as ancient rather than as new — an unknown date must never read as
-    activity."""
-    day = (stamp or "")[:10]
-    try:
-        return (today - dt.date.fromisoformat(day)).days
-    except ValueError:
-        return 10_000
+# ─────────────────────────────────────────────────────────────────────────────
+# ✷ THE STAR CHART
+#
+# The account drawn the way an atlas draws a sky: one star per repository, the
+# five decks traced over them as figures, and everything unfiled left as field
+# stars belonging to no figure at all.
+#
+# THE HASH IS THE WHOLE DESIGN. A star's position comes from sha256 of its own
+# name and from nothing else — not from a seed, not from a force-directed pass,
+# not from its neighbours. That is what makes the plate committable: adding a
+# repository adds a star and moves no other one, so the diff is the change.
+# A relaxation pass would have looked better and would have redrawn every star
+# in a region whenever one arrived, which on an hourly build is a chart that
+# never settles.
+#
+# Two consequences of refusing relaxation, both accepted on purpose:
+#
+#   Stars can land close together. Real charts have doubles; a pair a pixel
+#   apart reads as one bright star and costs nothing.
+#
+#   The figures DO change when a star arrives, because the figure is a minimum
+#   spanning tree over the deck's stars and a new star genuinely changes it.
+#   That is a real change and it should show.
+#
+# Python's hash() is salted per process — PYTHONHASHSEED — so it produces a
+# different chart on every run and would commit hourly forever. It must be
+# hashlib.
+#
+# Magnitude is apparent, not intrinsic: it is how large the repository is in
+# code bytes, the way a star's magnitude is how bright it looks from here and
+# not how much it matters. The bands are absolute rather than relative to the
+# account, so one enormous new repository cannot re-band every star beside it.
+# ─────────────────────────────────────────────────────────────────────────────
+
+SKY_W, SKY_H = 920, 400
+SKY_PAD = 34
+
+SKY_GROUND = "#0a0e15"
+SKY_EDGE = "#1b2431"
+SKY_STAR = "#e9eef8"
+SKY_FIGURE = "#31527f"
+SKY_LABEL = "#5b8ede"
+SKY_FIELD = "#8fa4c4"
+
+# Absolute magnitude bands, in bytes of code. First match wins, brightest
+# first. Absolute so a repo's magnitude depends only on that repo.
+MAG_BANDS = [(1_000_000, 1), (400_000, 2), (150_000, 3),
+             (50_000, 4), (15_000, 5), (0, 6)]
+MAG_R = {1: 5.4, 2: 4.1, 3: 3.2, 4: 2.5, 5: 1.9, 6: 1.4}
+
+# A monospace advance is a reliable 0.6em, which is the only reason a label's
+# width can be known without a font engine. It has to be known: a repo name is
+# up to 40 characters and the star it belongs to can sit anywhere on the plate.
+LABEL_SIZE = 9.5
+LABEL_ADV = 0.6
+MAG_O = {1: 1.0, 2: 0.94, 3: 0.86, 4: 0.76, 5: 0.64, 6: 0.5}
 
 
-def _reading(members, today):
-    """One deck's four fields, or None if the API can see none of its repos."""
-    if not members:
-        return None
-    dated = sorted(members, key=lambda r: _age(r.get("pushed_at"), today))
-    ages = [_age(r.get("pushed_at"), today) for r in dated]
-
-    state = next(w for lim, w in STATE_BANDS if lim is None or ages[0] <= lim)
-
-    working = sum(1 for a in ages if a <= WORKING_DAYS)
-    previous = sum(1 for a in ages if WORKING_DAYS < a <= PREVIOUS_DAYS)
-    if working or previous:
-        trend = ("becoming active" if working > previous else
-                 "falling away" if working < previous else "steady")
-        reading = f"{state}, {trend}."
-    else:
-        # Nothing in six months either side. "steady" would be a claim about
-        # a trend measured on nothing at all.
-        reading = f"{state}."
-
-    newest = (dated[0].get("pushed_at") or "")[:10] or "—"
-    live = sum(1 for a in ages if a <= LIVE_DAYS)
-    verdict = next(w for lim, w in VERDICT_BANDS if live / len(ages) >= lim)
-
-    return (reading, newest, f"{live} of {len(ages)} live.", verdict)
+def _hash(name, i):
+    """A stable float in [0,1) from a name and a slot. hashlib, never hash()."""
+    d = hashlib.sha256(f"{name}#{i}".encode("utf-8")).digest()
+    return int.from_bytes(d[:6], "big") / (1 << 48)
 
 
-def block_forecast(repos) -> str:
-    by_name = {r["name"]: r for r in repos}
-    today = dt.datetime.now(dt.timezone.utc).date()
+def _regions(n):
+    """One patch of sky per deck, laid out rather than typed.
 
-    lines = []
-    for d in DECKS:
-        members = [by_name[n] for names, _ in d["rows"] for n in names
-                   if n in by_name]
-        row = _reading(members, today)
-        if row:
-            lines.append((d["title"],) + row)
-
-    dock = _reading(unfiled(repos), today)
-    if dock:
-        lines.append(("THE DOCK",) + dock)
-
-    if not lines:
-        return "<sub>No deck has a repository the API can see.</sub>"
-
-    # Widths off the content, never typed. A hand-set column is a column that
-    # skews the first time a deck is renamed.
-    w = [max(len(row[i]) for row in lines) for i in range(4)]
-    out = ["<pre>"]
-    out += [f"  {a:<{w[0]}}   {b:<{w[1]}}   {c:<{w[2]}}   {d_:>{w[3]}}   {v}"
-            for a, b, c, d_, v in lines]
-    out.append("</pre>")
-    return "\n".join(out)
-
-
-SPARK = "▁▂▃▄▅▆▇█"
-
-
-def spark(values) -> str:
-    """A fixed-height sparkline. An empty or flat run must not divide by zero,
-    and a run of all-equal days deliberately draws as a flat middle rather
-    than as a full bar — a wall of █ reads as a spike that never happened."""
-    if not values:
-        return ""
-    hi, lo = max(values), min(values)
-    if hi == lo:
-        return ("▄" if hi else "▁") * len(values)
-    span = len(SPARK) - 1
-    return "".join(SPARK[round(span * (v - lo) / (hi - lo))] for v in values)
-
-
-def block_views(ledger) -> str:
-    """What the traffic ledger has, or the reason it has nothing.
-
-    It rests rather than vanishing. There are two reasons for an empty
-    ledger — it is younger than one closed day, or the token cannot read
-    traffic — and the resting sentence names both, in order. A section that
-    disappears when it has no data can only ever be found again by accident.
+    A hand-written table of five regions is a table that silently drops the
+    sixth deck the day someone adds one to decks.json. These are computed from
+    the count, so the plate simply gets busier.
     """
-    days = ledger.get("days") or {}
-    if not days:
-        return ("<sub>No closed day on the ledger yet. <code>.github/views.py</code> "
-                "records a day only once it is over, so the first number appears "
-                "after the first full UTC day. If it stays empty past that, the "
-                "token cannot read traffic — it needs <b>Administration: read</b> "
-                "on this repository.</sub>")
+    if n <= 0:
+        return []
+    inner_w = SKY_W - 2 * SKY_PAD
+    col = inner_w / n
+    out = []
+    for i in range(n):
+        cx = SKY_PAD + col * (i + 0.5)
+        # Alternating heights so neighbouring figures do not sit in a row and
+        # read as one long chain.
+        cy = SKY_H * (0.40 if i % 2 == 0 else 0.61)
+        out.append((cx, cy, col * 0.40, SKY_H * 0.235))
+    return out
 
-    order = sorted(days)
-    total = sum(days[d]["views"] for d in order)
-    uniq = sum(days[d]["uniques"] for d in order)
-    recent = order[-14:]
-    r_views = sum(days[d]["views"] for d in recent)
-    r_uniq = sum(days[d]["uniques"] for d in recent)
-    line = spark([days[d]["views"] for d in recent])
-    busiest = max(order, key=lambda d: days[d]["views"])
 
-    # Days *recorded*, not days elapsed. The ledger has a hole for any day the
-    # workflow could not reach inside the API's fourteen, and counting the
-    # calendar instead would claim a coverage the file does not have.
-    rows = [
-        ("Since", f"`{order[0]}` &nbsp;·&nbsp; {len(order)} days on the ledger"),
-        ("All time", f"**{total:,}** views &nbsp;·&nbsp; {uniq:,} distinct"),
-        ("Last 14 days", f"`{line}` &nbsp;·&nbsp; {r_views:,} views &nbsp;·&nbsp; {r_uniq:,} distinct"),
-        ("Busiest day", f"`{busiest}` &nbsp;·&nbsp; {days[busiest]['views']:,} views"),
-    ]
-    refs = ledger.get("referrers") or []
-    if refs:
-        rows.append(("Arriving from", " · ".join(f"`{r}`" for r in refs)))
+def _place(name, region):
+    """A point inside an ellipse, from the name alone.
 
-    out = ["| | |", "|---|---|"]
-    out += [f"| **{k}** | {v} |" for k, v in rows]
-    return "\n".join(out)
+    sqrt on the radius is what stops every figure being a dense knot with a
+    bare rim: without it, uniform u concentrates points toward the centre.
+    """
+    cx, cy, rx, ry = region
+    r = math.sqrt(_hash(name, 0))
+    th = 2 * math.pi * _hash(name, 1)
+    return (cx + rx * r * math.cos(th), cy + ry * r * math.sin(th))
+
+
+def _mag(code_bytes):
+    return next(m for lim, m in MAG_BANDS if code_bytes >= lim)
+
+
+def _figure(stars):
+    """A minimum spanning tree over a deck's stars — Prim, O(n²).
+
+    A convex hull would trace the outline and a nearest-neighbour chain can
+    double back on itself; the tree is what an atlas actually draws, and it is
+    a function of the positions only, so it is as deterministic as they are.
+    """
+    if len(stars) < 2:
+        return []
+    todo = list(range(1, len(stars)))
+    done = [0]
+    edges = []
+    while todo:
+        best = min(((i, j) for j in todo for i in done),
+                   key=lambda e: ((stars[e[0]][0] - stars[e[1]][0]) ** 2 +
+                                  (stars[e[0]][1] - stars[e[1]][1]) ** 2))
+        edges.append(best)
+        done.append(best[1])
+        todo.remove(best[1])
+    return edges
+
+
+def _esc(t):
+    return (str(t).replace("&", "&amp;").replace("<", "&lt;")
+            .replace(">", "&gt;").replace('"', "&quot;"))
+
+
+def chart(repos, sizes, manifest):
+    """Return (svg_text, alt_text, tally). Draws nothing to disk."""
+    by_name = {r["name"]: r for r in repos}
+    regions = _regions(len(DECKS))
+
+    figures, field = [], []
+    for d, region in zip(DECKS, regions):
+        stars = []
+        for names, _ in d["rows"]:
+            for n in names:
+                if n in by_name:
+                    stars.append((n, _place(n, region), _mag(sizes.get(n, 0)), False))
+                elif n in PRIVATE:
+                    # The API cannot measure a private repo, so its magnitude is
+                    # asserted by manifest.json rather than read. The ring drawn
+                    # round it below is that distinction, made visible.
+                    stars.append((n, _place(n, region),
+                                  int(manifest.get("chart_magnitude", 1)), True))
+        if stars:
+            figures.append((d["title"], region, stars))
+
+    whole = (SKY_W / 2, SKY_H / 2, (SKY_W - 2 * SKY_PAD) / 2,
+             (SKY_H - 2 * SKY_PAD) / 2)
+    for r in sorted(unfiled(repos), key=lambda r: r["name"]):
+        # Field stars get the whole plate, not a region — they belong to no
+        # figure, which is the entire point of being unfiled. Sorted by name
+        # because the repo list arrives sorted by pushed_at: without it the
+        # identical picture is emitted in a different order every time
+        # anything is pushed, and the plate commits for a change nobody can
+        # see.
+        n = r["name"]
+        field.append((n, _place(n, whole), _mag(sizes.get(n, 0))))
+
+    out = [f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {SKY_W} {SKY_H}" '
+           f'width="{SKY_W}" height="{SKY_H}" role="img">',
+           '<style>text{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}</style>',
+           f'<rect width="{SKY_W}" height="{SKY_H}" fill="{SKY_GROUND}"/>',
+           f'<rect x="6.5" y="6.5" width="{SKY_W - 13}" height="{SKY_H - 13}" '
+           f'fill="none" stroke="{SKY_EDGE}" stroke-width="1"/>']
+
+    # figures first, so a line can never be drawn over a star
+    for title, region, stars in figures:
+        pts = [st[1] for st in stars]
+        seg = "".join(f"M{pts[i][0]:.1f} {pts[i][1]:.1f}L{pts[j][0]:.1f} {pts[j][1]:.1f}"
+                      for i, j in _figure(pts))
+        if seg:
+            out.append(f'<path d="{seg}" fill="none" stroke="{SKY_FIGURE}" '
+                       f'stroke-width="1" stroke-opacity="0.55"/>')
+
+    for name, (x, y), mag in field:
+        out.append(f'<circle cx="{x:.1f}" cy="{y:.1f}" r="{MAG_R[mag] * 0.8:.1f}" '
+                   f'fill="{SKY_FIELD}" fill-opacity="{MAG_O[mag] * 0.45:.2f}"/>')
+
+    for title, region, stars in figures:
+        for name, (x, y), mag, private in stars:
+            if mag <= 2:
+                out.append(f'<circle cx="{x:.1f}" cy="{y:.1f}" r="{MAG_R[mag] * 2.6:.1f}" '
+                           f'fill="{SKY_STAR}" fill-opacity="0.10"/>')
+            out.append(f'<circle cx="{x:.1f}" cy="{y:.1f}" r="{MAG_R[mag]:.1f}" '
+                       f'fill="{SKY_STAR}" fill-opacity="{MAG_O[mag]:.2f}"/>')
+            if private:
+                out.append(f'<circle cx="{x:.1f}" cy="{y:.1f}" r="{MAG_R[mag] + 4:.1f}" '
+                           f'fill="none" stroke="{SKY_STAR}" stroke-width="0.8" '
+                           f'stroke-opacity="0.45" stroke-dasharray="2 2"/>')
+
+        # the brightest star in the figure carries its name, the way an atlas
+        # labels α and leaves the rest to the catalogue
+        lead = min(stars, key=lambda st: (st[2], st[0]))
+        lx, ly = lead[1]
+        # Which side the name goes is decided by whether it *fits*, not by how
+        # far right the star is. A fraction of the width was the first rule
+        # here and it put a 27-character name off the edge of the plate from a
+        # star that was only four fifths of the way across.
+        wide = len(lead[0]) * LABEL_SIZE * LABEL_ADV
+        if lx + 8 + wide <= SKY_W - SKY_PAD:
+            anchor, dx = "start", 8
+        else:
+            anchor, dx = "end", -8
+        out.append(f'<text x="{max(SKY_PAD, min(SKY_W - SKY_PAD, lx + dx)):.1f}" '
+                   f'y="{ly + 3.5:.1f}" text-anchor="{anchor}" '
+                   f'font-size="{LABEL_SIZE}" fill="{SKY_STAR}" fill-opacity="0.72">'
+                   f'{_esc(lead[0])}</text>')
+
+        cx, cy, rx, ry = region
+        out.append(f'<text x="{cx:.1f}" y="{cy + ry + 17:.1f}" text-anchor="middle" '
+                   f'font-size="9" letter-spacing="2.2" fill="{SKY_LABEL}" '
+                   f'fill-opacity="0.85">{_esc(title)}</text>')
+
+    counted = sum(len(st) for _, _, st in figures)
+    out.append(f'<text x="{SKY_PAD}" y="{SKY_H - 13}" font-size="8.5" '
+               f'letter-spacing="1.6" fill="{SKY_LABEL}" fill-opacity="0.45">'
+               f'{counted} CHARTED &#183; {len(field)} FIELD STARS &#183; '
+               f'MAGNITUDE IS CODE BYTES</text>')
+    out.append("</svg>")
+
+    alt = ("A star chart of this account: " +
+           " &#183; ".join(f"{t} ({len(st)})" for t, _, st in figures) +
+           f", and {len(field)} unfiled field stars belonging to no figure.")
+    return "\n".join(out) + "\n", alt, (counted, len(field))
+
+
+def block_starchart(svg, alt):
+    """The image, cache-busted by its own content.
+
+    GitHub proxies README images and caches them hard, so a chart that changed
+    can sit stale behind the old bytes for a long time. The tag carries eight
+    hex of the SVG's own sha256: a chart that did not change keeps its URL and
+    commits nothing, and one that did gets a URL the proxy has never seen.
+    """
+    stamp = hashlib.sha256(svg.encode("utf-8")).hexdigest()[:8]
+    src = (f"https://raw.githubusercontent.com/{USER}/{USER}/main/"
+           f"chart.svg?v={stamp}")
+    return (f'<img src="{src}" width="920" alt="{alt}" />')
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -730,7 +787,7 @@ def _fallback(repos, tally):
             tally[key] = tally.get(key, 0.0) + 1.0
 
 
-def languages(repos) -> list[tuple[str, float]]:
+def languages(repos, code_bytes=None) -> list[tuple[str, float]]:
     """Each repo gets one vote, split between its languages by byte share.
 
     Raw bytes summed across the account is the obvious measure and it is
@@ -739,6 +796,11 @@ def languages(repos) -> list[tuple[str, float]]:
     work. Normalising inside each repo first caps what any single repository
     can contribute at 1.0, so the ranking reads as *how much of this account
     is written in X*, and still resolves finer than counting whole repos.
+
+    `code_bytes`, when given, is filled with each repo's own total on the
+    way past. THE STAR CHART needs it and the call has already been made;
+    fetching /languages a second time to learn a number this loop is holding
+    would double the most expensive part of the build.
     """
     tally: dict[str, float] = {}
     wanted = [r for r in repos if not r.get("fork")]
@@ -754,6 +816,8 @@ def languages(repos) -> list[tuple[str, float]]:
                 continue
             sizes[LANG_ALIAS.get(name, name)] = sizes.get(LANG_ALIAS.get(name, name), 0) + size
         total = sum(sizes.values())
+        if code_bytes is not None:
+            code_bytes[r["name"]] = total
         if not total:
             continue
         for name, size in sizes.items():
@@ -790,10 +854,14 @@ def main() -> int:
         except ValueError as e:
             print(f"  ! manifest.json is not valid JSON ({e}); ignoring", file=sys.stderr)
 
-    langs = languages(repos)
+    code_bytes = {}
+    langs = languages(repos, code_bytes)
     print("- " + ", ".join(f"{n} {s:.1f}" for n, s in langs[:6]))
 
     index = {r["name"] for r in repos}
+
+    svg, alt, tally = chart(repos, code_bytes, manifest)
+    print(f"- chart: {tally[0]} charted, {tally[1]} field stars, {len(svg)} bytes")
 
     ledger = load_views()
     print(f"- ledger: {len(ledger['days'])} days, "
@@ -807,7 +875,7 @@ def main() -> int:
         "stardate": block_stardate(user, repos, langs, manifest),
         "surface":  block_surface(manifest),
         "badges":   block_badges(user, repos, ledger),
-        "forecast": block_forecast(repos),
+        "starchart": block_starchart(svg, alt),
         "systems":  block_systems(langs),
         "views":    block_views(ledger),
         "blackbox": block_blackbox(record),
@@ -845,13 +913,22 @@ def main() -> int:
     if unknown:
         print(f"  ! template asks for unknown blocks: {', '.join(unknown)}", file=sys.stderr)
 
+    moved = []
+    if not (OUT.exists() and OUT.read_text(encoding="utf-8") == text):
+        moved.append(OUT.name)
+    if not (CHART.exists() and CHART.read_text(encoding="utf-8") == svg):
+        moved.append(CHART.name)
+
     if "--check" in sys.argv:
-        same = OUT.exists() and OUT.read_text(encoding="utf-8") == text
-        print("- no change" if same else "- README.md would change")
+        print("- no change" if not moved else "- would change: " + ", ".join(moved))
         return 0
 
+    # The chart is written first. The README points at it by content hash, so
+    # the one ordering that must never happen is a committed page naming a
+    # chart that is not there yet.
+    CHART.write_text(svg, encoding="utf-8", newline="\n")
     OUT.write_text(text, encoding="utf-8", newline="\n")
-    print(f"- wrote {OUT.name} ({len(text)} bytes)")
+    print(f"- wrote {OUT.name} ({len(text)} bytes) and {CHART.name} ({len(svg)} bytes)")
     return 0
 
 
