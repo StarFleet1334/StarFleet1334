@@ -5,7 +5,7 @@
 -->
 
 <!--LOG:masthead-->
-<a name="log" href="#user-content-log"><img src="https://raw.githubusercontent.com/StarFleet1334/StarFleet1334/main/masthead.svg?v=752d98af" width="920" alt="STARFLEET 1334 — open log / flight deck. The account’s callsign, join date, repository count and current heading." /></a>
+<a name="log" href="#user-content-log"><img src="https://raw.githubusercontent.com/StarFleet1334/StarFleet1334/main/masthead.svg?v=efff1d58" width="920" alt="STARFLEET 1334 — open log / flight deck. The account’s callsign, join date, repository count and current heading." /></a>
 <!--/LOG:masthead-->
 
 ---
@@ -19,7 +19,7 @@
 > dialect is *yours*, not a manual's.
 
 <!--LOG:heading-->
-<a name="heading" href="#user-content-heading"><img src="https://raw.githubusercontent.com/StarFleet1334/StarFleet1334/main/heading.svg?v=a64e4ebd" width="920" alt="AETHER's signal path: a webcam at frame rate and a fully offline headset mic feed three channels — hands, face and voice — into the desk (FastAPI over a websocket, vanilla JS, zero framework), with an agent at the other end, opening onto Canvas · Air Sketch (2D/3D) · Observatory · Codex · Palace · Watchtower · Console. 74 Python modules · 66 JS modules · ~82k lines. A motion repeated ~6× gets proposed back to you to bind." /></a>
+<a name="heading" href="#user-content-heading"><img src="https://raw.githubusercontent.com/StarFleet1334/StarFleet1334/main/heading.svg?v=e9fd2ce3" width="920" alt="AETHER's signal path: a webcam at frame rate and a fully offline headset mic feed three channels — hands, face and voice — into the desk (FastAPI over a websocket, vanilla JS, zero framework), with an agent at the other end, opening onto Canvas · Air Sketch (2D/3D) · Observatory · Codex · Palace · Watchtower · Console. 74 Python modules · 66 JS modules · ~82k lines. A motion repeated ~6× gets proposed back to you to bind." /></a>
 <!--/LOG:heading-->
 
 <sub>Also inside: a 2D alt-azimuth <b>Observatory</b> over 8,874 real catalogued stars ·
@@ -34,7 +34,7 @@ a <b>Chronosphere</b> that scrubs the whole board backwards through its own hist
 <div align="center">
 
 <!--LOG:starchart-->
-<a href="https://starfleet1334.github.io/StarFleet1334/"><img src="https://raw.githubusercontent.com/StarFleet1334/StarFleet1334/main/chart.svg?v=742b48bb" width="920" alt="A star chart of this account: ENGINEERING DECK (9) &#183; SCIENCE DECK (7) &#183; PROPULSION (9) &#183; THE BRIDGE (9) &#183; THE ACADEMY (3), and 12 unfiled field stars belonging to no figure." /></a>
+<a href="https://starfleet1334.github.io/StarFleet1334/"><img src="https://raw.githubusercontent.com/StarFleet1334/StarFleet1334/main/chart.svg?v=f0a308c3" width="920" alt="A star chart of this account: ENGINEERING DECK (9) &#183; SCIENCE DECK (7) &#183; PROPULSION (9) &#183; THE BRIDGE (9) &#183; THE ACADEMY (3), and 12 unfiled field stars belonging to no figure." /></a>
 <!--/LOG:starchart-->
 
 </div>
@@ -71,7 +71,7 @@ and should show.</sub>
 <sub>Every repository gets one vote, split between its languages by byte share — so no single vendored bundle can outrank a language that was actually written.</sub>
 
 <!--LOG:systems-->
-<a name="systems" href="#user-content-systems"><img src="https://raw.githubusercontent.com/StarFleet1334/StarFleet1334/main/systems.svg?v=682674cf" width="920" alt="Share of the account by language, one vote per repository split by byte share: Java 51%, Go 23%, HTML/CSS 7%, JavaScript 7%, Python 5%, Kotlin 2%, Dart 2%, OCaml 2%." /></a>
+<a name="systems" href="#user-content-systems"><img src="https://raw.githubusercontent.com/StarFleet1334/StarFleet1334/main/systems.svg?v=24598e27" width="920" alt="Share of the account by language, one vote per repository split by byte share: Java 51%, Go 23%, HTML/CSS 7%, JavaScript 7%, Python 5%, Kotlin 2%, Dart 2%, OCaml 2%." /></a>
 <!--/LOG:systems-->
 
 ---

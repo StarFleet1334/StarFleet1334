@@ -1,6 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 400" width="920" height="400" role="img">
-<style>text{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}</style>
-<rect width="920" height="400" fill="#0a0e15"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 426" width="920" height="426" role="img">
+<style>text{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}@keyframes rove{0%{transform:translateX(-46px)}22%{transform:translateX(966px)}100%{transform:translateX(966px)}}@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-1.5px)}}@keyframes legA{0%,100%{transform:rotate(22deg)}50%{transform:rotate(-22deg)}}@keyframes legB{0%,100%{transform:rotate(-22deg)}50%{transform:rotate(22deg)}}.rov{animation:rove 64s linear infinite backwards;animation-delay:48s}.bod{animation:bob .44s ease-in-out infinite}.lgA{animation:legA .44s ease-in-out infinite;transform-origin:0 0}.lgB{animation:legB .44s ease-in-out infinite;transform-origin:0 0}.parked{display:none}@media(prefers-reduced-motion:reduce){.rov{display:none}.parked{display:inline}}</style>
+<rect width="920" height="426" fill="#0a0e15"/>
 <rect x="6.5" y="6.5" width="907" height="387" fill="none" stroke="#1b2431" stroke-width="1"/>
 <path d="M138.9 96.9L135.8 107.5M135.8 107.5L73.3 92.9M135.8 107.5L107.9 170.3M107.9 170.3L102.9 197.4M102.9 197.4L94.6 196.8M94.6 196.8L84.8 190.4M84.8 190.4L64.9 214.4M102.9 197.4L140.7 203.0" fill="none" stroke="#31527f" stroke-width="1" stroke-opacity="0.55"/>
 <path d="M305.9 185.0L287.6 212.3M287.6 212.3L293.9 224.8M293.9 224.8L300.9 240.9M287.6 212.3L245.9 194.1M300.9 240.9L286.4 301.9M286.4 301.9L299.0 325.2" fill="none" stroke="#31527f" stroke-width="1" stroke-opacity="0.55"/>
@@ -72,4 +72,5 @@
 <text x="744.7" y="131.6" text-anchor="end" font-size="9.5" fill="#e9eef8" fill-opacity="0.72">Java-For-Students-Advanced-</text>
 <text x="800.8" y="271.0" text-anchor="middle" font-size="9" letter-spacing="2.2" fill="#5b8ede" fill-opacity="0.85">THE ACADEMY</text>
 <text x="34" y="387" font-size="8.5" letter-spacing="1.6" fill="#5b8ede" fill-opacity="0.45">37 CHARTED &#183; 12 FIELD STARS &#183; MAGNITUDE IS CODE BYTES</text>
+<g class="rov"><g transform="translate(0,418)"><g class="bod"><g class="lgA"><path d="M-3 0L-5 7" stroke="#e9eef8" stroke-width="1.3" fill="none" stroke-linecap="round"/></g><g class="lgB"><path d="M3 0L5 7" stroke="#e9eef8" stroke-width="1.3" fill="none" stroke-linecap="round"/></g><rect x="-7.5" y="-10" width="15" height="9" rx="2" fill="#e9eef8"/><circle cx="4" cy="-5.8" r="1.3" fill="#0d1117" fill-opacity="0.5"/><path d="M-5.5 -10L-7.5 -15.5" stroke="#f0883e" stroke-width="1.2" fill="none"/><circle cx="-7.5" cy="-16.5" r="1.7" fill="#f0883e"/></g></g></g>
 </svg>
