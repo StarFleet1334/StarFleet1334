@@ -71,19 +71,22 @@ a <b>Chronosphere</b> that scrubs the whole board backwards through its own hist
 <div align="center">
 
 <!--LOG:starchart-->
-<a name="star-chart" href="#user-content-star-chart"><img src="https://raw.githubusercontent.com/StarFleet1334/StarFleet1334/main/chart.svg?v=742b48bb" width="920" alt="A star chart of this account: ENGINEERING DECK (9) &#183; SCIENCE DECK (7) &#183; PROPULSION (9) &#183; THE BRIDGE (9) &#183; THE ACADEMY (3), and 12 unfiled field stars belonging to no figure." /></a>
+<a href="https://starfleet1334.github.io/StarFleet1334/"><img src="https://raw.githubusercontent.com/StarFleet1334/StarFleet1334/main/chart.svg?v=742b48bb" width="920" alt="A star chart of this account: ENGINEERING DECK (9) &#183; SCIENCE DECK (7) &#183; PROPULSION (9) &#183; THE BRIDGE (9) &#183; THE ACADEMY (3), and 12 unfiled field stars belonging to no figure." /></a>
 <!--/LOG:starchart-->
 
 </div>
 
-<sub>It is a picture, and it stays one. A README cannot make an image
-interactive: GitHub strips <code>&lt;script&gt;</code>, inline
+<sub><b>Click the plate.</b> It is a picture, and a README cannot make one
+interactive — GitHub strips <code>&lt;script&gt;</code>, inline
 <code>&lt;svg&gt;</code>, <code>&lt;style&gt;</code> and even
 <code>&lt;map&gt;</code>, and an SVG loaded through <code>&lt;img&gt;</code> is
-painted in the browser's secure mode, where no click, no hover and no script
-reaches inside it. The plate is wrapped in a link that goes nowhere, which is
-the only way to stop GitHub wrapping it in one that opens the bare file in a
-new tab.</sub>
+painted in the browser's secure mode, where no click and no hover reach inside
+it. So the plate is a door rather than a control: it opens
+<a href="https://starfleet1334.github.io/StarFleet1334/">the chart</a> in the
+<b>same tab</b>, where every star can be clicked for its catalogue entry,
+hovered for its magnitude, dragged, zoomed, and filtered down to one deck. Same
+sky, same positions — the page reads the coordinates this plate was drawn
+from.</sub>
 
 <sub>One star per repository. Each deck of THE HOLD is a figure traced over its
 own patch of sky; everything not yet filed into a deck is a field star,
