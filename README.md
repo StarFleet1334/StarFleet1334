@@ -66,23 +66,6 @@ a <b>Chronosphere</b> that scrubs the whole board backwards through its own hist
 
 ---
 
-## ⧗ &nbsp;SHIP'S LOG
-
-<!--LOG:timeline-->
-```mermaid
-timeline
-    title trajectory
-    2021 : first commit pushed into the dark
-    2022 : java, properly : data structures and the JVM's temper
-    2023 : services, queues, contracts
-    2024 : kafka, CQRS, eureka : go's concurrency : wiremock, gatling, new relic : ocaml and java, written for students
-    2025 : an inventory platform : a repository analyzer : a quiz generator that lives in the browser
-    2026 : AETHER - hands, face, voice, and an agent at the desk
-```
-<!--/LOG:timeline-->
-
----
-
 ## ⚙ &nbsp;SYSTEMS ONLINE
 
 <sub>Every repository gets one vote, split between its languages by byte share — so no single vendored bundle can outrank a language that was actually written.</sub>
@@ -213,6 +196,20 @@ timeline
 | `·` | [`QuiziGeneratorWebExtension`](https://github.com/StarFleet1334/QuiziGeneratorWebExtension) | 2025-05-28 |
 | `·` | [`GymApplication`](https://github.com/StarFleet1334/GymApplication) | 2025-01-29 |
 <!--/LOG:recent-->
+
+---
+
+## ◉ &nbsp;SENSOR CONTACTS
+
+<sub>Who has been on the deck. GitHub's traffic API remembers fourteen days and
+then forgets, so <code>.github/views.py</code> keeps the ledger in
+<code>views.json</code> and the totals below count from it. Nothing here comes
+from a third party — the number is this repository's own traffic, read by this
+repository.</sub>
+
+<!--LOG:views-->
+<sub>No closed day on the ledger yet. <code>.github/views.py</code> records a day only once it is over, so the first number appears after the first full UTC day. If it stays empty past that, the token cannot read traffic — it needs <b>Administration: read</b> on this repository.</sub>
+<!--/LOG:views-->
 
 ---
 
