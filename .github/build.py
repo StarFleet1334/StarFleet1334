@@ -39,6 +39,7 @@ TPL = ROOT / "README.tpl.md"
 OUT = ROOT / "README.md"
 MANIFEST = ROOT / "manifest.json"
 CHART = ROOT / "chart.svg"
+MASTHEAD = ROOT / "masthead.svg"
 SKYJSON = ROOT / "docs" / "sky.json"
 
 API = "https://api.github.com"
@@ -181,24 +182,6 @@ def try_get(path, default=None):
 # blocks
 # ─────────────────────────────────────────────────────────────────────────────
 
-BOX_W = 58
-
-
-def box(lines: list[str]) -> str:
-    """A console box whose right edge cannot drift — every line is padded here
-    rather than by hand. Keep the contents to width-1 characters: an ambiguous
-    -width glyph is exactly what makes these boxes skew in someone's font."""
-    out = ["╔" + "═" * BOX_W + "╗"]
-    for s in lines:
-        # a two-space gutter, kept by truncating rather than by trusting the
-        # caller: a line that grows into the right wall reads as a rendering
-        # bug even when the edge is still perfectly straight
-        if len(s) > BOX_W - 2:
-            s = s[:BOX_W - 3] + "…"
-        out.append("║" + s.ljust(BOX_W) + "║")
-    out.append("╚" + "═" * BOX_W + "╝")
-    return "\n".join(out)
-
 
 def block_surface(manifest) -> str:
     """The current project is private, so the API knows nothing about it.
@@ -232,51 +215,6 @@ def work(repos):
             if r["name"].lower() != USER.lower() and not r.get("fork")]
 
 
-def block_stardate(u, repos, langs, manifest) -> str:
-    since = (u.get("created_at") or "")[:10]
-    crew = " · ".join(n for n, _ in langs[:4]) or "—"
-    mine = work(repos)
-    newest = mine[0]["name"] if mine else "—"
-    heading = manifest.get("heading", "AETHER - hands, face and voice")
-
-    rows = [
-        "",
-        "        S T A R F L E E T  ·  1 3 3 4",
-        "        open log / flight deck",
-        "",
-        "   " + "─" * 48,
-        "",
-        f"   callsign      {u.get('name') or USER}",
-        f"   on station    since {since}",
-        f"   manifest      {len(repos)} public repositories",
-        f"   crewed by     {crew}",
-        f"   last seen in  {newest}",
-        f"   heading       {heading}",
-        "",
-    ]
-    return box(rows)
-
-
-def block_badges(u, repos, ledger) -> str:
-    def badge(label, value, color):
-        lab = urllib.parse.quote(label)
-        val = urllib.parse.quote(str(value))
-        return (f'<img src="https://img.shields.io/badge/{lab}-{val}-0d1117'
-                f'?style=flat-square&labelColor=0d1117&color={color}" alt="{label} {value}" />')
-
-    row = [
-        badge("repos", len(repos), "58a6ff"),
-        badge("followers", u.get("followers", 0), "58a6ff"),
-    ]
-    seen = sum(d["views"] for d in (ledger.get("days") or {}).values())
-    if seen:
-        # Only once there is something to report. A badge reading "views 0" is
-        # a claim about the account rather than about the ledger's age.
-        row.append(badge("logged views", f"{seen:,}", "3fb950"))
-    row.append(badge("primary instrument", "hands", "f0883e"))
-    return "\n&nbsp;\n".join(row)
-
-
 def block_systems(langs) -> str:
     if not langs:
         return "_language telemetry unavailable this run._"
@@ -302,6 +240,134 @@ def unfiled(repos):
     filed = {n for d in DECKS for names, _ in d["rows"] for n in names}
     return [r for r in work(repos)
             if r["name"] not in filed and r["name"] not in IGNORE]
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# ⌁ THE MASTHEAD
+#
+# This was an ASCII box for a year, and it was quietly broken the whole time.
+# Every line was exactly 60 characters — the data was never wrong — but the
+# frame is drawn with U+2551 and U+2550, and those come from whatever fallback
+# face the reader happens to have. On a stock Windows browser the rails render
+# as a column of disconnected dashes and the corners do not meet. A <pre> hands
+# the typography to the reader, and no amount of care in the generator can take
+# it back.
+#
+# So the masthead is drawn instead of typed. Two rules make it survive the same
+# hazard that killed the box:
+#
+#   EVERYTHING IS LEFT-ALIGNED. An SVG in an <img> still uses the reader's
+#   fonts, so a centred run or anything positioned from a measured text width
+#   drifts between platforms. Left-aligned text with slack to its right cannot.
+#
+#   THE WORDMARK IS PINNED with textLength + spacingAndGlyphs, so it occupies
+#   exactly the same width on every machine and the rule beneath it always
+#   matches.
+#
+# The ground is GitHub's own canvas colour, so the plate sits ON the page
+# rather than reading as an image pasted onto it — which means it has to know
+# which theme the reader is in.
+#
+# <picture> with prefers-color-scheme is GitHub's documented answer and it
+# cannot be used here, which is worth writing down so nobody tries again.
+# GitHub rewrites <picture> into its own <themed-picture> element and gives the
+# <img> inside it an <a target="_blank"> — and wrapping the <picture> in an
+# anchor of your own does not stop that, it just makes GitHub throw the
+# <picture> away and keep its own anchor. Theme switching and "clicking does
+# not open a new tab" are mutually exclusive on a README. Measured, both ways,
+# against GitHub's own renderer.
+#
+# So the plate themes ITSELF: one file, one <img>, and a prefers-color-scheme
+# media query in the SVG's own <style>. raw.githubusercontent serves it under
+# `style-src 'unsafe-inline'`, so the stylesheet is allowed. The trade is that
+# an SVG in an <img> reads the OS preference rather than GitHub's in-app
+# toggle, so a reader who has forced a theme against their system will see the
+# other one. That is a smaller wrong than a masthead that opens a bare file.
+# ─────────────────────────────────────────────────────────────────────────────
+
+LIGHT = dict(bg="#ffffff", ink="#1f2328", dim="#59636e", rule="#d1d9e0",
+             accent="#0969da", warm="#bc4c00")
+DARK = dict(bg="#0d1117", ink="#e6edf3", dim="#8b949e", rule="#30363d",
+            accent="#58a6ff", warm="#f0883e")
+SANS = "-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif"
+MONO = "ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace"
+MAST_W, MAST_H = 920, 208
+
+
+def _t(x, y, s, size, role, *, family=SANS, weight=400, track=0, length=None):
+    """A run of text that takes its colour from a class, never a literal.
+
+    Every colour on the plate is a class so the media query below can restate
+    the whole palette in six lines instead of the file being drawn twice.
+    """
+    a = (f'<text x="{x}" y="{y}" class="{role}" font-family="{family}" '
+         f'font-size="{size}" font-weight="{weight}" letter-spacing="{track}">')
+    if length:
+        a = a[:-1] + f' textLength="{length}" lengthAdjust="spacingAndGlyphs">'
+    return a + f"{_esc(s)}</text>"
+
+
+def masthead(user, repos, langs, manifest) -> str:
+    since = (user.get("created_at") or "")[:10]
+    crew = " · ".join(n for n, _ in langs[:3]) or "—"
+    mine = work(repos)
+    newest = mine[0]["name"] if mine else "—"
+    heading = manifest.get("heading", "AETHER - hands, face and voice")
+    lead, _, rest = heading.partition(" - ")
+
+    L, T, H = 34, 62, MAST_H
+    css = ("".join(f".{k}{{fill:{v}}}" for k, v in LIGHT.items())
+           + "@media(prefers-color-scheme:dark){"
+           + "".join(f".{k}{{fill:{v}}}" for k, v in DARK.items()) + "}")
+    o = [f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {MAST_W} {H}" '
+         f'width="{MAST_W}" height="{H}" role="img">',
+         f"<style>{css}</style>",
+         f'<rect width="{MAST_W}" height="{H}" class="bg"/>',
+         f'<rect x="{L}" y="{T - 34}" width="3" height="34" class="warm"/>',
+         _t(L + 16, T, "STARFLEET 1334", 31, "ink", weight=600,
+            track=7.5, length=430),
+         f'<rect x="{L + 16}" y="{T + 16}" width="430" height="1" class="rule"/>',
+         _t(L + 16, T + 40, "OPEN LOG · FLIGHT DECK", 10.5, "dim",
+            family=MONO, track=4.6)]
+
+    rows = [("CALLSIGN", user.get("name") or USER),
+            ("ON STATION", f"since {since}"),
+            ("MANIFEST", f"{len(repos)} repositories · "
+                         f"{user.get('followers', 0)} followers"),
+            ("CREWED BY", crew),
+            ("LAST SEEN IN", newest)]
+    for i, (k, v) in enumerate(rows):
+        y = 34 + i * 25
+        o.append(_t(540, y, k, 8.5, "dim", family=MONO, track=1.9))
+        o.append(_t(652, y, v, 12, "ink", family=MONO))
+
+    o.append(f'<rect x="{L + 16}" y="{H - 58}" width="{MAST_W - L - 50}" '
+             f'height="1" class="rule"/>')
+    o.append(_t(L + 16, H - 30, "CURRENT HEADING", 8.5, "dim",
+                family=MONO, track=1.9))
+    o.append(_t(L + 160, H - 30, lead, 13, "accent", family=MONO, weight=600))
+    if rest:
+        # A monospace advance is a dependable 0.62em, which is the only reason
+        # the rest of the line can be placed after the accent-coloured lead
+        # without measuring text — and it is why this run is mono, not sans.
+        o.append(_t(L + 160 + 13 * 0.62 * len(lead) + 12, H - 30, "— " + rest,
+                    13, "ink", family=MONO))
+    o.append("</svg>")
+    return "\n".join(o) + "\n"
+
+
+def block_masthead(svg) -> str:
+    """One image, wrapped in an anchor of ours so GitHub cannot add its own.
+
+    The anchor points at the masthead itself, so a click does nothing and stays
+    on the page. That is the intended behaviour: the alternative is not
+    "something better", it is a new tab onto the bare SVG.
+    """
+    stamp = hashlib.sha256(svg.encode("utf-8")).hexdigest()[:8]
+    return (f'<a name="log" href="#user-content-log">'
+            f'<img src="{RAW}/masthead.svg?v={stamp}" width="920" '
+            f'alt="STARFLEET 1334 — open log / flight deck. '
+            f'{_esc("The account\u2019s callsign, join date, repository count and current heading.")}" /></a>')
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -1000,6 +1066,9 @@ def main() -> int:
 
     index = {r["name"] for r in repos}
 
+    mast = masthead(user, repos, langs, manifest)
+    print(f"- masthead: {len(mast)} bytes, themed by media query")
+
     sky = _sky(repos, code_bytes, manifest)
     svg, alt, tally = plate_sky(sky)
     data = sky_json(sky, code_bytes)
@@ -1015,9 +1084,8 @@ def main() -> int:
                             else "".join(t for _, t in record["days"])))
 
     blocks = {
-        "stardate": block_stardate(user, repos, langs, manifest),
+        "masthead": block_masthead(mast),
         "surface":  block_surface(manifest),
-        "badges":   block_badges(user, repos, ledger),
         "starchart": block_starchart(sky),
         "systems":  block_systems(langs),
         "views":    block_views(ledger),
@@ -1055,7 +1123,7 @@ def main() -> int:
     if unknown:
         print(f"  ! template asks for unknown blocks: {', '.join(unknown)}", file=sys.stderr)
 
-    want = {CHART: svg, SKYJSON: data, OUT: text}
+    want = {CHART: svg, SKYJSON: data, MASTHEAD: mast, OUT: text}
     moved = [f.name for f, body in want.items()
              if not (f.exists() and f.read_text(encoding="utf-8") == body)]
 
@@ -1063,16 +1131,21 @@ def main() -> int:
         print("- no change" if not moved else "- would change: " + ", ".join(moved))
         return 0
 
-    # The chart and the data are written before the page. The page names the
-    # chart by content hash and links to the site the data feeds, so the one
-    # ordering that must never happen is a committed README pointing at
-    # something that is not there yet.
+    # Everything the page points at is written BEFORE the page. The README
+    # names each plate by content hash, so the one ordering that must never
+    # happen is a committed page pointing at bytes that are not there yet.
+    #
+    # Driven off `want` rather than a hand-written list of writes. The two had
+    # already drifted once — the mastheads were added to the change check and
+    # not to the writes — and a file that is checked for changes but never
+    # written is one the build reports as fresh forever.
     SKYJSON.parent.mkdir(exist_ok=True)
-    CHART.write_text(svg, encoding="utf-8", newline="\n")
-    SKYJSON.write_text(data, encoding="utf-8", newline="\n")
+    for f, body in want.items():
+        if f is not OUT:
+            f.write_text(body, encoding="utf-8", newline="\n")
     OUT.write_text(text, encoding="utf-8", newline="\n")
-    print(f"- wrote {OUT.name} ({len(text)} bytes), {CHART.name} "
-          f"({len(svg)} bytes) and docs/sky.json ({len(data)} bytes)")
+    print(f"- wrote {OUT.name} ({len(text)} bytes) and "
+          f"{len(want) - 1} plates beside it")
     return 0
 
 

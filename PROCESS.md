@@ -6,7 +6,7 @@ result only when the bytes actually changed.**
 
 ```mermaid
 flowchart TD
-    A["README.tpl.md<br/><i>your prose, nine empty slots</i>"] --> C
+    A["README.tpl.md<br/><i>your prose, the empty slots</i>"] --> C
     B["decks.json<br/><i>THE HOLD + the ignore list</i>"] --> C
     V["views.json<br/><i>the traffic ledger</i>"] --> C
     C --> J["docs/sky.json<br/><i>the same sky, as data</i>"]
@@ -143,8 +143,7 @@ This is the useful table. Each slot has exactly one thing that moves it:
 
 | slot | commits when |
 |:--|:--|
-| `stardate` | repo count changes · the top four languages reorder · your newest repo changes · `heading` in `manifest.json` changes |
-| `badges` | public repo count or follower count changes |
+| `masthead` | repo or follower count changes · the top three languages reorder · your newest repo changes · `heading` in `manifest.json` changes |
 | `surface` | `manifest.json` is re-measured |
 | `starchart` | a repo is created, deleted, refiled, or crosses a magnitude band |
 | `systems` | language byte shares shift enough to reorder the bars or move a `▰` |

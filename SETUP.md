@@ -6,6 +6,7 @@ top of your profile page. That repo already exists.
 
 ```
 README.md            generated — do not edit
+masthead.svg         generated — do not edit; the plate at the top of the page
 chart.svg            generated — do not edit; THE STAR CHART's plate
 docs/index.html      the interactive chart. Hand-written; the build never touches it
 docs/sky.json        generated — the star positions the page reads
@@ -119,8 +120,7 @@ whenever you press Run workflow or fire `repository_dispatch`:
 
 | block | comes from |
 |:--|:--|
-| the console box | `/users/…` — name, join date, repo count, top languages, newest repo |
-| the badges | live repo and follower counts |
+| the masthead | `/users/…` — name, join date, repo count, followers, top languages, newest repo |
 | THE STAR CHART | `chart.svg`, redrawn from the repo list and each repo's code bytes |
 | the interactive chart | `docs/sky.json` — the same positions, as data |
 | SYSTEMS ONLINE | `/languages` on every repo, one vote each, split by byte share |
@@ -213,10 +213,11 @@ get 5000/hr locally — worth doing now that the budget is over sixty.
   move it to a real link when the repo goes public.
 - **The proficiency bars** are computed, not typed — if one reads wrong, the
   fix is in `LANG_ALIAS` / `LANG_SKIP`, not in the README.
-- **Nothing on the page depends on a third-party service.** The stat cards and
-  the activity graph were removed; every number now comes from a GitHub API
-  call this repo makes itself. The only image left is the shields.io badge row,
-  and it degrades to alt text if that host is down.
+- **Nothing on the page depends on a third-party service — now literally
+  nothing.** The stat cards and the activity graph went first; the shields.io
+  badge row went with the masthead, which carries the same counts and is drawn
+  by this repo. Every pixel and every number on the page now comes from a file
+  in it.
 - **The visit counter is a real one, not a hit badge.** The usual profile
   counters are an `<img>` pointing at someone else's server, which counts a
   render rather than a visitor, is undercounted by GitHub's image proxy, hands

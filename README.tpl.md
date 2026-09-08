@@ -11,19 +11,8 @@
   └────────────────────────────────────────────────────────────────────────┘
 -->
 
-<div align="center">
-
-<pre>
-<!--LOG:stardate-->
-<!--/LOG:stardate-->
-</pre>
-
-<sub>
-<!--LOG:badges-->
-<!--/LOG:badges-->
-</sub>
-
-</div>
+<!--LOG:masthead-->
+<!--/LOG:masthead-->
 
 ---
 
