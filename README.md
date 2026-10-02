@@ -71,7 +71,7 @@ and should show.</sub>
 <sub>Every repository gets one vote, split between its languages by byte share — so no single vendored bundle can outrank a language that was actually written.</sub>
 
 <!--LOG:systems-->
-<a name="systems" href="#user-content-systems"><img src="https://raw.githubusercontent.com/StarFleet1334/StarFleet1334/main/systems.svg?v=24598e27" width="920" alt="Share of the account by language, one vote per repository split by byte share: Java 51%, Go 23%, HTML/CSS 7%, JavaScript 7%, Python 5%, Kotlin 2%, Dart 2%, OCaml 2%." /></a>
+<a name="systems" href="#user-content-systems"><img src="https://raw.githubusercontent.com/StarFleet1334/StarFleet1334/main/systems.svg?v=a9a7a5ac" width="920" alt="Share of the account by language, one vote per repository split by byte share: Java 51%, Go 23%, HTML/CSS 7%, JavaScript 7%, Python 5%, Kotlin 2%, Dart 2%, OCaml 2%." /></a>
 <!--/LOG:systems-->
 
 ---
@@ -209,7 +209,7 @@ and should show.</sub>
 </pre>
 
 <!--LOG:stamp-->
-<sub>last log entry &nbsp;·&nbsp; 2026-08-28 &nbsp;·&nbsp; <code>Shelves</code> &nbsp;·&nbsp; the desk is still on</sub>
+<sub>last log entry &nbsp;·&nbsp; 2026-10-02 &nbsp;·&nbsp; <code>Shelves</code> &nbsp;·&nbsp; the desk is still on</sub>
 <!--/LOG:stamp-->
 
 </div>

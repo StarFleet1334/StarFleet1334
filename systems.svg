@@ -27,8 +27,8 @@
 <text x="530" y="162" class="ink" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace" font-size="10" font-weight="400" letter-spacing="0">vanilla, no framework, on purpose</text>
 <text x="34" y="192" class="ink" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace" font-size="12" font-weight="400" letter-spacing="0">Python</text>
 <rect x="150" y="182" width="300" height="13" class="box"/>
-<rect x="150" y="182" width="29.8" height="13" class="accent" fill-opacity="0.64"/>
-<text x="462" y="192" class="dim" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace" font-size="10.5" font-weight="400" letter-spacing="0"> 5.1%</text>
+<rect x="150" y="182" width="29.7" height="13" class="accent" fill-opacity="0.64"/>
+<text x="462" y="192" class="dim" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace" font-size="10.5" font-weight="400" letter-spacing="0"> 5.0%</text>
 <text x="530" y="192" class="ink" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace" font-size="10" font-weight="400" letter-spacing="0">AETHER's entire backend — FastAPI, MediaPipe, Whisper</text>
 <text x="34" y="222" class="ink" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace" font-size="12" font-weight="400" letter-spacing="0">Kotlin</text>
 <rect x="150" y="212" width="300" height="13" class="box"/>
