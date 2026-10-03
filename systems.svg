@@ -17,12 +17,12 @@
 <text x="530" y="102" class="ink" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace" font-size="10" font-weight="400" letter-spacing="0">goroutines, scrapers, a file finder, a UI, a clock</text>
 <text x="34" y="132" class="ink" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace" font-size="12" font-weight="400" letter-spacing="0">HTML/CSS</text>
 <rect x="150" y="122" width="300" height="13" class="box"/>
-<rect x="150" y="122" width="43.5" height="13" class="accent" fill-opacity="0.82"/>
+<rect x="150" y="122" width="43.4" height="13" class="accent" fill-opacity="0.82"/>
 <text x="462" y="132" class="dim" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace" font-size="10.5" font-weight="400" letter-spacing="0"> 7.4%</text>
 <text x="530" y="132" class="ink" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace" font-size="10" font-weight="400" letter-spacing="0">hand-written, every rule of it</text>
 <text x="34" y="162" class="ink" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace" font-size="12" font-weight="400" letter-spacing="0">JavaScript</text>
 <rect x="150" y="152" width="300" height="13" class="box"/>
-<rect x="150" y="152" width="38.4" height="13" class="accent" fill-opacity="0.73"/>
+<rect x="150" y="152" width="38.5" height="13" class="accent" fill-opacity="0.73"/>
 <text x="462" y="162" class="dim" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace" font-size="10.5" font-weight="400" letter-spacing="0"> 6.5%</text>
 <text x="530" y="162" class="ink" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace" font-size="10" font-weight="400" letter-spacing="0">vanilla, no framework, on purpose</text>
 <text x="34" y="192" class="ink" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace" font-size="12" font-weight="400" letter-spacing="0">Python</text>
