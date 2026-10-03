@@ -71,7 +71,7 @@ and should show.</sub>
 <sub>Every repository gets one vote, split between its languages by byte share — so no single vendored bundle can outrank a language that was actually written.</sub>
 
 <!--LOG:systems-->
-<a name="systems" href="#user-content-systems"><img src="https://raw.githubusercontent.com/StarFleet1334/StarFleet1334/main/systems.svg?v=36e10f67" width="920" alt="Share of the account by language, one vote per repository split by byte share: Java 51%, Go 23%, HTML/CSS 7%, JavaScript 7%, Python 5%, Kotlin 2%, Dart 2%, OCaml 2%." /></a>
+<a name="systems" href="#user-content-systems"><img src="https://raw.githubusercontent.com/StarFleet1334/StarFleet1334/main/systems.svg?v=1c6b71d1" width="920" alt="Share of the account by language, one vote per repository split by byte share: Java 51%, Go 23%, HTML/CSS 7%, JavaScript 7%, Python 5%, Kotlin 2%, Dart 2%, OCaml 2%." /></a>
 <!--/LOG:systems-->
 
 ---
