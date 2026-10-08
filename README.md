@@ -5,7 +5,7 @@
 -->
 
 <!--LOG:masthead-->
-<a name="log" href="#user-content-log"><img src="https://raw.githubusercontent.com/StarFleet1334/StarFleet1334/main/masthead.svg?v=3ce1f368" width="920" alt="STARFLEET 1334 — open log / flight deck. The account’s callsign, join date, repository count and current heading." /></a>
+<a name="log" href="#user-content-log"><img src="https://raw.githubusercontent.com/StarFleet1334/StarFleet1334/main/masthead.svg?v=a3bf0be7" width="920" alt="STARFLEET 1334 — open log / flight deck. The account’s callsign, join date, repository count and current heading." /></a>
 <!--/LOG:masthead-->
 
 ---
